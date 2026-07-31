@@ -842,61 +842,120 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #ffffff;
-  border-bottom: 1px solid var(--tc-border);
-  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 16px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.3s ease;
 }
 
 .hp-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #312e81 100%);
-  padding: 4rem 2rem 3.5rem;
+  background: linear-gradient(135deg, #09090b 0%, #18181b 40%, #2e1065 100%);
+  padding: 8rem 2rem 6rem;
   color: #ffffff;
   position: relative;
   overflow: hidden;
 }
 
+.hp-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 60%);
+  animation: rotateGradient 25s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateGradient {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .hp-hero-title {
-  font-size: clamp(30px, 4vw, 44px);
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 1rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
   color: #ffffff;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: fadeUp 0.8s ease-out forwards;
 }
 
 .hp-hero-title em {
   font-style: normal;
-  color: #818cf8;
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
 .hp-hero-sub {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.75);
-  max-width: 580px;
-  margin-bottom: 2rem;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+  font-weight: 400;
+  animation: fadeUp 1s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .hp-main {
-  background-color: var(--tc-bg-page);
-  padding: 3rem 2rem;
-  min-height: calc(100vh - 64px);
+  background-color: #f8fafc;
+  padding: 5rem 2rem;
+  min-height: calc(100vh - 80px);
+  position: relative;
+}
+
+.hp-main::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 100%;
+  background: radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.04) 0%, transparent 40%),
+              radial-gradient(circle at 0% 100%, rgba(192, 132, 252, 0.04) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 .hp-grid {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 2rem;
-  max-width: 1140px;
+  grid-template-columns: 420px 1fr;
+  gap: 3rem;
+  max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .hp-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.hp-main .card {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.hp-main .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
+  border-color: rgba(129, 140, 248, 0.4);
 }
 
 /* ─── 9. DASHBOARD LIST & ACTIVITY COMPONENTS ────────────────── */

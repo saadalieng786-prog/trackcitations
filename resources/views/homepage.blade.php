@@ -15,10 +15,10 @@
         </a>
 
         <div class="flex items-center gap-3">
-            <a href="#ticket-form" class="btn btn-outline-secondary btn-sm">
-                <i class="ti ti-plus me-1"></i> Submit Ticket
+            <a href="#ticket-form" class="btn btn-outline-secondary btn-sm bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm transition-all">
+                <i class="ti ti-plus me-1 text-indigo-500"></i> Submit Ticket
             </a>
-            <a href="{{ $dashboardUrl }}" class="btn btn-primary btn-sm">
+            <a href="{{ $dashboardUrl }}" class="btn btn-primary btn-sm bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <i class="ti ti-dashboard me-1"></i>
                 {{ auth()->check() ? 'Dashboard' : 'Client Login' }}
             </a>
@@ -41,12 +41,12 @@
             <p class="hp-hero-sub">
                 Fast, secure ticket submission for drivers and fleet companies. Our team reviews every case and works to minimize your violations.
             </p>
-            <div class="flex flex-wrap gap-3">
-                <a href="#ticket-form" class="btn btn-primary px-6 py-2.5">
-                    <i class="ti ti-send me-2"></i> Submit a Ticket
+            <div class="flex flex-wrap gap-4 mt-8">
+                <a href="#ticket-form" class="btn btn-primary px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-base font-semibold rounded-xl">
+                    <i class="ti ti-send me-2 text-lg"></i> Submit a Ticket
                 </a>
-                <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary px-6 py-2.5 bg-white/10 text-white border-white/20 hover:bg-white/20">
-                    <i class="ti ti-login me-2"></i>
+                <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary px-8 py-3.5 bg-white/5 text-white border-white/20 hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all text-base font-semibold rounded-xl">
+                    <i class="ti ti-login me-2 text-lg"></i>
                     {{ auth()->check() ? 'Open Dashboard' : 'Client Login' }}
                 </a>
             </div>
@@ -133,11 +133,11 @@
                         </li>
                     </ul>
 
-                    <div class="flex flex-col gap-2">
-                        <a href="#ticket-form" class="btn btn-primary w-full py-2.5">
+                    <div class="flex flex-col gap-3">
+                        <a href="#ticket-form" class="btn btn-primary w-full py-3 bg-indigo-600 hover:bg-indigo-700 border-0 shadow-sm transition-all rounded-lg font-semibold">
                             <i class="ti ti-send me-2"></i> Go to Submission Form
                         </a>
-                        <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary w-full py-2.5">
+                        <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary w-full py-3 bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm transition-all rounded-lg font-semibold">
                             {{ auth()->check() ? 'Open Dashboard' : 'Login to Existing Account' }}
                         </a>
                     </div>
@@ -158,10 +158,11 @@
             {{-- ─── FORM PANEL (Right) ──────────────── --}}
             <div id="ticket-form">
                 <div class="card overflow-hidden">
-                    <div class="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex items-center justify-between">
-                        <div>
-                            <h2 class="text-lg font-bold text-white m-0">New Ticket Submission</h2>
-                            <p class="text-xs text-indigo-100 m-0 mt-1">Enter the citation details below to open a new case</p>
+                    <div class="p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between border-b border-white/10 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <h2 class="text-xl font-extrabold text-white m-0 tracking-tight">New Ticket Submission</h2>
+                            <p class="text-sm text-indigo-200/80 m-0 mt-1.5 font-medium">Enter the citation details below to open a new case</p>
                         </div>
                         <span class="px-3 py-1 rounded-md bg-white/10 text-xs font-semibold text-white flex items-center gap-1.5 border border-white/20">
                             <i class="ti ti-lock text-xs"></i> Secure Intake
@@ -280,11 +281,11 @@
                             </div>
 
                             {{-- Submit Footer --}}
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-6">
-                                <p class="text-xs text-slate-400 m-0">
-                                    <i class="ti ti-shield-check me-1"></i> Submissions are SSL encrypted
+                            <div class="flex items-center justify-between pt-6 border-t border-slate-100 mt-8">
+                                <p class="text-xs text-slate-400 m-0 font-medium">
+                                    <i class="ti ti-shield-check text-emerald-500 text-base me-1 align-text-bottom"></i> Submissions are SSL encrypted
                                 </p>
-                                <button type="submit" class="btn btn-primary px-8 py-2.5">
+                                <button type="submit" class="btn btn-primary px-8 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all rounded-lg font-bold text-sm">
                                     <i class="ti ti-send me-2"></i> Submit Ticket
                                 </button>
                             </div>
