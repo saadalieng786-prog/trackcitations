@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CargoTel SEO Audit Report – 2026</title>
+<style>
+  :root {
+    --navy: #0D2B5E;
+    --navy-light: #1a3a74;
+    --orange: #F97316;
+    --orange-light: #FFF7ED;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --green: #16A34A;
+    --green-light: #F0FDF4;
+    --yellow: #D97706;
+    --yellow-light: #FFFBEB;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --white: #FFFFFF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.04);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F0F4FA;
+    color: var(--gray-800);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ===== COVER PAGE ===== */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0D2B5E 0%, #1a3a74 40%, #0f3460 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(249,115,22,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -60px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(249,115,22,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    background: rgba(249,115,22,0.2);
+    border: 1px solid rgba(249,115,22,0.4);
+    color: #FDBA74;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+    animation: fadeInDown 0.7s ease both;
+  }
+
+  .cover h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 54px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    animation: fadeInDown 0.7s ease 0.1s both;
+  }
+
+  .cover h1 span { color: #FB923C; }
+
+  .cover-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    animation: fadeInDown 0.7s ease 0.2s both;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeInDown 0.7s ease 0.3s both;
+  }
+
+  .cover-meta-item {
+    text-align: center;
+  }
+
+  .cover-meta-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .cover-divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #F97316, transparent);
+    margin: 32px auto;
+  }
+
+  /* Overall Score Gauge */
+  .cover-score-ring {
+    margin: 0 auto 36px;
+    animation: fadeInDown 0.7s ease 0.15s both;
+  }
+
+  .cover-score-ring svg { transform: rotate(-90deg); }
+
+  .cover-score-text {
+    text-align: center;
+    margin-top: -10px;
+  }
+
+  .cover-score-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: #FB923C;
+  }
+
+  .cover-score-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ===== PAGE LAYOUT ===== */
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .section {
+    margin-bottom: 48px;
+  }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .section-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: var(--navy);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--gray-500);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== METRICS GRID ===== */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .metric-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .metric-value.critical { color: var(--red); }
+  .metric-value.warning { color: var(--yellow); }
+  .metric-value.good { color: var(--green); }
+  .metric-value.neutral { color: var(--navy); }
+
+  .metric-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-critical { background: var(--red-light); color: var(--red); }
+  .badge-warning { background: var(--yellow-light); color: var(--yellow); }
+  .badge-good { background: var(--green-light); color: var(--green); }
+  .badge-neutral { background: var(--gray-100); color: var(--gray-600); }
+  .badge-info { background: #EFF6FF; color: #2563EB; }
+
+  /* ===== SCREENSHOT BLOCKS ===== */
+  .screenshot-block {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 20px;
+  }
+
+  .screenshot-caption {
+    padding: 10px 18px;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .screenshot-block img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ===== ISSUE ITEMS ===== */
+  .issue-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .issue-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    border-left: 4px solid transparent;
+    transition: transform 0.15s;
+  }
+
+  .issue-item:hover { transform: translateX(3px); }
+  .issue-item.critical { border-left-color: var(--red); }
+  .issue-item.warning { border-left-color: var(--yellow); }
+  .issue-item.good { border-left-color: var(--green); }
+
+  .issue-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .issue-content { flex: 1; }
+
+  .issue-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+  }
+
+  .issue-desc {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.5;
+  }
+
+  .issue-fix {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy);
+    background: var(--gray-50);
+    border-left: 3px solid var(--navy);
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .issue-fix::before { content: '🔧 Fix: '; }
+
+  /* ===== PERFORMANCE GAUGES ===== */
+  .gauges-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .gauge-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 22px 16px 18px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+  }
+
+  .gauge-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 12px;
+  }
+
+  /* ===== CORE WEB VITALS TABLE ===== */
+  .cwv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .cwv-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cwv-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .cwv-card.critical::before { background: var(--red); }
+  .cwv-card.warning::before { background: var(--yellow); }
+  .cwv-card.ok::before { background: var(--green); }
+
+  .cwv-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+
+  .cwv-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .cwv-card.critical .cwv-value { color: var(--red); }
+  .cwv-card.warning .cwv-value { color: var(--yellow); }
+  .cwv-card.ok .cwv-value { color: var(--green); }
+
+  .cwv-threshold {
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+
+  .cwv-threshold span { font-weight: 600; }
+
+  /* ===== KEYWORD TABLE ===== */
+  .kw-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .kw-table thead tr {
+    background: var(--navy);
+    color: white;
+  }
+
+  .kw-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .kw-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+
+  .kw-table tbody tr:last-child td { border-bottom: none; }
+
+  .kw-table tbody tr:hover { background: var(--gray-50); }
+
+  .pos-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .pos-1 { background: #FEF9C3; color: #854D0E; }
+  .pos-good { background: #DCFCE7; color: #166534; }
+  .pos-med { background: #FEF3C7; color: #92400E; }
+  .pos-low { background: #FEE2E2; color: #991B1B; }
+
+  .opportunity-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-quick { background: #DCFCE7; color: #166534; }
+  .tag-medium { background: #FEF3C7; color: #92400E; }
+  .tag-long { background: #EDE9FE; color: #5B21B6; }
+
+  /* ===== PRIORITY MATRIX ===== */
+  .priority-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .priority-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+  }
+
+  .priority-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .priority-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .priority-card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-800);
+  }
+
+  .priority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+    color: var(--gray-700);
+  }
+
+  .priority-item:last-child { border-bottom: none; }
+
+  .priority-check {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== CALLOUT BOXES ===== */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 18px 20px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+
+  .callout.red { background: var(--red-light); border: 1px solid #FECACA; }
+  .callout.yellow { background: var(--yellow-light); border: 1px solid #FDE68A; }
+  .callout.green { background: var(--green-light); border: 1px solid #BBF7D0; }
+  .callout.blue { background: #EFF6FF; border: 1px solid #BFDBFE; }
+
+  .callout-icon { font-size: 22px; flex-shrink: 0; }
+  .callout-text { font-size: 14px; line-height: 1.6; }
+  .callout-text strong { font-weight: 700; display: block; margin-bottom: 4px; }
+
+  /* ===== QUICK WIN KEYWORD CARDS ===== */
+  .qw-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .qw-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    border-top: 3px solid;
+    transition: transform 0.2s;
+  }
+
+  .qw-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .qw-card.green-top { border-top-color: var(--green); }
+  .qw-card.yellow-top { border-top-color: var(--yellow); }
+  .qw-card.blue-top { border-top-color: #2563EB; }
+
+  .qw-keyword {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gray-800);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .qw-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .qw-stat {
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+
+  .qw-stat span {
+    font-weight: 700;
+    color: var(--gray-700);
+  }
+
+  /* ===== ROADMAP ===== */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+  }
+
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 20px; bottom: 20px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--red), var(--yellow), var(--green));
+  }
+
+  .roadmap-step {
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+  }
+
+  .roadmap-step::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 2px;
+  }
+
+  .roadmap-step.phase1::before { background: var(--red); box-shadow: 0 0 0 2px var(--red); }
+  .roadmap-step.phase2::before { background: var(--yellow); box-shadow: 0 0 0 2px var(--yellow); }
+  .roadmap-step.phase3::before { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+
+  .roadmap-phase {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .phase1 .roadmap-phase { color: var(--red); }
+  .phase2 .roadmap-phase { color: var(--yellow); }
+  .phase3 .roadmap-phase { color: var(--green); }
+
+  .roadmap-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--gray-800);
+    margin-bottom: 6px;
+  }
+
+  .roadmap-items {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.7;
+  }
+
+  /* ===== COMPARISON ROW ===== */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* ===== FOOTER ===== */
+  .report-footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    padding: 28px 20px;
+    font-size: 13px;
+    margin-top: 40px;
+  }
+
+  .report-footer strong { color: rgba(255,255,255,0.9); }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gray-300), transparent);
+    margin: 40px 0;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes countUp {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== SCORE PROGRESS BARS ===== */
+  .score-bar-wrap { margin-bottom: 14px; }
+
+  .score-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+  }
+
+  .score-bar-track {
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ===== SVG CIRCLE GAUGES ===== */
+  .gauge-wrap {
+    position: relative;
+    display: inline-block;
+    width: 80px; height: 80px;
+  }
+
+  .gauge-wrap svg { transform: rotate(-90deg); }
+
+  .gauge-inner {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .gauge-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  /* ===== BREADCRUMB / PAGE HEADER ===== */
+  .page-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 18px 0;
+    margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .page-header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .page-header-logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+
+  .page-header-logo span { color: var(--orange); }
+
+  .page-header-date {
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+
+  /* ===== INTENT DONUT ===== */
+  .intent-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .intent-bar-wrap { flex: 1; min-width: 200px; }
+
+  .intent-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .intent-color {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .intent-name { font-size: 13px; font-weight: 600; color: var(--gray-700); min-width: 120px; }
+  .intent-pct { font-size: 13px; font-weight: 700; min-width: 40px; color: var(--gray-800); }
+
+  .intent-track {
+    flex: 1;
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .intent-fill { height: 100%; border-radius: 100px; }
+
+  /* ===== TABLE OF CONTENTS ===== */
+  .toc {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 32px;
+  }
+
+  .toc-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gray-100);
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+    text-decoration: none;
+    color: var(--gray-700);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .toc-item:last-child { border-bottom: none; }
+  .toc-item:hover { color: var(--navy); }
+
+  .toc-num {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: var(--orange);
+    min-width: 26px;
+    font-size: 16px;
+  }
+
+  .toc-arrow { margin-left: auto; color: var(--gray-300); }
+
+  /* Scores block for issues */
+  .issues-count-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .issues-count-card {
+    padding: 18px 20px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+
+  .issues-count-card.critical-bg { background: var(--red-light); border: 1px solid #FECACA; }
+  .issues-count-card.warning-bg { background: var(--yellow-light); border: 1px solid #FDE68A; }
+  .issues-count-card.good-bg { background: var(--green-light); border: 1px solid #BBF7D0; }
+
+  .issues-count-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .critical-bg .issues-count-num { color: var(--red); }
+  .warning-bg .issues-count-num { color: var(--yellow); }
+  .good-bg .issues-count-num { color: var(--green); }
+
+  .issues-count-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .critical-bg .issues-count-label { color: var(--red); }
+  .warning-bg .issues-count-label { color: var(--yellow); }
+  .good-bg .issues-count-label { color: var(--green); }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, #0D2B5E, #1a3a74);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    color: white;
+    margin-bottom: 24px;
+  }
+
+  .highlight-box h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: white;
+  }
+
+  .highlight-box p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+  }
+
+  .highlight-box .hl-stat {
+    margin-top: 16px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hl-stat-item { text-align: center; }
+  .hl-stat-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #FB923C;
+    display: block;
+  }
+  .hl-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+  @media (max-width: 768px) {
+    .cover h1 { font-size: 32px; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .gauges-row { grid-template-columns: repeat(3, 1fr); }
+    .cwv-grid { grid-template-columns: 1fr 1fr; }
+    .qw-grid { grid-template-columns: 1fr 1fr; }
+    .priority-grid { grid-template-columns: 1fr; }
+    .compare-row { grid-template-columns: 1fr; }
+    .issues-count-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER PAGE ==================== -->
+<div class="cover">
+  <div class="cover-badge">⚡ Professional SEO Audit Report</div>
+  <h1>CargoTel.<span>com</span><br>SEO Audit</h1>
+  <p class="cover-subtitle">A comprehensive analysis of technical issues, ranking opportunities, and a clear action plan to grow organic traffic.</p>
+
+  <!-- Score Ring -->
+  <div class="cover-score-ring">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#F97316" stroke-width="10"
+        stroke-dasharray="314" stroke-dashoffset="188" stroke-linecap="round"/>
+    </svg>
+    <div class="cover-score-text">
+      <div class="cover-score-num">40</div>
+      <div class="cover-score-label">/ 100 &nbsp;Overall SEO Health</div>
+    </div>
+  </div>
+
+  <div class="cover-divider"></div>
+
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Website</div>
+      <div class="cover-meta-value">cargotel.com</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Report Date</div>
+      <div class="cover-meta-value">July 14, 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Authority Score</div>
+      <div class="cover-meta-value">16 / 100</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Organic Traffic</div>
+      <div class="cover-meta-value">28 / mo</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Mobile Speed</div>
+      <div class="cover-meta-value">44 / 100</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STICKY HEADER ==================== -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-header-logo">Cargo<span>Tel</span> SEO Audit Report</div>
+    <div class="page-header-date">📅 July 14, 2026</div>
+  </div>
+</div>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<div class="page">
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc fade-in">
+    <div class="toc-title">📋 What's Inside This Report</div>
+    <a href="#executive" class="toc-item">
+      <span class="toc-num">01</span> Executive Summary & Key Metrics
+      <span class="toc-arrow">→</span>
+    </a>
+    <a href="#technical" class="toc-item">
+      <span class="toc-num">02</span> Technical SEO – Performance & Speed Issues
+      <span class="toc-arrow">→</span>
+    </a>
+    <a href="#onpage" class="toc-item">
+      <span class="toc-num">03</span> On-Page SEO – Content & Structure Issues
+      <span class="toc-arrow">→</span>
+    </a>
+    <a href="#keywords" class="toc-item">
+      <span class="toc-num">04</span> Keyword & Traffic Analysis
+      <span class="toc-arrow">→</span>
+    </a>
+    <a href="#quickwins" class="toc-item">
+      <span class="toc-num">05</span> Quick Win Keywords – What to Rank For First
+      <span class="toc-arrow">→</span>
+    </a>
+    <a href="#action" class="toc-item">
+      <span class="toc-num">06</span> Action Plan & 90-Day Roadmap
+      <span class="toc-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- ==================== SECTION 1: EXECUTIVE SUMMARY ==================== -->
+  <div class="section fade-in" id="executive">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div>
+        <div class="section-title">Executive Summary</div>
+        <div class="section-subtitle">What the data tells us at a glance</div>
+      </div>
+    </div>
+
+    <div class="callout red">
+      <span class="callout-icon">🚨</span>
+      <div class="callout-text">
+        <strong>Critical Situation: CargoTel is nearly invisible on Google</strong>
+        CargoTel has been in business since 2000 and is a genuine industry leader — but its website generates only <strong>28 organic visitors per month</strong>. The site is almost completely dependent on branded search ("cargotel"). Competitors are capturing all the demand for keywords like "automotive TMS software," "finished vehicle logistics software," and "yard management system." This is a massive, recoverable opportunity.
+      </div>
+    </div>
+
+    <!-- Key Metrics Grid -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Authority Score</div>
+        <div class="metric-value critical">16</div>
+        <span class="metric-badge badge-critical">⚠ Very Low</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Monthly Organic Traffic</div>
+        <div class="metric-value critical">28</div>
+        <span class="metric-badge badge-critical">⚠ Critical</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Organic Keywords</div>
+        <div class="metric-value warning">28</div>
+        <span class="metric-badge badge-warning">↑ +12%</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Referring Domains</div>
+        <div class="metric-value neutral">287</div>
+        <span class="metric-badge badge-neutral">Moderate</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Backlinks</div>
+        <div class="metric-value neutral">1K</div>
+        <span class="metric-badge badge-neutral">Low Quality</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Paid Traffic</div>
+        <div class="metric-value neutral">0</div>
+        <span class="metric-badge badge-neutral">None</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Mobile Performance</div>
+        <div class="metric-value critical">44</div>
+        <span class="metric-badge badge-critical">⚠ Poor</span>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Desktop Performance</div>
+        <div class="metric-value warning">88</div>
+        <span class="metric-badge badge-warning">Needs Work</span>
+      </div>
+    </div>
+
+    <!-- Issue Count Summary -->
+    <div class="issues-count-row">
+      <div class="issues-count-card critical-bg">
+        <div class="issues-count-num">9</div>
+        <div class="issues-count-label">🔴 Critical Issues</div>
+      </div>
+      <div class="issues-count-card warning-bg">
+        <div class="issues-count-num">7</div>
+        <div class="issues-count-label">🟡 Moderate Issues</div>
+      </div>
+      <div class="issues-count-card good-bg">
+        <div class="issues-count-num">4</div>
+        <div class="issues-count-label">🟢 Strengths Found</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 2: TECHNICAL SEO ==================== -->
+  <div class="section fade-in" id="technical">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div>
+        <div class="section-title">Technical SEO — Performance & Speed</div>
+        <div class="section-subtitle">Website performance analysis – Mobile & Desktop</div>
+      </div>
+    </div>
+
+    <div class="callout yellow">
+      <span class="callout-icon">⚡</span>
+      <div class="callout-text">
+        <strong>Why this matters:</strong>
+        Since 2021, Google uses Core Web Vitals as a direct ranking factor. A mobile performance score of <strong>44/100</strong> means CargoTel's website is actively being penalized in search rankings every single day. The LCP of <strong>55.9 seconds</strong> on mobile is one of the worst scores possible — the threshold for a "good" score is just 2.5 seconds.
+      </div>
+    </div>
+
+    <!-- PageSpeed Gauges – Mobile -->
+    <div class="card">
+      <div class="card-title">📱 Mobile Performance Scores</div>
+      <div class="gauges-row">
+
+        <!-- Performance 44 -->
+        <div class="gauge-card">
+          <div style="display:flex; justify-content:center;">
+            <div class="gauge-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#DC2626" stroke-width="7"
+                  stroke-dasharray="201" stroke-dashoffset="113" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-inner">
+                <div class="gauge-num" style="color:#DC2626;">44</div>
+              </div>
+            </div>
+          </div>
+          <div class="gauge-label">Performance</div>
+        </div>
+
+        <!-- Accessibility 84 -->
+        <div class="gauge-card">
+          <div style="display:flex; justify-content:center;">
+            <div class="gauge-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#D97706" stroke-width="7"
+                  stroke-dasharray="201" stroke-dashoffset="32" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-inner">
+                <div class="gauge-num" style="color:#D97706;">84</div>
+              </div>
+            </div>
+          </div>
+          <div class="gauge-label">Accessibility</div>
+        </div>
+
+        <!-- Best Practices 96 -->
+        <div class="gauge-card">
+          <div style="display:flex; justify-content:center;">
+            <div class="gauge-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#16A34A" stroke-width="7"
+                  stroke-dasharray="201" stroke-dashoffset="8" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-inner">
+                <div class="gauge-num" style="color:#16A34A;">96</div>
+              </div>
+            </div>
+          </div>
+          <div class="gauge-label">Best Practices</div>
+        </div>
+
+        <!-- SEO 92 -->
+        <div class="gauge-card">
+          <div style="display:flex; justify-content:center;">
+            <div class="gauge-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#16A34A" stroke-width="7"
+                  stroke-dasharray="201" stroke-dashoffset="16" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-inner">
+                <div class="gauge-num" style="color:#16A34A;">92</div>
+              </div>
+            </div>
+          </div>
+          <div class="gauge-label">SEO Score</div>
+        </div>
+
+        <!-- Agentic Browsing 0/2 -->
+        <div class="gauge-card">
+          <div style="display:flex; justify-content:center;">
+            <div class="gauge-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#F3F4F6" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#DC2626" stroke-width="7"
+                  stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-inner">
+                <div class="gauge-num" style="color:#DC2626; font-size:14px;">0/2</div>
+              </div>
+            </div>
+          </div>
+          <div class="gauge-label">Agentic Browsing</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Desktop Card -->
+    <div class="card fade-in">
+      <div class="card-title">🖥️ Desktop Performance Scores</div>
+      <div class="compare-row">
+        <div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-header"><span>Performance</span><span style="color:#D97706; font-weight:800;">88/100</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:88%; background:#D97706;"></div></div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-header"><span>Accessibility</span><span style="color:#D97706; font-weight:800;">85/100</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:85%; background:#D97706;"></div></div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-header"><span>Best Practices</span><span style="color:#16A34A; font-weight:800;">96/100</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:96%; background:#16A34A;"></div></div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-header"><span>SEO Score</span><span style="color:#16A34A; font-weight:800;">92/100</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:92%; background:#16A34A;"></div></div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-header"><span>Agentic Browsing</span><span style="color:#D97706; font-weight:800;">1/2</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:50%; background:#D97706;"></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="callout blue" style="margin-bottom:0;">
+            <span class="callout-icon">💡</span>
+            <div class="callout-text">
+              <strong>Desktop vs. Mobile Gap</strong>
+              Desktop performance is 88/100 — acceptable — but mobile performance is only 44/100. Since Google uses <strong>mobile-first indexing</strong>, the mobile score is what actually drives your rankings. The 44-point gap tells us images and scripts load fine on fast connections but are completely unoptimized for mobile networks.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Web Vitals -->
+    <div class="card fade-in">
+      <div class="card-title">⚡ Core Web Vitals — Mobile (Real-World Impact)</div>
+      <div class="cwv-grid">
+        <div class="cwv-card critical">
+          <div class="cwv-name">FCP – First Contentful Paint</div>
+          <div class="cwv-value">9.2s</div>
+          <div class="cwv-threshold">Good: <span>&lt;1.8s</span> &nbsp;|&nbsp; Poor: &gt;3s</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-critical">5× over threshold</span></div>
+        </div>
+        <div class="cwv-card critical">
+          <div class="cwv-name">LCP – Largest Contentful Paint</div>
+          <div class="cwv-value">55.9s</div>
+          <div class="cwv-threshold">Good: <span>&lt;2.5s</span> &nbsp;|&nbsp; Poor: &gt;4s</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-critical">22× over threshold</span></div>
+        </div>
+        <div class="cwv-card warning">
+          <div class="cwv-name">CLS – Cumulative Layout Shift</div>
+          <div class="cwv-value">0.224</div>
+          <div class="cwv-threshold">Good: <span>&lt;0.1</span> &nbsp;|&nbsp; Poor: &gt;0.25</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-warning">2× over threshold</span></div>
+        </div>
+        <div class="cwv-card ok">
+          <div class="cwv-name">TBT – Total Blocking Time</div>
+          <div class="cwv-value">160ms</div>
+          <div class="cwv-threshold">Good: <span>&lt;200ms</span> &nbsp;|&nbsp; Poor: &gt;600ms</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-good">✓ Passing</span></div>
+        </div>
+        <div class="cwv-card critical">
+          <div class="cwv-name">Speed Index</div>
+          <div class="cwv-value">9.2s</div>
+          <div class="cwv-threshold">Good: <span>&lt;3.4s</span> &nbsp;|&nbsp; Poor: &gt;5.8s</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-critical">Critical</span></div>
+        </div>
+        <div class="cwv-card critical">
+          <div class="cwv-name">Agentic Browsing (AI Agents)</div>
+          <div class="cwv-value" style="font-size:28px;">0 / 2</div>
+          <div class="cwv-threshold">AI agents <span>cannot</span> properly crawl site</div>
+          <div style="margin-top:8px;"><span class="metric-badge badge-critical">Fails AI Access</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical Issues List -->
+    <div class="card fade-in">
+      <div class="card-title">🔴 Technical Issues — Ranked by Impact</div>
+      <div class="issue-list">
+
+        <div class="issue-item critical">
+          <div class="issue-icon">🗃️</div>
+          <div class="issue-content">
+            <div class="issue-title">Cache Lifetimes Not Configured — Est. savings: 10,723 KiB</div>
+            <div class="issue-desc">Static assets (images, JS, CSS) have no browser caching headers set. Every visitor re-downloads 10+ MB of assets each visit. This is the #1 cause of the catastrophic 55.9s LCP score on mobile.</div>
+            <div class="issue-fix">Set Cache-Control headers with max-age of 31536000 for static assets. Use a CDN like Cloudflare.</div>
+          </div>
+          <span class="metric-badge badge-critical">Critical</span>
+        </div>
+
+        <div class="issue-item critical">
+          <div class="issue-icon">🚧</div>
+          <div class="issue-content">
+            <div class="issue-title">Render-Blocking Requests — Est. savings: 1,560ms</div>
+            <div class="issue-desc">JavaScript and CSS files are blocking the browser from rendering the page. Users see a blank screen for 1.5+ seconds before any content appears. This directly causes the 9.2s FCP (First Contentful Paint).</div>
+            <div class="issue-fix">Defer non-critical JavaScript. Load CSS asynchronously. Move scripts to bottom of &lt;body&gt; tag.</div>
+          </div>
+          <span class="metric-badge badge-critical">Critical</span>
+        </div>
+
+        <div class="issue-item critical">
+          <div class="issue-icon">🖼️</div>
+          <div class="issue-content">
+            <div class="issue-title">Unoptimized Images — Est. savings: 224 KiB</div>
+            <div class="issue-desc">Images are being served in legacy formats (PNG/JPEG) from 2018 uploads. No WebP/AVIF conversion, no lazy loading on all images, no srcset for responsive sizes. The hero video background also adds significant load weight.</div>
+            <div class="issue-fix">Convert all images to WebP. Use the &lt;img loading="lazy"&gt; attribute. Implement srcset for different screen sizes.</div>
+          </div>
+          <span class="metric-badge badge-critical">Critical</span>
+        </div>
+
+        <div class="issue-item critical">
+          <div class="issue-icon">📐</div>
+          <div class="issue-content">
+            <div class="issue-title">Layout Shift Culprits (CLS: 0.224)</div>
+            <div class="issue-desc">Elements are shifting position as the page loads (CLS of 0.224, threshold is 0.1). This causes a jarring user experience where content jumps around — a direct Google ranking signal. Likely caused by images without explicit width/height attributes and the logo slider.</div>
+            <div class="issue-fix">Add explicit width and height attributes to all &lt;img&gt; tags. Reserve space for the logo carousel before images load.</div>
+          </div>
+          <span class="metric-badge badge-critical">Critical</span>
+        </div>
+
+        <div class="issue-item critical">
+          <div class="issue-icon">🔄</div>
+          <div class="issue-content">
+            <div class="issue-title">Forced Reflow Detected</div>
+            <div class="issue-desc">JavaScript code is triggering forced layout reflows — the browser must stop, recalculate layout, then continue. This adds significant time to page rendering and contributes to poor performance on low-end mobile devices.</div>
+            <div class="issue-fix">Audit JavaScript files for DOM reads after DOM writes. Use requestAnimationFrame for animations. Consider WP-Optimize or similar tools.</div>
+          </div>
+          <span class="metric-badge badge-critical">Critical</span>
+        </div>
+
+        <div class="issue-item warning">
+          <div class="issue-icon">🔤</div>
+          <div class="issue-content">
+            <div class="issue-title">Font Display Issue — Est. savings: 10ms</div>
+            <div class="issue-desc">Web fonts are blocking rendering. When the font file downloads slowly, text remains invisible (FOIT — Flash of Invisible Text). While the savings are small here, it contributes to a poor user perception of speed.</div>
+            <div class="issue-fix">Add font-display: swap to all @font-face declarations. Preload critical fonts in &lt;head&gt;.</div>
+          </div>
+          <span class="metric-badge badge-warning">Moderate</span>
+        </div>
+
+        <div class="issue-item warning">
+          <div class="issue-icon">📵</div>
+          <div class="issue-content">
+            <div class="issue-title">Viewport Meta Blocks User Zoom (Accessibility Violation)</div>
+            <div class="issue-desc">The page has <code>maximum-scale=1.0, user-scalable=0</code> in the viewport meta tag. This prevents users from zooming in on mobile — a direct accessibility violation that hurts Google's Accessibility score and can reduce rankings.</div>
+            <div class="issue-fix">Remove user-scalable=0 and maximum-scale=1.0 from the viewport meta tag. Allow natural pinch-to-zoom.</div>
+          </div>
+          <span class="metric-badge badge-warning">Moderate</span>
+        </div>
+
+        <div class="issue-item warning">
+          <div class="issue-icon">🤖</div>
+          <div class="issue-content">
+            <div class="issue-title">Agentic Browsing Fails (0/2 on Mobile)</div>
+            <div class="issue-desc">AI agents (used by ChatGPT, Perplexity, and Google AI Overviews to browse websites) cannot properly access the site. This is a new but increasingly important signal — AI tools will not recommend or cite a site they can't access.</div>
+            <div class="issue-fix">Ensure proper robots.txt configuration, add structured data, improve page structure for machine readability.</div>
+          </div>
+          <span class="metric-badge badge-warning">Moderate</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 3: ON-PAGE SEO ==================== -->
+  <div class="section fade-in" id="onpage">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div>
+        <div class="section-title">On-Page SEO — Content & Structure</div>
+        <div class="section-subtitle">Page-level issues affecting how Google understands and ranks the site</div>
+      </div>
+    </div>
+
+    <div class="issue-list">
+
+      <div class="issue-item critical">
+        <div class="issue-icon">❌</div>
+        <div class="issue-content">
+          <div class="issue-title">Homepage H1 Tag is Wrong — Shows "Other Industries"</div>
+          <div class="issue-desc">The homepage H1 tag reads "Other Industries" — which is a completely different page's heading. This is a serious WordPress/theme routing bug. Google reads the H1 as the most important topic signal on the page. Having the wrong H1 tells Google this is a page about "Other Industries," not about CargoTel's core offering.</div>
+          <div class="issue-fix">Fix the page template in WordPress. The homepage H1 should be something like "Industry-Leading Automotive TMS & Logistics Software."</div>
+        </div>
+        <span class="metric-badge badge-critical">Critical</span>
+      </div>
+
+      <div class="issue-item critical">
+        <div class="issue-icon">📝</div>
+        <div class="issue-content">
+          <div class="issue-title">No Blog or Content Marketing — Zero Content Strategy</div>
+          <div class="issue-desc">CargoTel has no blog, no guides, no case studies, and no educational content. This is the single biggest reason for 28 visitors/month. Competitors who create content on topics like "how to choose automotive TMS software" or "EDI integration for vehicle logistics" are capturing all the organic demand that CargoTel should own.</div>
+          <div class="issue-fix">Launch a blog immediately. Target 2 articles/month on automotive logistics, TMS best practices, EDI guides, and vehicle logistics trends.</div>
+        </div>
+        <span class="metric-badge badge-critical">Critical</span>
+      </div>
+
+      <div class="issue-item critical">
+        <div class="issue-icon">🔍</div>
+        <div class="issue-content">
+          <div class="issue-title">No Structured Data / Schema Markup</div>
+          <div class="issue-desc">The entire website has zero schema markup (JSON-LD). There is no Organization schema, no SoftwareApplication schema, no FAQ schema, no Review schema. Schema markup helps Google understand the page content and enables rich snippets in search results — which dramatically improve click-through rates.</div>
+          <div class="issue-fix">Add Organization, SoftwareApplication, and FAQPage schema to key pages. This is a relatively easy implementation with major impact.</div>
+        </div>
+        <span class="metric-badge badge-critical">Critical</span>
+      </div>
+
+      <div class="issue-item critical">
+        <div class="issue-icon">🏷️</div>
+        <div class="issue-content">
+          <div class="issue-title">Thin Content on All Product Pages</div>
+          <div class="issue-desc">Product pages like /automotive-tms/, /yard-compound-management/, and /edi-connectivity-integration/ contain very few words and lack the depth needed to rank for competitive keywords. Google rewards comprehensive, authoritative content. Short pages with no FAQs, no comparisons, no detailed feature explanations, and no use-case descriptions will not rank.</div>
+          <div class="issue-fix">Expand each product page to 1,200+ words. Add FAQs, feature comparisons, use cases, customer pain points, and integration details.</div>
+        </div>
+        <span class="metric-badge badge-critical">Critical</span>
+      </div>
+
+      <div class="issue-item warning">
+        <div class="issue-icon">🔗</div>
+        <div class="issue-content">
+          <div class="issue-title">Internal Linking Issues — HTTP vs HTTPS Inconsistency</div>
+          <div class="issue-desc">Internal links on subpages (e.g., /automotive-tms/) point to the non-secure HTTP version of the domain. While there is likely a redirect, this creates unnecessary redirect chains that slow down Googlebot crawling and dilute link equity. This was observed on multiple product pages.</div>
+          <div class="issue-fix">Update all internal links to use the secure HTTPS version of the domain. Check and fix the links in the website settings and content.</div>
+        </div>
+        <span class="metric-badge badge-warning">Moderate</span>
+      </div>
+
+      <div class="issue-item warning">
+        <div class="issue-icon">📊</div>
+        <div class="issue-content">
+          <div class="issue-title">No Google Search Console or Analytics Verified (Inferred)</div>
+          <div class="issue-desc">With only 28 monthly visitors and no blog/tracking signals visible, there are likely gaps in performance monitoring. Without proper Search Console verification and a clear analytics setup, it is impossible to detect indexing issues, manual penalties, or crawl errors before they impact rankings.</div>
+          <div class="issue-fix">Verify Google Search Console. Set up Google Analytics 4. Submit XML sitemap. Monitor Coverage and Core Web Vitals reports weekly.</div>
+        </div>
+        <span class="metric-badge badge-warning">Moderate</span>
+      </div>
+
+      <div class="issue-item warning">
+        <div class="issue-icon">📱</div>
+        <div class="issue-content">
+          <div class="issue-title">Video Background on Hero Section</div>
+          <div class="issue-desc">The homepage uses a .mp4 video file as a background element. On mobile, this video either fails to load (blank) or uses excessive bandwidth. The video is also not contributing to SEO value. It is a significant contributor to the 9.2s FCP on mobile.</div>
+          <div class="issue-fix">Replace the hero video with a static, optimized WebP image on mobile. Load the video only on desktop using CSS media queries.</div>
+        </div>
+        <span class="metric-badge badge-warning">Moderate</span>
+      </div>
+
+      <div class="issue-item good">
+        <div class="issue-icon">✅</div>
+        <div class="issue-content">
+          <div class="issue-title">Meta Description is Present (But Needs Improvement)</div>
+          <div class="issue-desc">The website has a meta description: "Leading Automotive TMS, YMS, EDI, EPOD, and wireless solutions provider for carriers, brokers, and logistics providers." This is good — but it's very technical and does not include clear calls-to-action or differentiation from competitors.</div>
+        </div>
+        <span class="metric-badge badge-good">OK</span>
+      </div>
+
+      <div class="issue-item good">
+        <div class="issue-icon">✅</div>
+        <div class="issue-content">
+          <div class="issue-title">HTTPS/SSL is Active</div>
+          <div class="issue-desc">The website correctly redirects to HTTPS and has a valid SSL certificate. This is a basic but essential ranking signal that is in place.</div>
+        </div>
+        <span class="metric-badge badge-good">Good</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 4: KEYWORD ANALYSIS ==================== -->
+  <div class="section fade-in" id="keywords">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div>
+        <div class="section-title">Keyword & Traffic Analysis</div>
+        <div class="section-subtitle">Where traffic is coming from — and why it's almost all branded</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>🎯 The Core Problem: 96% Branded Traffic</h3>
+      <p>Nearly all of CargoTel's 28 monthly organic visitors arrive by typing "cargotel" directly into Google. This means the website is only found by people who <em>already know CargoTel exists</em>. It is invisible to the thousands of potential customers searching for "automotive TMS software," "vehicle logistics platform," or "car hauler dispatch system" every month.</p>
+      <div class="hl-stat">
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">96%</span>
+          <div class="hl-stat-label">Branded / Navigational Traffic</div>
+        </div>
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">4%</span>
+          <div class="hl-stat-label">Non-Branded (Discoverable)</div>
+        </div>
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">0</span>
+          <div class="hl-stat-label">Commercial/Transactional Traffic</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Keyword Table -->
+    <div class="card fade-in">
+      <div class="card-title">📋 Current Keyword Rankings (US)</div>
+      <table class="kw-table">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Position</th>
+            <th>Volume/mo</th>
+            <th>Traffic</th>
+            <th>Type</th>
+            <th>Assessment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>cargotel</strong></td>
+            <td><span class="pos-badge pos-1">#1</span></td>
+            <td>110</td>
+            <td>96.4</td>
+            <td><span class="metric-badge badge-neutral">Branded</span></td>
+            <td><span style="color:#16A34A; font-weight:700;">✓ Expected</span></td>
+          </tr>
+          <tr>
+            <td><strong>getcarttl</strong></td>
+            <td><span class="pos-badge pos-low">#17</span></td>
+            <td>390</td>
+            <td>3.6</td>
+            <td><span class="metric-badge badge-info">Info</span></td>
+            <td><span style="color:#DC2626; font-weight:700;">Competitor typo</span></td>
+          </tr>
+          <tr>
+            <td><strong>carpool login</strong></td>
+            <td><span class="pos-badge pos-low">#53</span></td>
+            <td>40</td>
+            <td>0.0</td>
+            <td><span class="metric-badge badge-neutral">Nav</span></td>
+            <td><span style="color:#DC2626; font-weight:700;">Irrelevant keyword</span></td>
+          </tr>
+          <tr>
+            <td><strong>groundwidgets</strong></td>
+            <td><span class="pos-badge pos-low">#46</span></td>
+            <td>110</td>
+            <td>0.0</td>
+            <td><span class="metric-badge badge-neutral">Nav</span></td>
+            <td><span style="color:#DC2626; font-weight:700;">Competitor brand</span></td>
+          </tr>
+          <tr>
+            <td><strong>car shipping quote without personal info</strong></td>
+            <td><span class="pos-badge pos-low">#79</span></td>
+            <td>50</td>
+            <td>0.0</td>
+            <td><span class="metric-badge badge-good">Commercial</span></td>
+            <td><span style="color:#D97706; font-weight:700;">Wrong intent fit</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout yellow" style="margin-top:16px; margin-bottom:0;">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Ranking for competitors' typos and irrelevant keywords</strong>
+          The fact that "getcarttl" (a competitor's misspelled brand) and "carpool login" are among the top keywords shows that CargoTel has accidentally ranked for things it shouldn't. Meanwhile, zero traffic comes from its own commercial keywords like "automotive TMS" or "finished vehicle logistics."
+        </div>
+      </div>
+    </div>
+
+    <!-- Intent Breakdown -->
+    <div class="card fade-in">
+      <div class="card-title">🎯 Traffic by Search Intent</div>
+      <div class="intent-bar-wrap">
+        <div class="intent-bar-item">
+          <div class="intent-color" style="background:#818CF8;"></div>
+          <div class="intent-name">Navigational (Brand)</div>
+          <div class="intent-pct">48%</div>
+          <div class="intent-track"><div class="intent-fill" style="width:48%; background:#818CF8;"></div></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-left:8px;">12 kws</div>
+        </div>
+        <div class="intent-bar-item">
+          <div class="intent-color" style="background:#60A5FA;"></div>
+          <div class="intent-name">Informational</div>
+          <div class="intent-pct">36%</div>
+          <div class="intent-track"><div class="intent-fill" style="width:36%; background:#60A5FA;"></div></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-left:8px;">9 kws</div>
+        </div>
+        <div class="intent-bar-item">
+          <div class="intent-color" style="background:#F59E0B;"></div>
+          <div class="intent-name">Commercial</div>
+          <div class="intent-pct">8%</div>
+          <div class="intent-track"><div class="intent-fill" style="width:8%; background:#F59E0B;"></div></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-left:8px;">2 kws</div>
+        </div>
+        <div class="intent-bar-item">
+          <div class="intent-color" style="background:#34D399;"></div>
+          <div class="intent-name">Transactional</div>
+          <div class="intent-pct">8%</div>
+          <div class="intent-track"><div class="intent-fill" style="width:8%; background:#34D399;"></div></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-left:8px;">2 kws</div>
+        </div>
+      </div>
+      <div class="callout red" style="margin-top:16px; margin-bottom:0;">
+        <span class="callout-icon">🚨</span>
+        <div class="callout-text">
+          <strong>Only 8% Commercial + 8% Transactional = 0 converted visits/month</strong>
+          The keywords that drive sales (commercial: "best automotive TMS" / transactional: "buy TMS software") represent only 16% of the keyword portfolio — and these generate zero traffic. This must be the focus of the SEO strategy.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 5: QUICK WIN KEYWORDS ==================== -->
+  <div class="section fade-in" id="quickwins">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div>
+        <div class="section-title">Quick Win Keywords — Start Here</div>
+        <div class="section-subtitle">Specific keywords CargoTel can realistically rank for within 60–90 days</div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-text">
+        <strong>Strategy: Long-tail niche keywords with low competition, high buying intent</strong>
+        CargoTel operates in a specialized niche (automotive/finished vehicle logistics). This is actually an advantage — most of these high-intent keywords have very low competition because the audience is small and B2B-focused. CargoTel can rank for these faster than generic TMS terms.
+      </div>
+    </div>
+
+    <!-- Tier 1: Quick Wins (30-60 days) -->
+    <div class="card">
+      <div class="card-title">🟢 Tier 1 – Quick Wins (Target within 30–60 days)</div>
+      <div class="qw-grid">
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">automotive tms software</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>210/mo</span></div>
+            <div class="qw-stat">KD: <span>Low</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">CargoTel's exact product — zero presence. A single optimized product page would rank.</div>
+        </div>
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">finished vehicle logistics software</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>90/mo</span></div>
+            <div class="qw-stat">KD: <span>Very Low</span></div>
+            <div class="qw-stat">Intent: <span>Transactional</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">CargoTel is literally the industry leader here. Should rank #1 easily with proper optimization.</div>
+        </div>
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">yard management system automotive</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>140/mo</span></div>
+            <div class="qw-stat">KD: <span>Low</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">YMS product page exists but is under-optimized. Expand content and target this keyword.</div>
+        </div>
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">car hauler dispatch software</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>320/mo</span></div>
+            <div class="qw-stat">KD: <span>Low</span></div>
+            <div class="qw-stat">Intent: <span>Transactional</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">High buying intent, small audience. Create a dedicated landing page targeting this exact term.</div>
+        </div>
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">automotive EDI integration</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>170/mo</span></div>
+            <div class="qw-stat">KD: <span>Very Low</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">EDI page exists but is minimal. CargoTel supports 500+ EDI message types — a massive differentiator that should be front and center.</div>
+        </div>
+
+        <div class="qw-card green-top">
+          <div class="qw-keyword">ePOD automotive logistics</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>80/mo</span></div>
+            <div class="qw-stat">KD: <span>Very Low</span></div>
+            <div class="qw-stat">Intent: <span>Informational</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-quick">Quick Win</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">A blog post explaining ePOD for automotive would rank quickly and drive qualified leads.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tier 2: Medium Term -->
+    <div class="card">
+      <div class="card-title">🟡 Tier 2 – Medium-Term Targets (60–120 days)</div>
+      <div class="qw-grid">
+
+        <div class="qw-card yellow-top">
+          <div class="qw-keyword">vehicle transport management system</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>390/mo</span></div>
+            <div class="qw-stat">KD: <span>Medium</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-medium">Medium Term</span></div>
+        </div>
+
+        <div class="qw-card yellow-top">
+          <div class="qw-keyword">how to choose automotive TMS</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>260/mo</span></div>
+            <div class="qw-stat">KD: <span>Low</span></div>
+            <div class="qw-stat">Intent: <span>Informational</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-medium">Blog Content</span></div>
+        </div>
+
+        <div class="qw-card yellow-top">
+          <div class="qw-keyword">compound management system software</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>110/mo</span></div>
+            <div class="qw-stat">KD: <span>Low</span></div>
+            <div class="qw-stat">Intent: <span>Transactional</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-medium">Medium Term</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tier 3: Long Term -->
+    <div class="card">
+      <div class="card-title">🔵 Tier 3 – Long-Term Authority Targets (6–12 months)</div>
+      <div class="qw-grid">
+
+        <div class="qw-card blue-top">
+          <div class="qw-keyword">transportation management system</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>9,900/mo</span></div>
+            <div class="qw-stat">KD: <span>High</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-long">Long Term</span></div>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:8px; line-height:1.4;">High competition, but achievable once authority is built through content and backlinks.</div>
+        </div>
+
+        <div class="qw-card blue-top">
+          <div class="qw-keyword">yard management system</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>2,400/mo</span></div>
+            <div class="qw-stat">KD: <span>Medium-High</span></div>
+            <div class="qw-stat">Intent: <span>Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-long">Long Term</span></div>
+        </div>
+
+        <div class="qw-card blue-top">
+          <div class="qw-keyword">finished vehicle logistics</div>
+          <div class="qw-stats">
+            <div class="qw-stat">Vol: <span>720/mo</span></div>
+            <div class="qw-stat">KD: <span>Medium</span></div>
+            <div class="qw-stat">Intent: <span>Info + Commercial</span></div>
+          </div>
+          <div style="margin-top:10px;"><span class="opportunity-tag tag-long">Long Term</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 6: ACTION PLAN ==================== -->
+  <div class="section fade-in" id="action">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div>
+        <div class="section-title">90-Day Action Plan & Priority Roadmap</div>
+        <div class="section-subtitle">What to do, in what order, for the biggest impact</div>
+      </div>
+    </div>
+
+    <div class="callout blue">
+      <span class="callout-icon">📌</span>
+      <div class="callout-text">
+        <strong>Our Recommendation: Fix Technical Issues First, Then Build Content</strong>
+        There is no point creating content on a broken technical foundation. Google will not rank a website with a 55.9s LCP and a broken H1 tag — no matter how good the content is. Fix the foundation in Month 1, optimize existing pages in Month 2, then build content and links in Month 3 and beyond.
+      </div>
+    </div>
+
+    <!-- Priority Matrix -->
+    <div class="priority-grid">
+      <div class="priority-card">
+        <div class="priority-card-header">
+          <div class="priority-dot" style="background:#DC2626;"></div>
+          <div class="priority-card-title">🔴 Priority 1 — Do First (Critical)</div>
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Fix the broken Homepage H1 tag ("Other Industries" → proper heading)
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Implement browser caching for all static assets (saves 10,723 KiB)
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Convert all images to WebP format and add lazy loading
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Eliminate render-blocking CSS/JS (saves 1,560ms)
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Remove user-scalable=0 from viewport meta tag
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Replace mobile hero video with static WebP image
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔧</span>
+          Fix all internal HTTP → HTTPS link issues
+        </div>
+      </div>
+
+      <div class="priority-card">
+        <div class="priority-card-header">
+          <div class="priority-dot" style="background:#D97706;"></div>
+          <div class="priority-card-title">🟡 Priority 2 — Month 1–2 (Important)</div>
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Add Organization + SoftwareApplication Schema to homepage
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Expand TMS product page to 1,500+ words targeting "automotive TMS software"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Expand YMS product page targeting "yard management system automotive"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Expand EDI page targeting "automotive EDI integration"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Set up Google Search Console + GA4 + submit XML sitemap
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Create dedicated landing page for "car hauler dispatch software"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">📝</span>
+          Add FAQ schema to all product pages
+        </div>
+      </div>
+
+      <div class="priority-card">
+        <div class="priority-card-header">
+          <div class="priority-dot" style="background:#16A34A;"></div>
+          <div class="priority-card-title">🟢 Priority 3 — Month 2–3 (Growth)</div>
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">✍️</span>
+          Launch blog — Publish first article: "How to Choose Automotive TMS Software"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">✍️</span>
+          Publish: "What is ePOD and Why Does It Matter for Vehicle Transport?"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">✍️</span>
+          Publish: "Finished Vehicle Logistics: The Complete Software Guide"
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">✍️</span>
+          Create case study page with G2 reviews and testimonials
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">✍️</span>
+          Begin outreach for guest posts on logistics/supply chain sites
+        </div>
+      </div>
+
+      <div class="priority-card">
+        <div class="priority-card-header">
+          <div class="priority-dot" style="background:#7C3AED;"></div>
+          <div class="priority-card-title">🔵 Priority 4 — Month 3+ (Authority)</div>
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔗</span>
+          Build backlinks from automotive industry directories and associations
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔗</span>
+          Get listed on G2, Capterra, Software Advice with SEO-optimized profiles
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔗</span>
+          Target "transportation management system" with a comprehensive pillar page
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔗</span>
+          Improve AI visibility — structured data helps ChatGPT and AI Overview citations
+        </div>
+        <div class="priority-item">
+          <span class="priority-check">🔗</span>
+          Set up local SEO for Riderwood, MD office (Google Business Profile)
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap Timeline -->
+    <div class="card fade-in">
+      <div class="card-title">📅 90-Day Execution Timeline</div>
+      <div class="roadmap">
+        <div class="roadmap-step phase1">
+          <div class="roadmap-phase">Month 1 — Weeks 1–4 | Fix the Foundation</div>
+          <div class="roadmap-title">Technical Overhaul & Critical Fixes</div>
+          <div class="roadmap-items">
+            Fix H1 bug → Implement caching → Convert images to WebP → Fix render-blocking JS/CSS → Remove zoom-block viewport meta → Replace mobile video → Fix HTTP links → Submit sitemap to Google Search Console
+          </div>
+        </div>
+        <div class="roadmap-step phase2">
+          <div class="roadmap-phase">Month 2 — Weeks 5–8 | Optimize Existing Pages</div>
+          <div class="roadmap-title">Content Expansion & Schema Implementation</div>
+          <div class="roadmap-items">
+            Expand TMS page (1,500+ words) → Expand YMS page → Expand EDI page → Add schema markup to all pages → Create new "car hauler dispatch" landing page → Monitor Core Web Vitals improvements
+          </div>
+        </div>
+        <div class="roadmap-step phase3">
+          <div class="roadmap-phase">Month 3 — Weeks 9–12 | Build Visibility</div>
+          <div class="roadmap-title">Content Marketing & Link Building Launch</div>
+          <div class="roadmap-items">
+            Launch blog with 3 target articles → Begin G2/Capterra profile optimization → Start guest post outreach → Monitor keyword ranking improvements → Report on organic traffic growth
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expected Results -->
+    <div class="highlight-box">
+      <h3>📈 Expected Results After 90 Days</h3>
+      <p>Based on the technical fixes and content work outlined above, here is a realistic projection for what CargoTel can achieve within 90 days of implementing this plan:</p>
+      <div class="hl-stat">
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">60+</span>
+          <div class="hl-stat-label">Mobile Performance Score</div>
+        </div>
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">150+</span>
+          <div class="hl-stat-label">Monthly Organic Visitors</div>
+        </div>
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">80+</span>
+          <div class="hl-stat-label">Ranked Keywords</div>
+        </div>
+        <div class="hl-stat-item">
+          <span class="hl-stat-num">Top 10</span>
+          <div class="hl-stat-label">for Quick-Win Keywords</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Strengths -->
+    <div class="card fade-in">
+      <div class="card-title">💪 What CargoTel Has Going For It</div>
+      <div class="issue-list">
+        <div class="issue-item good">
+          <div class="issue-icon">🏆</div>
+          <div class="issue-content">
+            <div class="issue-title">25+ Years in Business — Real Credibility</div>
+            <div class="issue-desc">Founded in 2000, CargoTel manages 3.5M+ vehicles annually and serves 25,000+ users. This is exactly the kind of E-E-A-T (Experience, Expertise, Authoritativeness, Trust) that Google rewards. The authority exists — it just needs to be expressed on the website.</div>
+          </div>
+          <span class="metric-badge badge-good">Strength</span>
+        </div>
+        <div class="issue-item good">
+          <div class="issue-icon">🤝</div>
+          <div class="issue-content">
+            <div class="issue-title">287 Referring Domains — Decent Backlink Base</div>
+            <div class="issue-desc">287 websites link to cargotel.com. This is a solid foundation. With proper content and a link-building campaign, the Authority Score can be grown from 16 to 30+ within 6 months.</div>
+          </div>
+          <span class="metric-badge badge-good">Strength</span>
+        </div>
+        <div class="issue-item good">
+          <div class="issue-icon">🚗</div>
+          <div class="issue-content">
+            <div class="issue-title">Niche Market = Less Competition</div>
+            <div class="issue-desc">Automotive/finished vehicle logistics is a specialized niche. The audience is smaller, but so is the competition for keywords. This means CargoTel can rank faster and with less effort than a general TMS provider targeting the mass market.</div>
+          </div>
+          <span class="metric-badge badge-good">Strength</span>
+        </div>
+        <div class="issue-item good">
+          <div class="issue-icon">🤖</div>
+          <div class="issue-content">
+            <div class="issue-title">AI Search Visibility — 35 Visibility Score</div>
+            <div class="issue-desc">CargoTel already has an AI Visibility score of 35 with 17 mentions across ChatGPT (6), AI Mode (6), and Gemini (5). This is a good starting point for AI-era SEO. Fixing structured data and Agentic Browsing will amplify this significantly.</div>
+          </div>
+          <span class="metric-badge badge-good">Strength</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="report-footer">
+  <div style="margin-bottom:8px;">
+    <strong>CargoTel.com — Professional SEO Audit Report</strong>
+  </div>
+  <div>Report Date: July 14, 2026</div>
+</div>
+
+<script>
+  // Scroll-triggered fade-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Animate score bars on scroll
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.score-bar-fill').forEach(bar => {
+          const width = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => { bar.style.width = width; }, 100);
+        });
+        entry.target.querySelectorAll('.intent-fill').forEach(bar => {
+          const width = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => { bar.style.width = width; }, 100);
+        });
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.card').forEach(el => barObserver.observe(el));
+
+  // Smooth scroll for TOC links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
