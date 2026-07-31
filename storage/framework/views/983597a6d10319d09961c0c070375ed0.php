@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="preset-1" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr" dir="ltr" data-pc-theme_contrast="" data-pc-theme="light">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" class="preset-1" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr" dir="ltr" data-pc-theme_contrast="" data-pc-theme="light">
 <!-- [Head] start -->
 
 <head>
-    <title>{{ env('APP_NAME') }} | Citation Tracking System</title>
+    <title><?php echo e(env('APP_NAME')); ?> | Citation Tracking System</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
@@ -16,28 +16,28 @@
         name="keywords"
         content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard"
     />
-    <meta name="author" content="{{ env('APP_NAME') }}" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="author" content="<?php echo e(env('APP_NAME')); ?>" />
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <!-- [Favicon] icon -->
-    <link rel="icon" href="{{ asset('images/favicon.svg') }}" type="image/x-icon" />
+    <link rel="icon" href="<?php echo e(asset('images/favicon.svg')); ?>" type="image/x-icon" />
     <!-- [Font] Family -->
-    <link rel="stylesheet" href="{{ asset('fonts/inter/inter.css') }}" id="main-font-link" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/inter/inter.css')); ?>" id="main-font-link" />
     <!-- [phosphor Icons] https://phosphoricons.com/ -->
-    <link rel="stylesheet" href="{{ asset('fonts/phosphor/duotone/style.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/phosphor/duotone/style.css')); ?>" />
     <!-- [Tabler Icons] https://tablericons.com -->
-    <link rel="stylesheet" href="{{ asset('fonts/tabler-icons.min.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/tabler-icons.min.css')); ?>" />
     <!-- [Feather Icons] https://feathericons.com -->
-    <link rel="stylesheet" href="{{ asset('fonts/feather.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/feather.css')); ?>" />
     <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
-    <link rel="stylesheet" href="{{ asset('fonts/fontawesome.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/fontawesome.css')); ?>" />
     <!-- [Material Icons] https://fonts.google.com/icons -->
-    <link rel="stylesheet" href="{{ asset('fonts/material.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('fonts/material.css')); ?>" />
     <!-- [Template CSS Files] -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}" id="main-style-link" />
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}"/>
-    <link rel="stylesheet" href="{{ asset('css/plugins/choices.min.css') }}" />
+    <link rel="stylesheet" href="<?php echo e(asset('css/style.css')); ?>" id="main-style-link" />
+    <link rel="stylesheet" href="<?php echo e(asset('css/custom.css')); ?>"/>
+    <link rel="stylesheet" href="<?php echo e(asset('css/plugins/choices.min.css')); ?>" />
 
-    {{-- Apply saved theme BEFORE render to prevent flash of wrong theme --}}
+    
     <script>
         (function() {
             var saved = localStorage.getItem('theme');
@@ -47,9 +47,9 @@
             }
         })();
     </script>
-    @vite(['resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/js/app.js']); ?>
     <!-- [Page specific CSS] start -->
-    @yield('css')
+    <?php echo $__env->yieldContent('css'); ?>
     <!-- [Page specific CSS] end -->
 </head>
 <!-- [Head] end -->
@@ -63,20 +63,20 @@
     </div>
 </div>
 <!-- [ Pre-loader ] End -->
-@yield('body')
+<?php echo $__env->yieldContent('body'); ?>
 <script>
     var layoutValue = 'vertical';
 </script>
 <!-- Required Js -->
-@yield('pre-scripts')
-<script src="{{ asset('js/plugins/simplebar.min.js') }}"></script>
-<script src="{{ asset('js/plugins/popper.min.js') }}"></script>
-<script src="{{ asset('js/icon/custom-icon.js') }}"></script>
-<script src="{{ asset('js/plugins/feather.min.js') }}"></script>
-<script src="{{ asset('js/plugins/component.js') }}"></script>
-<script src="{{ asset('js/plugins/theme.js') }}"></script>
-<script src="{{ asset('js/plugins/script.js') }}"></script>
-<script src="{{ asset('js/plugins/sweetalert2.all.min.js') }}"></script>
+<?php echo $__env->yieldContent('pre-scripts'); ?>
+<script src="<?php echo e(asset('js/plugins/simplebar.min.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/popper.min.js')); ?>"></script>
+<script src="<?php echo e(asset('js/icon/custom-icon.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/feather.min.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/component.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/theme.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/script.js')); ?>"></script>
+<script src="<?php echo e(asset('js/plugins/sweetalert2.all.min.js')); ?>"></script>
 <script>
     const Toast = Swal.mixin({
         toast: true,
@@ -89,20 +89,20 @@
             toast.addEventListener('mouseleave', Swal.resumeTimer);
         }
     });
-    @if(session('success'))
+    <?php if(session('success')): ?>
         Toast.fire({
             icon: 'success',
-            title: '{{ session('success') }}'
+            title: '<?php echo e(session('success')); ?>'
         });
-    @endif
-    @if(session('error'))
+    <?php endif; ?>
+    <?php if(session('error')): ?>
     Toast.fire({
         icon: 'error',
-        title: '{{ session('error') }}'
+        title: '<?php echo e(session('error')); ?>'
     });
-    @endif
+    <?php endif; ?>
 </script>
-@yield('post-scripts')
+<?php echo $__env->yieldContent('post-scripts'); ?>
 
 
 <script>
@@ -137,10 +137,10 @@
     document.addEventListener('click', function (e) {
        const markAllReadBtn = e.target.closest('#markAllRead');
        if (markAllReadBtn) {
-           fetch('{{ route('notifications.markAllRead') }}', {
+           fetch('<?php echo e(route('notifications.markAllRead')); ?>', {
                method: 'POST',
                headers: {
-                   'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                   'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                    'Content-Type': 'application/json',
                },
            })
@@ -167,7 +167,7 @@
             fetch(`/notifications/${notificationId}/mark-as-read`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                     'Content-Type': 'application/json',
                 },
             })
@@ -179,16 +179,16 @@
         }
     });
 </script>
-<script src="{{ asset('js/plugins/choices.min.js') }}"></script>
+<script src="<?php echo e(asset('js/plugins/choices.min.js')); ?>"></script>
 <script>
     var sessionCompaniesChoices = new Choices('#sessionCompanies', {
         placeholder: true,
         placeholderValue: 'Company Name',
         shouldSort: false,
     });
-    let selectedSessionCompanies = JSON.parse('{!! json_encode(session('active_company_ids')) !!}');
+    let selectedSessionCompanies = JSON.parse('<?php echo json_encode(session('active_company_ids')); ?>');
     sessionCompaniesChoices.setChoices(function () {
-        return fetch('{{ route('api.company.index') }}')
+        return fetch('<?php echo e(route('api.company.index')); ?>')
             .then(function (response) {
                 return response.json();
             })
@@ -224,8 +224,9 @@
         }
     });
 </script>
-<script src="{{ asset('js/ticket-export.js') }}?v={{ filemtime(public_path('js/ticket-export.js')) }}"></script>
+<script src="<?php echo e(asset('js/ticket-export.js')); ?>?v=<?php echo e(filemtime(public_path('js/ticket-export.js'))); ?>"></script>
 </body>
 <!-- [Body] end -->
 
 </html>
+<?php /**PATH C:\wamp64\www\PHP\trackcitations\resources\views\layout\partials\body.blade.php ENDPATH**/ ?>

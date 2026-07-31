@@ -13,7 +13,12 @@ class EnvironmentWriter
             $pattern = "/^{$key}=.*$/m";
 
             if (preg_match($pattern, $contents)) {
-                $contents = preg_replace($pattern, "{$key}={$escaped}", $contents);
+                // Preserve dollar signs and backslashes in secrets literally.
+                $contents = preg_replace_callback(
+                    $pattern,
+                    static fn (): string => "{$key}={$escaped}",
+                    $contents
+                );
             } else {
                 $contents = rtrim($contents) . PHP_EOL . "{$key}={$escaped}" . PHP_EOL;
             }
@@ -34,6 +39,10 @@ class EnvironmentWriter
             return $value;
         }
 
-        return '"' . str_replace('"', '\"', $value) . '"';
+        return '"' . str_replace(
+            ['\\', '"'],
+            ['\\\\', '\"'],
+            $value
+        ) . '"';
     }
 }

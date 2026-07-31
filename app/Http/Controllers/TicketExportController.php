@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TicketExportController extends Controller
 {
@@ -46,7 +48,12 @@ class TicketExportController extends Controller
             @File::delete($csvFullPath);
         }
 
-        // Create CSV file with header row
+        $xlsxFullPath = preg_replace('/\.csv$/i', '.xlsx', $csvFullPath);
+        if (File::exists($xlsxFullPath)) {
+            @File::delete($xlsxFullPath);
+        }
+
+        // Create CSV working file with header row
         $handle = fopen($csvFullPath, 'w');
         if ($handle) {
             fputcsv($handle, [
@@ -91,7 +98,7 @@ class TicketExportController extends Controller
             'total' => $totalCount,
             'processed' => 0,
             'file' => $csvRelativePath,
-            'filename' => 'tickets_export_' . date('Y-m-d') . '.csv',
+            'filename' => 'tickets_export_' . date('Y-m-d') . '.xlsx',
             'request_params' => $request->all(),
             'created_at' => now()->timestamp,
         ];
@@ -218,6 +225,21 @@ class TicketExportController extends Controller
 
         $meta['processed'] = $newProcessed;
         $meta['status'] = $isFinished ? 'completed' : 'processing';
+
+        if ($isFinished) {
+            try {
+                $meta['file'] = $this->convertCsvToExcel($meta['file']);
+            } catch (\Throwable $exception) {
+                report($exception);
+                $meta['status'] = 'failed';
+                Cache::put('export_' . $exportId, $meta, 600);
+
+                return response()->json([
+                    'error' => 'The Excel workbook could not be created. Please try the export again.',
+                ], 500);
+            }
+        }
+
         Cache::put("export_{$exportId}", $meta, 7200);
 
         $percentage = $meta['total'] > 0 ? round(($newProcessed / $meta['total']) * 100, 1) : 100;
@@ -335,10 +357,87 @@ class TicketExportController extends Controller
         }
 
         return response()->download($csvFullPath, $meta['filename'], [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 
+    /**
+     * Convert CSV into XLSX while streaming rows to disk for large exports.
+     */
+    private function convertCsvToExcel(string $csvRelativePath): string
+    {
+        $csvFullPath = storage_path('app/' . $csvRelativePath);
+        $xlsxRelativePath = preg_replace('/\.csv$/i', '.xlsx', $csvRelativePath);
+        $xlsxFullPath = storage_path('app/' . $xlsxRelativePath);
+        $worksheetPath = $xlsxFullPath . '.worksheet.xml';
+
+        $csv = fopen($csvFullPath, 'rb');
+        $worksheet = fopen($worksheetPath, 'wb');
+
+        if (!$csv || !$worksheet) {
+            throw new \RuntimeException('Unable to open an export working file.');
+        }
+
+        fwrite($worksheet, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+        fwrite($worksheet, '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetData>');
+
+        $rowNumber = 0;
+        $columnCount = 0;
+
+        while (($row = fgetcsv($csv)) !== false) {
+            $rowNumber++;
+            $columnCount = max($columnCount, count($row));
+            $cells = '';
+
+            foreach ($row as $columnIndex => $value) {
+                $reference = $this->excelColumnName($columnIndex + 1) . $rowNumber;
+                $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', (string) $value);
+                $value = htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
+                $cells .= '<c r="' . $reference . '" t="inlineStr"><is><t xml:space="preserve">' . $value . '</t></is></c>';
+            }
+
+            fwrite($worksheet, '<row r="' . $rowNumber . '">' . $cells . '</row>');
+        }
+
+        $lastCell = $this->excelColumnName(max(1, $columnCount)) . max(1, $rowNumber);
+        fwrite($worksheet, '</sheetData><autoFilter ref="A1:' . $lastCell . '"/></worksheet>');
+        fclose($csv);
+        fclose($worksheet);
+
+        $zip = new \ZipArchive();
+        if ($zip->open($xlsxFullPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            @File::delete($worksheetPath);
+            throw new \RuntimeException('Unable to create the Excel workbook.');
+        }
+
+        $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
+        $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+        $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Tickets" sheetId="1" r:id="rId1"/></sheets></workbook>');
+        $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
+        $zip->addFile($worksheetPath, 'xl/worksheets/sheet1.xml');
+
+        if (!$zip->close()) {
+            @File::delete($worksheetPath);
+            throw new \RuntimeException('Unable to finalize the Excel workbook.');
+        }
+
+        File::delete([$worksheetPath, $csvFullPath]);
+
+        return $xlsxRelativePath;
+    }
+
+    private function excelColumnName(int $column): string
+    {
+        $name = '';
+
+        while ($column > 0) {
+            $column--;
+            $name = chr(65 + ($column % 26)) . $name;
+            $column = intdiv($column, 26);
+        }
+
+        return $name;
+    }
     private function cleanupFile(?string $relativePath)
     {
         if ($relativePath) {

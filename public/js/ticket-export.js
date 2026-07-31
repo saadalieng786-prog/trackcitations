@@ -67,7 +67,7 @@
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <button type="button" id="exportDoneCloseBtn" style="display: none; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Close</button>
                         <a id="exportDownloadBtn" href="#" style="display: none; background: #059669; color: #ffffff; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" download>
-                            <i class="ti ti-file-download"></i> Download CSV File
+                            <i class="ti ti-file-download"></i> Download Excel File
                         </a>
                     </div>
                 </div>
