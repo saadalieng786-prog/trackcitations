@@ -280,6 +280,23 @@
             background: #fff;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
+        /* Keep the Add Members dropdown neutral while its search input is active. */
+        .msg-new-conv-body .choices.is-focused .choices__inner,
+        .msg-new-conv-body .choices.is-open .choices__inner {
+            border-color: #e2e8f0 !important;
+            background: #f8fafc !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .msg-new-conv-body .choices__input,
+        .msg-new-conv-body .choices__input:focus,
+        .msg-new-conv-body .choices__input:focus-visible {
+            border: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
 
         .msg-submit-btn {
             display: flex;
@@ -393,13 +410,13 @@
                 <form id="createConversationForm" method="POST" action="{{ route('api.conversations.store') }}">
                     @csrf
                     <div class="msg-form-group">
-                        <label class="msg-form-label" for="conversationName">Conversation Name</label>
+                        <label class="msg-form-label" for="conversationName">Conversation Name <span class="text-red-500">*</span></label>
                         <input type="text" id="conversationName" name="name" class="msg-form-input"
                                placeholder="e.g. Ticket #1234 Discussion" required>
                     </div>
                     <div class="msg-form-group">
-                        <label class="msg-form-label" for="Addparticipants">Add Members</label>
-                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple></select>
+                        <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
+                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple required></select>
                     </div>
                     <button type="submit" class="msg-submit-btn">
                         <i class="ti ti-send text-sm"></i>

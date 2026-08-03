@@ -21,8 +21,8 @@ class ConversationController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'user_id' => 'required|array', // Validate that user_id is an array
-            'user_id.*' => 'required|integer|exists:users,id', // Validate each element in the array
+            'user_id' => 'required|array|min:1',
+            'user_id.*' => 'required|integer|distinct|exists:users,id',
         ]);
 
         $conversation = Conversation::create(['name' => $request->name]);

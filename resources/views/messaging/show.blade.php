@@ -3,21 +3,21 @@
 @section('content')
     <div class="col-span-12">
         <div class="tc-chat-app-shell">
-            
+
             {{-- ── 1. LEFT PANE: CONVERSATIONS LIST ───────────────────── --}}
             <div class="tc-chat-pane-left">
                 <div class="tc-chat-sidebar-header">
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-slate-900 m-0">Messages</h2>
                         @if(auth()->user()->isInternalAdmin())
-                            <button type="button" 
+                            <button type="button"
                                     class="btn btn-primary btn-sm !py-1 !px-2.5 flex items-center gap-1 text-xs"
                                     onclick="$('#newChatCollapse').toggleClass('hidden')">
                                 <i class="ti ti-plus text-sm"></i> New
                             </button>
                         @endif
                     </div>
-                    
+
                     {{-- Search Input --}}
                     <div class="tc-chat-sidebar-search">
                         <i class="ti ti-search"></i>
@@ -27,20 +27,27 @@
 
                 {{-- New Conversation Drawer Form (Internal Admins - hidden by default, 0 height) --}}
                 @if(auth()->user()->isInternalAdmin())
-                    <div class="hidden p-3 bg-slate-50 border-b border-slate-200" id="newChatCollapse">
-                        <h6 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2">Create New Chat</h6>
-                        <form method="POST" action="{{ route('api.conversations.store') }}">
+                    <div class="hidden msg-create-panel" id="newChatCollapse">
+                        <div class="msg-create-panel-header">
+                            <h6>Create New Conversation</h6>
+                            <button type="button" class="msg-create-close" onclick="$('#newChatCollapse').addClass('hidden')" aria-label="Close">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                        <form method="POST" action="{{ route('api.conversations.store') }}" class="msg-create-form">
                             @csrf
-                            <div class="mb-2">
-                                <input type="text" name="name" class="form-control text-xs" placeholder="Chat Title / Subject" required>
+                            <div class="msg-form-group">
+                                <label class="msg-form-label" for="conversationName">Conversation Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="conversationName" name="name" class="msg-form-input" placeholder="e.g. Ticket #1234 Discussion" required>
                             </div>
-                            <div class="mb-2">
-                                <select class="form-control text-xs" name="user_id[]" id="Addparticipants" multiple></select>
+                            <div class="msg-form-group">
+                                <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
+                                <select class="form-control" name="user_id[]" id="Addparticipants" multiple required></select>
                             </div>
-                            <div class="flex justify-end gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm text-xs" onclick="$('#newChatCollapse').addClass('hidden')">Cancel</button>
-                                <button type="submit" class="btn btn-primary btn-sm text-xs">Create</button>
-                            </div>
+                            <button type="submit" class="msg-submit-btn">
+                                <i class="ti ti-send text-sm"></i>
+                                Create Conversation
+                            </button>
                         </form>
                     </div>
                 @endif
@@ -49,7 +56,7 @@
                 <div class="tc-chat-conversations-list scroll-block">
                     @foreach($conversations as $conversation)
                         @php($isActive = $conversation->id === $currentConversation->id)
-                        <a href="{{ route('messaging.show', $conversation->id) }}" 
+                        <a href="{{ route('messaging.show', $conversation->id) }}"
                            class="tc-chat-conv-item {{ $isActive ? 'active' : '' }}"
                            data-name="{{ strtolower($conversation->name) }}">
                             <div class="tc-chat-avatar-circle online">
@@ -77,7 +84,7 @@
 
             {{-- ── 2. RIGHT PANE: ACTIVE CONVERSATION STREAM ───────────── --}}
             <div class="tc-chat-pane-right">
-                
+
                 {{-- Top Header --}}
                 <div class="tc-chat-main-header">
                     <div class="flex items-center gap-3">
@@ -98,7 +105,7 @@
 
                     {{-- Actions --}}
                     <div class="flex items-center gap-2">
-                        <button type="button" 
+                        <button type="button"
                                 class="btn btn-outline-secondary btn-sm !py-1.5 !px-3 flex items-center gap-1.5 text-xs"
                                 onclick="toggleChatDetails()">
                             <i class="ti ti-info-circle text-sm"></i>
@@ -160,19 +167,19 @@
                 {{-- Composer Box --}}
                 <div class="tc-chat-composer-wrap">
                     <div class="tc-chat-composer-box">
-                        <button type="button" 
+                        <button type="button"
                                 class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
                                 id="attachmentIcon"
                                 title="Attach File">
                             <i class="ti ti-paperclip text-lg"></i>
                         </button>
                         <input type="file" id="messageAttachment" class="hidden" />
-                        
+
                         <textarea id="newMessageText" placeholder="Type a message... (Press Enter to send)" rows="1"></textarea>
-                        
+
                         <span class="hidden badge bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 text-xs rounded" id="attachmentName"></span>
 
-                        <button type="button" 
+                        <button type="button"
                                 class="btn btn-primary btn-sm !py-2 !px-4 flex items-center gap-1.5 shrink-0"
                                 id="sendMessageButton">
                             <span>Send</span>
@@ -224,9 +231,9 @@
                             </div>
                         </div>
                         @if(auth()->user()->isInternalAdmin() && $user->id !== auth()->id())
-                            <button type="button" 
+                            <button type="button"
                                     class="text-slate-400 hover:text-red-500 text-sm"
-                                    data-userid="{{ $user->id }}" 
+                                    data-userid="{{ $user->id }}"
                                     id="removeUserBtn"
                                     title="Remove Participant">
                                 <i class="ti ti-user-minus"></i>
@@ -248,6 +255,25 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/plugins/choices.min.css') }}" />
+    <style>
+        .msg-create-panel { padding: 0; background: #fff; border-bottom: 1px solid #e9edf3; }
+        .msg-create-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
+        .msg-create-panel-header h6 { margin: 0; color: #1e293b; font-size: 13px; font-weight: 700; }
+        .msg-create-close { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; color: #94a3b8; background: transparent; cursor: pointer; }
+        .msg-create-close:hover { color: #475569; background: #f1f5f9; }
+        .msg-create-form { padding: 16px; }
+        .msg-form-group { margin-bottom: 16px; }
+        .msg-form-label { display: block; margin-bottom: 6px; color: #374151; font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+        .msg-form-input { width: 100%; height: 40px; padding: 0 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; outline: none; color: #1e293b; background: #f8fafc; font-size: 13px; transition: all .2s; }
+        .msg-form-input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+        .msg-create-form .choices.is-focused .choices__inner,
+        .msg-create-form .choices.is-open .choices__inner { border-color: #e2e8f0 !important; background: #f8fafc !important; box-shadow: none !important; outline: none !important; }
+        .msg-create-form .choices__input,
+        .msg-create-form .choices__input:focus,
+        .msg-create-form .choices__input:focus-visible { border: 0 !important; outline: none !important; box-shadow: none !important; background: transparent !important; }
+        .msg-submit-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; padding: 10px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg,#4f46e5,#6366f1); box-shadow: 0 2px 8px rgba(79,70,229,.2); font-size: 13px; font-weight: 600; cursor: pointer; }
+        .msg-submit-btn:hover { background: linear-gradient(135deg,#4338ca,#4f46e5); box-shadow: 0 4px 14px rgba(79,70,229,.3); }
+    </style>
 @endsection
 
 @section('post-scripts')
@@ -337,7 +363,7 @@
                     $('#newMessageText').val('');
                     fileInput.value = '';
                     $('#attachmentName').addClass('hidden');
-                    
+
                     // Append outgoing message bubble dynamically
                     const newMsgHtml = `
                         <div class="tc-msg-row outgoing" data-messageid="${data.id || ''}">
@@ -395,7 +421,7 @@
                 $('#addMemberSelect').on('change', function() {
                     const userId = $(this).val();
                     if (!userId) return;
-                    
+
                     fetch(`/conversations/{{ $currentConversation->id }}/add-user`, {
                         method: 'POST',
                         headers: {

@@ -44,7 +44,7 @@ class AttorneyController extends Controller
 
             // Handle ordering
             if (request()->has('order')) {
-                $columns = ['id', 'name', 'city', 'state', 'last_login_at']; // Adjust to match your table columns
+                $columns = ['id', 'name', 'state', 'city', 'last_login_at']; // Adjust to match your table columns
                 $order = request('order', 'id');
                 $columnIndex = $order[0]['column'];
                 $direction = $order[0]['dir'];

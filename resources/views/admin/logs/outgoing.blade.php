@@ -76,9 +76,9 @@
                     serverSide: true,
                     paging: true,
                     ajax: {
-                        url: '{{ route("admin.outgoinglogs.index") }}',
+                        url: '{{ route(auth()->user()->portalRoutePrefix().".outgoinglogs.index") }}',
                         data: function (d) {
-                            d.status = $('#sender_type').val();
+                            d.sender_type = $('#sender_type').val();
                         },
                     },
                     columns: [
