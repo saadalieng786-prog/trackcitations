@@ -916,7 +916,7 @@ body {
 
 .hp-main {
   background-color: #f8fafc;
-  padding: 5rem 2rem;
+  padding: 0;
   min-height: calc(100vh - 80px);
   position: relative;
 }
@@ -1213,4 +1213,75 @@ body.dark {
 .front-logo{
   width: 150px !important;
   height: auto !important;
+}
+
+/* ─── 12. GLOBAL FORM CONTROLS & DATATABLES INPUTS ────────────────── */
+.tc-top-search-input,
+.dt-container .dt-length select,
+.dt-container .dt-search input,
+.dataTables_wrapper select,
+.dataTables_wrapper input,
+.dataTables_wrapper .form-control,
+.dataTables_wrapper .custom-select {
+  border-radius: 12px !important;
+  border: 1px solid var(--tc-border) !important;
+  font-size: 13px !important;
+  color: var(--tc-text-main) !important;
+  background-color: #f8fafc !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s ease-in-out !important;
+  outline: none !important;
+  height: 38px !important;
+}
+
+/* Base padding for standard inputs (excludes top search bar) */
+.dt-container .dt-length select,
+.dt-container .dt-search input,
+.dataTables_wrapper select,
+.dataTables_wrapper input,
+.dataTables_wrapper .form-control,
+.dataTables_wrapper .custom-select {
+  padding: 8px 16px !important;
+}
+
+/* Maintain original padding for top search so text doesn't overlap icon */
+.tc-top-search-input {
+  padding: 0 40px 0 38px !important;
+}
+
+/* Focus styles for text inputs (keep the glowing focus ring) */
+.tc-top-search-input:focus,
+.dt-container .dt-search input:focus,
+.dataTables_wrapper input:focus,
+.dataTables_wrapper .form-control:focus {
+  background-color: #ffffff !important;
+  border-color: var(--tc-indigo) !important;
+  box-shadow: 0 0 0 4px var(--tc-indigo-soft) !important;
+}
+
+/* Focus styles for SELECT dropdowns (remove outer box-shadow so native OS dropdown aligns perfectly) */
+.dt-container .dt-length select:focus,
+.dataTables_wrapper select:focus,
+.dataTables_wrapper .custom-select:focus {
+  background-color: #ffffff !important;
+  border-color: var(--tc-indigo) !important;
+  box-shadow: none !important;
+}
+
+/* DataTables specific spacing */
+.dt-container .dt-length select,
+.dataTables_wrapper .dataTables_length select {
+  padding-right: 32px !important;
+  margin: 0 8px !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  width: auto !important;
+  display: inline-block !important;
+}
+
+.dt-container .dt-search input,
+.dataTables_wrapper .dataTables_filter input {
+  margin-left: 8px !important;
+  width: 200px !important;
+  display: inline-block !important;
 }

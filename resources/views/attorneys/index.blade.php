@@ -40,7 +40,7 @@
                     serverSide: true,
                     paging: true,
                     ajax: {
-                        url: '{{ route("admin.attorneys.index") }}',
+                        url: '{{ route(auth()->user()->portalRoutePrefix().".attorneys.index") }}',
                     },
                     columns: [
                         {data: 'id', name: 'id'},

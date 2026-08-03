@@ -1,33 +1,28 @@
-@extends('layout.partials.body')
-
-@section('body')
-    @php
+<?php $__env->startSection('body'); ?>
+    <?php
         $dashboardUrl = route('dashboard');
         $violationOptions = $violations->take(250);
-    @endphp
+    ?>
 
-    {{-- ═══════════════════════════════════════════════
-         PUBLIC TOP NAVIGATION
-    ══════════════════════════════════════════════════ --}}
+    
     <nav class="hp-nav">
-        <a href="{{ url('/') }}" class="flex items-center gap-3 no-underline">
-            <img src="{{ asset('images/logo-dark.png') }}" class="front-logo h-14 md:h-16 w-auto object-contain py-1" alt="CDL CONSULTANT Logo">
+        <a href="<?php echo e(url('/')); ?>" class="flex items-center gap-3 no-underline">
+            <img src="<?php echo e(asset('images/logo-dark.png')); ?>" class="front-logo h-14 md:h-16 w-auto object-contain py-1" alt="CDL CONSULTANT Logo">
         </a>
 
         <div class="flex items-center gap-3">
             <a href="#" data-ticket-modal-open class="btn btn-outline-secondary btn-sm bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm transition-all">
                 <i class="ti ti-plus me-1 text-indigo-500"></i> Submit Ticket
             </a>
-            <a href="{{ $dashboardUrl }}" class="btn btn-primary btn-sm bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <a href="<?php echo e($dashboardUrl); ?>" class="btn btn-primary btn-sm bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <i class="ti ti-dashboard me-1"></i>
-                {{ auth()->check() ? 'Dashboard' : 'Client Login' }}
+                <?php echo e(auth()->check() ? 'Dashboard' : 'Client Login'); ?>
+
             </a>
         </div>
     </nav>
 
-    {{-- ═══════════════════════════════════════════════
-         HERO SECTION
-    ══════════════════════════════════════════════════ --}}
+    
     <div class="hp-hero">
         <div class="max-w-[1140px] mx-auto">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold mb-4">
@@ -45,29 +40,29 @@
                 <a href="#" data-ticket-modal-open class="btn btn-primary px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-base font-semibold rounded-xl">
                     <i class="ti ti-send me-2 text-lg"></i> Submit a Ticket
                 </a>
-                <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary px-8 py-3.5 bg-white/5 text-white border-white/20 hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all text-base font-semibold rounded-xl">
+                <a href="<?php echo e($dashboardUrl); ?>" class="btn btn-outline-secondary px-8 py-3.5 bg-white/5 text-white border-white/20 hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all text-base font-semibold rounded-xl">
                     <i class="ti ti-login me-2 text-lg"></i>
-                    {{ auth()->check() ? 'Open Dashboard' : 'Client Login' }}
+                    <?php echo e(auth()->check() ? 'Open Dashboard' : 'Client Login'); ?>
+
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════
-         MAIN CONTENT AREA
-    ══════════════════════════════════════════════════ --}}
+    
     <div class="hp-main p-0">
 
-        @if (session('success'))
+        <?php if(session('success')): ?>
             <div class="max-w-[1140px] mx-auto mt-6 px-4">
                 <div class="alert alert-success p-4 rounded-xl text-sm flex gap-3 align-items-center shadow-sm">
                     <i class="ti ti-circle-check text-lg"></i>
-                    {{ session('success') }}
+                    <?php echo e(session('success')); ?>
+
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
 
-        {{-- Trust Bar --}}
+        
         <div class="bg-white border-b border-slate-200 relative z-20 shadow-sm">
             <div class="max-w-[1140px] mx-auto px-6 py-10 flex flex-wrap md:flex-nowrap justify-between gap-8 text-center items-center">
                 <div class="flex-1">
@@ -90,7 +85,7 @@
             </div>
         </div>
 
-        {{-- Features Section --}}
+        
         <div class="py-24 px-6 max-w-[1140px] mx-auto">
             <div class="text-center mb-16">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-widest mb-4">
@@ -101,7 +96,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {{-- Feature 1 --}}
+                
                 <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
                     <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
                         <i class="ti ti-steering-wheel"></i>
@@ -111,7 +106,7 @@
                         Submit a ticket in seconds directly from your phone. Upload photos of citations instantly and track status updates through our secure portal without any hassle.
                     </p>
                 </div>
-                {{-- Feature 2 --}}
+                
                 <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
                     <div class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-sm">
                         <i class="ti ti-briefcase"></i>
@@ -121,7 +116,7 @@
                         Maintain a centralized dashboard of all company vehicles. Track citations across your entire fleet, monitor court dates, and stay compliant effortlessly.
                     </p>
                 </div>
-                {{-- Feature 3 --}}
+                
                 <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
                     <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
                         <i class="ti ti-file-certificate"></i>
@@ -134,7 +129,7 @@
             </div>
         </div>
 
-        {{-- How It Works --}}
+        
         <div class="py-24 px-6 bg-slate-50 border-y border-slate-200">
             <div class="max-w-[1140px] mx-auto">
                 <div class="text-center mb-20">
@@ -164,7 +159,7 @@
             </div>
         </div>
 
-        {{-- CTA Section --}}
+        
         <div class="py-24 px-6 relative overflow-hidden bg-slate-900">
             <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/80 to-violet-900/80 mix-blend-multiply"></div>
             <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
@@ -178,21 +173,21 @@
                     <a href="#" data-ticket-modal-open class="btn btn-primary px-8 py-4 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-lg font-bold rounded-xl w-full sm:w-auto">
                         <i class="ti ti-send me-2"></i> Submit Citation Now
                     </a>
-                    <a href="{{ $dashboardUrl }}" class="btn btn-outline-light px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white border-slate-700 hover:border-slate-600 transition-all text-lg font-bold rounded-xl w-full sm:w-auto">
+                    <a href="<?php echo e($dashboardUrl); ?>" class="btn btn-outline-light px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white border-slate-700 hover:border-slate-600 transition-all text-lg font-bold rounded-xl w-full sm:w-auto">
                         Client Login
                     </a>
                 </div>
             </div>
         </div>
 
-        {{-- Footer --}}
+        
         <footer class="bg-white py-12 px-6 border-t border-slate-200">
             <div class="max-w-[1140px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo-dark.png') }}" class="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" alt="CDL CONSULTANT Logo">
+                    <img src="<?php echo e(asset('images/logo-dark.png')); ?>" class="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" alt="CDL CONSULTANT Logo">
                 </div>
                 <div class="text-sm text-slate-500 font-medium">
-                    &copy; {{ date('Y') }} Track Citations. All rights reserved.
+                    &copy; <?php echo e(date('Y')); ?> Track Citations. All rights reserved.
                 </div>
                 <div class="flex gap-4">
                     <span class="text-xs text-slate-500 font-bold tracking-wider flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
@@ -202,7 +197,7 @@
             </div>
         </footer>
 
-        {{-- ─── FORM MODAL (Hidden by default) ──────────────── --}}
+        
         <div class="ticket-modal" id="ticketSubmissionModal" hidden aria-labelledby="ticketSubmissionModalLabel" aria-modal="true" role="dialog">
             <div class="ticket-modal-backdrop" data-ticket-modal-close></div>
             <div class="ticket-modal-dialog">
@@ -222,10 +217,10 @@
                     </div>
 
                     <div class="p-6 md:p-8 bg-slate-50/50">
-                        <form action="{{ route('submit.ticket') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
+                        <form action="<?php echo e(route('submit.ticket')); ?>" method="POST" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
 
-                            @if ($errors->any())
+                            <?php if($errors->any()): ?>
                                 <div class="mb-8 p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4 shadow-sm">
                                     <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 shadow-sm">
                                         <i class="ti ti-alert-circle text-xl"></i>
@@ -233,15 +228,15 @@
                                     <div>
                                         <h4 class="text-red-800 font-bold text-[13px] uppercase tracking-wide mb-2 mt-0.5">Please fix the following errors:</h4>
                                         <ul class="list-disc ps-5 mb-0 text-sm text-red-700 space-y-1">
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
+                                            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <li><?php echo e($error); ?></li>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </ul>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            {{-- Driver Info --}}
+                            
                             <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
                                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
                                     <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -253,23 +248,65 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="name">Driver Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('name') is-invalid border-red-500 @enderror" id="name" value="{{ old('name') }}" placeholder="Full name of driver">
-                                        @error('name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="name" value="<?php echo e(old('name')); ?>" placeholder="Full name of driver">
+                                        <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="user_email">Driver Email <span class="text-red-500">*</span></label>
-                                        <input type="email" name="user_email" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('user_email') is-invalid border-red-500 @enderror" id="user_email" value="{{ old('user_email') }}" placeholder="driver@example.com">
-                                        @error('user_email')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="email" name="user_email" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['user_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="user_email" value="<?php echo e(old('user_email')); ?>" placeholder="driver@example.com">
+                                        <?php $__errorArgs = ['user_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="company_name">Company Name</label>
-                                        <input type="text" name="company_name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('company_name') is-invalid border-red-500 @enderror" id="company_name" value="{{ old('company_name') }}" placeholder="Optional — company or fleet name">
-                                        @error('company_name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="company_name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="company_name" value="<?php echo e(old('company_name')); ?>" placeholder="Optional — company or fleet name">
+                                        <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Citation Info --}}
+                            
                             <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
                                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
                                     <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
@@ -280,35 +317,92 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="citation_no">Citation Number <span class="text-red-500">*</span></label>
-                                        <input type="text" name="citation_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('citation_no') is-invalid border-red-500 @enderror" id="citation_no" value="{{ old('citation_no') }}" placeholder="e.g. TC-2024-00123">
-                                        @error('citation_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="citation_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['citation_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="citation_no" value="<?php echo e(old('citation_no')); ?>" placeholder="e.g. TC-2024-00123">
+                                        <?php $__errorArgs = ['citation_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="date_issued">Date Received <span class="text-red-500">*</span></label>
-                                        <input type="text" name="date_issued" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 bg-white @error('date_issued') is-invalid border-red-500 @enderror" id="date_issued" value="{{ old('date_issued') }}" placeholder="Select date received">
-                                        @error('date_issued')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="date_issued" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 bg-white <?php $__errorArgs = ['date_issued'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="date_issued" value="<?php echo e(old('date_issued')); ?>" placeholder="Select date received">
+                                        <?php $__errorArgs = ['date_issued'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="violation_id">Violation Type <span class="text-red-500">*</span></label>
-                                        <select name="violation_id" class="form-select w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('violation_id') is-invalid border-red-500 @enderror" id="violation_id">
+                                        <select name="violation_id" class="form-select w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['violation_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="violation_id">
                                             <option value="">— Select a violation —</option>
-                                            @foreach ($violationOptions as $violation)
-                                                <option value="{{ $violation->id }}" {{ (string) old('violation_id') === (string) $violation->id ? 'selected' : '' }}>
-                                                    {{ $violation->violation }}
+                                            <?php $__currentLoopData = $violationOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $violation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($violation->id); ?>" <?php echo e((string) old('violation_id') === (string) $violation->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($violation->violation); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
-                                        @error('violation_id')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <?php $__errorArgs = ['violation_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="description">Ticket Details</label>
-                                        <textarea name="description" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('description') is-invalid border-red-500 @enderror" id="description" rows="3" placeholder="Describe the situation or special instructions...">{{ old('description') }}</textarea>
-                                        @error('description')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <textarea name="description" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="description" rows="3" placeholder="Describe the situation or special instructions..."><?php echo e(old('description')); ?></textarea>
+                                        <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Vehicle Info --}}
+                            
                             <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
                                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
                                     <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -319,23 +413,65 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="state">License State</label>
-                                        <input type="text" name="state" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('state') is-invalid border-red-500 @enderror" id="state" value="{{ old('state', 'MD') }}" placeholder="e.g. MD">
-                                        @error('state')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="state" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['state'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="state" value="<?php echo e(old('state', 'MD')); ?>" placeholder="e.g. MD">
+                                        <?php $__errorArgs = ['state'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="city">License City</label>
-                                        <input type="text" name="city" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('city') is-invalid border-red-500 @enderror" id="city" value="{{ old('city') }}" placeholder="City">
-                                        @error('city')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="city" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['city'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="city" value="<?php echo e(old('city')); ?>" placeholder="City">
+                                        <?php $__errorArgs = ['city'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div>
                                         <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="vehicle_lic_no">Vehicle Plate <span class="text-red-500">*</span></label>
-                                        <input type="text" name="vehicle_lic_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('vehicle_lic_no') is-invalid border-red-500 @enderror" id="vehicle_lic_no" value="{{ old('vehicle_lic_no') }}" placeholder="Plate number">
-                                        @error('vehicle_lic_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="text" name="vehicle_lic_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['vehicle_lic_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="vehicle_lic_no" value="<?php echo e(old('vehicle_lic_no')); ?>" placeholder="Plate number">
+                                        <?php $__errorArgs = ['vehicle_lic_no'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Attachments --}}
+                            
                             <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
                                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
                                     <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -363,7 +499,7 @@
                                 </div>
                             </div>
 
-                            {{-- Submit Footer --}}
+                            
                             <div class="flex flex-col sm:flex-row items-center justify-between pt-2">
                                 <p class="text-xs text-slate-500 m-0 font-medium flex items-center gap-2 mb-6 sm:mb-0">
                                     <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
@@ -383,10 +519,10 @@
         </div>
 
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
-    <link rel="stylesheet" href="{{ asset('css/plugins/flatpickr.min.css') }}" />
+<?php $__env->startSection('css'); ?>
+    <link rel="stylesheet" href="<?php echo e(asset('css/plugins/flatpickr.min.css')); ?>" />
     <style>
         .ticket-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .ticket-modal[hidden] { display: none !important; }
@@ -402,10 +538,10 @@
             .ticket-modal .p-8 { padding: 20px !important; }
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('post-scripts')
-    <script src="{{ asset('js/plugins/flatpickr.min.js') }}"></script>
+<?php $__env->startSection('post-scripts'); ?>
+    <script src="<?php echo e(asset('js/plugins/flatpickr.min.js')); ?>"></script>
     <script>
         flatpickr("#date_issued", {
             dateFormat: "m/d/Y",
@@ -436,8 +572,10 @@
             if (event.key === 'Escape' && !ticketModal.hidden) closeTicketModal();
         });
 
-        @if ($errors->any())
+        <?php if($errors->any()): ?>
             openTicketModal();
-        @endif
+        <?php endif; ?>
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.partials.body', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\PHP\trackcitations\resources\views/homepage.blade.php ENDPATH**/ ?>

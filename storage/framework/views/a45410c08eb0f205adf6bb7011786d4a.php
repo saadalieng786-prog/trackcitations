@@ -1,7 +1,5 @@
-@extends('layout.master')
-
-@section('css')
-    <link rel="stylesheet" href="{{ asset('css/plugins/choices.min.css') }}" />
+<?php $__env->startSection('css'); ?>
+    <link rel="stylesheet" href="<?php echo e(asset('css/plugins/choices.min.css')); ?>" />
     <style>
         /* ── Messaging Layout ── */
         .msg-layout {
@@ -309,43 +307,44 @@
             margin-bottom: 16px;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="col-span-12">
     <div class="msg-layout">
 
-        {{-- ── LEFT SIDEBAR: Conversation List ── --}}
+        
         <div class="msg-sidebar" id="msgSidebar">
             <div class="msg-sidebar-header">
                 <h5>Messages</h5>
-                <p>{{ $conversations->count() }} conversation{{ $conversations->count() !== 1 ? 's' : '' }}</p>
+                <p><?php echo e($conversations->count()); ?> conversation<?php echo e($conversations->count() !== 1 ? 's' : ''); ?></p>
             </div>
 
             <div class="msg-conversations">
-                @forelse($conversations as $conversation)
-                    @php
+                <?php $__empty_1 = true; $__currentLoopData = $conversations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $conversation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php
                         $initials = collect(explode(' ', $conversation->name))->map(fn($w) => strtoupper(substr($w,0,1)))->take(2)->implode('');
-                    @endphp
-                    <a href="{{ route('messaging.show', $conversation->id) }}" class="msg-conv-item">
+                    ?>
+                    <a href="<?php echo e(route('messaging.show', $conversation->id)); ?>" class="msg-conv-item">
                         <div class="msg-conv-avatar">
-                            {{ $initials ?: '?' }}
+                            <?php echo e($initials ?: '?'); ?>
+
                         </div>
                         <div class="msg-conv-info">
-                            <div class="msg-conv-name">{{ $conversation->name }}</div>
-                            <div class="msg-conv-time">{{ \Carbon\Carbon::parse($conversation->updated_at)->diffForHumans() }}</div>
+                            <div class="msg-conv-name"><?php echo e($conversation->name); ?></div>
+                            <div class="msg-conv-time"><?php echo e(\Carbon\Carbon::parse($conversation->updated_at)->diffForHumans()); ?></div>
                         </div>
                     </a>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <div style="padding: 40px 20px; text-align: center;">
                         <i class="ti ti-messages" style="font-size:32px; color:#cbd5e1; display:block; margin-bottom:10px;"></i>
                         <p style="font-size:13px; color:#94a3b8; margin:0;">No conversations yet</p>
                     </div>
-                @endforelse
+                <?php endif; ?>
             </div>
         </div>
 
-        {{-- ── CENTER: Chat Area (Empty State) ── --}}
+        
         <div class="msg-main">
             <div class="msg-main-header">
                 <div class="left">
@@ -354,33 +353,33 @@
                     </a>
                 </div>
                 <div>
-                    @if(auth()->user()->isInternalAdmin())
+                    <?php if(auth()->user()->isInternalAdmin()): ?>
                         <a href="#" class="btn-new-conv" data-pc-toggle="collapse" data-pc-target="#chat-new_chat">
                             <i class="ti ti-plus text-sm"></i>
                             New Conversation
                         </a>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
-            {{-- Empty state --}}
+            
             <div class="msg-empty-state">
                 <div class="msg-empty-icon">
                     <i class="ti ti-messages"></i>
                 </div>
                 <h6 class="msg-empty-title">No conversation selected</h6>
                 <p class="msg-empty-sub">Choose a conversation from the sidebar, or start a new one to begin messaging.</p>
-                @if(auth()->user()->isInternalAdmin())
+                <?php if(auth()->user()->isInternalAdmin()): ?>
                     <a href="#" class="btn-new-conv" style="margin-top:4px;" data-pc-toggle="collapse" data-pc-target="#chat-new_chat">
                         <i class="ti ti-plus text-sm"></i>
                         Start a Conversation
                     </a>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
-        {{-- ── RIGHT PANEL: New Conversation (Admin Only) ── --}}
-        @if(auth()->user()->isInternalAdmin())
+        
+        <?php if(auth()->user()->isInternalAdmin()): ?>
         <div id="chat-new_chat" class="collapse-horizontal msg-new-conv-panel" style="display:none; width:0; overflow:hidden; transition: width 0.3s ease;">
             <div class="msg-new-conv-header">
                 <h5>New Conversation</h5>
@@ -390,8 +389,8 @@
                 </a>
             </div>
             <div class="msg-new-conv-body">
-                <form id="createConversationForm" method="POST" action="{{ route('api.conversations.store') }}">
-                    @csrf
+                <form id="createConversationForm" method="POST" action="<?php echo e(route('api.conversations.store')); ?>">
+                    <?php echo csrf_field(); ?>
                     <div class="msg-form-group">
                         <label class="msg-form-label" for="conversationName">Conversation Name</label>
                         <input type="text" id="conversationName" name="name" class="msg-form-input"
@@ -408,14 +407,14 @@
                 </form>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('post-scripts')
-    <script src="{{ asset('js/plugins/choices.min.js') }}"></script>
+<?php $__env->startSection('post-scripts'); ?>
+    <script src="<?php echo e(asset('js/plugins/choices.min.js')); ?>"></script>
     <script>
         // New conversation panel toggle
         document.querySelectorAll('[data-pc-target="#chat-new_chat"]').forEach(function(trigger) {
@@ -446,7 +445,7 @@
         });
 
         participantsChoices.setChoices(function () {
-            return fetch('{{ route('api.users.exclude') }}')
+            return fetch('<?php echo e(route('api.users.exclude')); ?>')
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
                     return data.map(function (user) {
@@ -455,4 +454,6 @@
                 });
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\PHP\trackcitations\resources\views/messaging/index.blade.php ENDPATH**/ ?>
