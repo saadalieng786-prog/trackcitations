@@ -34,7 +34,7 @@
                                 <i class="ti ti-x"></i>
                             </button>
                         </div>
-                        <form method="POST" action="{{ route('api.conversations.store') }}" class="msg-create-form">
+                        <form method="POST" action="{{ route('messaging.conversations.store') }}" class="msg-create-form">
                             @csrf
                             <div class="msg-form-group">
                                 <label class="msg-form-label" for="conversationName">Conversation Name <span class="text-red-500">*</span></label>
@@ -42,7 +42,11 @@
                             </div>
                             <div class="msg-form-group">
                                 <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
-                                <select class="form-control" name="user_id[]" id="Addparticipants" multiple required></select>
+                                <select class="form-control" name="user_id[]" id="Addparticipants" multiple required>
+                                    @foreach(($users ?? []) as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <button type="submit" class="msg-submit-btn">
                                 <i class="ti ti-send text-sm"></i>
@@ -246,7 +250,12 @@
             {{-- Add Member Dropdown --}}
             @if(auth()->user()->isInternalAdmin())
                 <h5 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Add Participant</h5>
-                <select class="form-control text-xs" id="addMemberSelect"></select>
+                <select class="form-control text-xs" id="addMemberSelect">
+                    <option value="">Select user to add</option>
+                    @foreach(($users ?? []) as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
             @endif
         </div>
 
@@ -351,14 +360,21 @@
                     formData.append('attachments', file);
                 }
 
-                fetch('/api/conversations/{{ $currentConversation->id }}/messages', {
+                fetch('{{ route('messaging.messages.store', $currentConversation->id) }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json',
                     },
                     body: formData,
                 })
-                .then(res => res.json())
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Failed to send message');
+                    }
+                    return data;
+                })
                 .then(data => {
                     $('#newMessageText').val('');
                     fileInput.value = '';
@@ -366,10 +382,10 @@
 
                     // Append outgoing message bubble dynamically
                     const newMsgHtml = `
-                        <div class="tc-msg-row outgoing" data-messageid="${data.id || ''}">
+                        <div class="tc-msg-row outgoing" data-messageid="${data.id || (data.message && data.message.id) || ''}">
                             <div>
                                 <div class="tc-msg-bubble-out">
-                                    <p class="m-0 leading-relaxed">${content}</p>
+                                    <p class="m-0 leading-relaxed">${content || (file ? file.name : '')}</p>
                                 </div>
                                 <div class="flex items-center justify-end gap-1.5 mt-1 text-[11px] text-slate-400">
                                     <span>Just now</span>
@@ -381,7 +397,10 @@
                     $('.tc-chat-stream-area').append(newMsgHtml);
                     scrollToChatBottom();
                 })
-                .catch(err => console.error('Error sending message:', err));
+                .catch(err => {
+                    console.error('Error sending message:', err);
+                    alert(err.message || 'Failed to send message');
+                });
             }
 
             // Echo realtime listener (if configured)
@@ -392,30 +411,23 @@
                     });
             }
 
-            // Choices setup for adding members
-            if (document.querySelector('#Addparticipants')) {
+            // Choices setup for adding members (options come from server)
+            if (document.querySelector('#Addparticipants') && typeof Choices !== 'undefined') {
                 new Choices('#Addparticipants', {
                     placeholder: true,
                     placeholderValue: 'Select Users',
                     removeItemButton: true,
-                    shouldSort: false
-                }).setChoices(function() {
-                    return fetch('{{ route("api.users.exclude") }}')
-                        .then(res => res.json())
-                        .then(data => data.map(u => ({ value: u.id, label: u.name })));
+                    shouldSort: false,
+                    searchEnabled: true,
                 });
             }
 
-            if (document.querySelector('#addMemberSelect')) {
+            if (document.querySelector('#addMemberSelect') && typeof Choices !== 'undefined') {
                 const addChoices = new Choices('#addMemberSelect', {
                     placeholder: true,
                     placeholderValue: 'Select user to add',
-                    shouldSort: false
-                });
-                addChoices.setChoices(function() {
-                    return fetch('{{ route("api.users.exclude") }}')
-                        .then(res => res.json())
-                        .then(data => data.map(u => ({ value: u.id, label: u.name })));
+                    shouldSort: false,
+                    searchEnabled: true,
                 });
 
                 $('#addMemberSelect').on('change', function() {

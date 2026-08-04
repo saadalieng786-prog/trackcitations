@@ -12,20 +12,63 @@ use App\Models\Driver;
 use App\Models\Log;
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        $search = trim((string) request('q', ''));
+        $search = trim((string) $request->input('q', ''));
+        [$dateFilter, $startDate, $endDate] = $this->resolveDashboardDateFilter(
+            $request->input('period'),
+            $request->input('from'),
+            $request->input('to')
+        );
+
+        $from = $startDate->toDateString();
+        $to = $endDate->toDateString();
+
         $stats = [
-            'tickets' => Ticket::active()->count(),
-            'drivers' => User::role('driver')->count(),
-            'attorneys' => User::role('attorney')->count(),
-            'companies' => Company::count(),
-            'closed_tickets' => Ticket::where('status', Ticket::TICKET_STATUS_CLOSED)->count(),
+            'tickets' => Ticket::active()
+                ->where(function ($query) use ($from, $to) {
+                    $query->where(function ($issued) use ($from, $to) {
+                        $issued->whereDate('date_issued', '>=', $from)
+                            ->whereDate('date_issued', '<=', $to);
+                    })->orWhere(function ($inner) use ($from, $to) {
+                        $inner->whereNull('date_issued')
+                            ->whereDate('created_at', '>=', $from)
+                            ->whereDate('created_at', '<=', $to);
+                    });
+                })
+                ->count(),
+            'drivers' => User::role('driver')
+                ->whereDate('created_at', '>=', $from)
+                ->whereDate('created_at', '<=', $to)
+                ->count(),
+            'attorneys' => User::role('attorney')
+                ->whereDate('created_at', '>=', $from)
+                ->whereDate('created_at', '<=', $to)
+                ->count(),
+            'companies' => Company::query()
+                ->whereDate('created_at', '>=', $from)
+                ->whereDate('created_at', '<=', $to)
+                ->count(),
+            'closed_tickets' => Ticket::where('status', Ticket::TICKET_STATUS_CLOSED)
+                ->whereDate('updated_at', '>=', $from)
+                ->whereDate('updated_at', '<=', $to)
+                ->count(),
             'points_saved' => (float) (Ticket::withoutGlobalScopes()
+                ->where(function ($query) use ($from, $to) {
+                    $query->where(function ($issued) use ($from, $to) {
+                        $issued->whereDate('date_issued', '>=', $from)
+                            ->whereDate('date_issued', '<=', $to);
+                    })->orWhere(function ($inner) use ($from, $to) {
+                        $inner->whereNull('date_issued')
+                            ->whereDate('created_at', '>=', $from)
+                            ->whereDate('created_at', '<=', $to);
+                    });
+                })
                 ->selectRaw('COALESCE(SUM('.Ticket::pointsSavedSql().'), 0) as aggregate')
                 ->value('aggregate') ?? 0),
         ];
@@ -33,8 +76,21 @@ class AdminController extends Controller
             ->orderBy('court_date', 'asc')
             ->limit(5)
             ->get();
-        $pendingTickets = Ticket::where('indicator', Ticket::INDICATOR_PENDING)->orWhereNull('indicator')->limit(5)->get();
+        $pendingTickets = Ticket::where('indicator', Ticket::INDICATOR_PENDING)
+            ->orWhereNull('indicator')
+            ->limit(5)
+            ->get();
         $logs = Log::limit(5)->latest()->get();
+
+        $chartPeriod = in_array($request->input('chart'), ['this_month', 'this_year', 'last_year'], true)
+            ? $request->input('chart')
+            : 'this_year';
+        $ticketOverview = $this->buildTicketOverviewChart($chartPeriod);
+        $chartPeriodLabel = match ($chartPeriod) {
+            'this_month' => 'This Month',
+            'last_year' => 'Last Year',
+            default => 'This Year',
+        };
 
         $searchResults = [
             'tickets' => collect(),
@@ -90,8 +146,165 @@ class AdminController extends Controller
                 ->get();
         }
 
-        return view('admin.dashboard', compact('stats', 'upComingCourtDates', 'pendingTickets', 'logs', 'search', 'searchResults'));
+        $dateRangeLabel = match ($dateFilter) {
+            'this_year' => 'This Year',
+            'last_year' => 'Last Year',
+            default => $startDate->format('M j, Y').' – '.$endDate->format('M j, Y'),
+        };
+
+        return view('admin.dashboard', compact(
+            'stats',
+            'upComingCourtDates',
+            'pendingTickets',
+            'logs',
+            'search',
+            'searchResults',
+            'startDate',
+            'endDate',
+            'dateFilter',
+            'dateRangeLabel',
+            'ticketOverview',
+            'chartPeriod',
+            'chartPeriodLabel'
+        ));
     }
+
+    /**
+     * @return array{0: string, 1: Carbon, 2: Carbon}
+     */
+    protected function resolveDashboardDateFilter(?string $period, ?string $from, ?string $to): array
+    {
+        $period = in_array($period, ['this_year', 'last_year', 'custom'], true) ? $period : 'this_year';
+
+        if ($period === 'last_year') {
+            return [
+                'last_year',
+                now()->subYear()->startOfYear()->startOfDay(),
+                now()->subYear()->endOfYear()->startOfDay(),
+            ];
+        }
+
+        if ($period === 'custom') {
+            $startDate = $this->parseDashboardDate($from) ?? now()->startOfYear()->startOfDay();
+            $endDate = $this->parseDashboardDate($to) ?? now()->endOfYear()->startOfDay();
+
+            if ($startDate->gt($endDate)) {
+                [$startDate, $endDate] = [$endDate, $startDate];
+            }
+
+            return ['custom', $startDate->startOfDay(), $endDate->startOfDay()];
+        }
+
+        return [
+            'this_year',
+            now()->startOfYear()->startOfDay(),
+            now()->endOfYear()->startOfDay(),
+        ];
+    }
+
+    protected function parseDashboardDate(?string $date): ?Carbon
+    {
+        if (! is_string($date) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    protected function buildTicketOverviewChart(string $period): array
+    {
+        if ($period === 'this_year') {
+            $start = now()->startOfYear()->startOfDay();
+            $end = now()->endOfYear()->endOfDay();
+            $groupFormat = '%Y-%m';
+            $labelFormat = 'M';
+            $points = 12;
+            $cursor = $start->copy();
+            $labels = [];
+            for ($i = 0; $i < $points; $i++) {
+                $labels[] = $cursor->copy()->addMonthsNoOverflow($i)->format($labelFormat);
+            }
+        } elseif ($period === 'last_year') {
+            $start = now()->subYear()->startOfYear()->startOfDay();
+            $end = now()->subYear()->endOfYear()->endOfDay();
+            $groupFormat = '%Y-%m';
+            $labelFormat = 'M';
+            $points = 12;
+            $cursor = $start->copy();
+            $labels = [];
+            for ($i = 0; $i < $points; $i++) {
+                $labels[] = $cursor->copy()->addMonthsNoOverflow($i)->format($labelFormat);
+            }
+        } else {
+            $start = now()->startOfMonth()->startOfDay();
+            $end = now()->endOfMonth()->endOfDay();
+            $groupFormat = '%Y-%m-%d';
+            $labelFormat = 'j';
+            $points = (int) $start->daysInMonth;
+            $labels = [];
+            for ($i = 1; $i <= $points; $i++) {
+                $labels[] = (string) $i;
+            }
+        }
+
+        $base = Ticket::withoutGlobalScopes()
+            ->where(function ($query) use ($start, $end) {
+                $query->whereBetween('date_issued', [$start->toDateString(), $end->toDateString()])
+                    ->orWhere(function ($inner) use ($start, $end) {
+                        $inner->whereNull('date_issued')
+                            ->whereBetween('created_at', [$start, $end]);
+                    });
+            });
+
+        $rows = (clone $base)
+            ->selectRaw("DATE_FORMAT(COALESCE(date_issued, created_at), '{$groupFormat}') as bucket")
+            ->selectRaw('SUM(CASE WHEN status IS NULL OR status NOT IN (?, ?) THEN 1 ELSE 0 END) as open_count', [
+                Ticket::TICKET_STATUS_CLOSED,
+                Ticket::TICKET_STATUS_ARCHIVED,
+            ])
+            ->selectRaw('SUM(CASE WHEN indicator = ? OR indicator IS NULL THEN 1 ELSE 0 END) as pending_count', [
+                Ticket::INDICATOR_PENDING,
+            ])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as closed_count', [
+                Ticket::TICKET_STATUS_CLOSED,
+            ])
+            ->groupBy('bucket')
+            ->orderBy('bucket')
+            ->get()
+            ->keyBy('bucket');
+
+        $open = [];
+        $pending = [];
+        $closed = [];
+
+        for ($i = 0; $i < $points; $i++) {
+            if ($period === 'this_month') {
+                $key = $start->copy()->addDays($i)->format('Y-m-d');
+            } else {
+                $key = $start->copy()->addMonthsNoOverflow($i)->format('Y-m');
+            }
+
+            $row = $rows->get($key);
+            $open[] = (int) ($row->open_count ?? 0);
+            $pending[] = (int) ($row->pending_count ?? 0);
+            $closed[] = (int) ($row->closed_count ?? 0);
+        }
+
+        $max = max(1, max(array_merge($open, $pending, $closed)));
+
+        return [
+            'labels' => $labels,
+            'open' => $open,
+            'pending' => $pending,
+            'closed' => $closed,
+            'max' => $max,
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */

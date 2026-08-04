@@ -154,7 +154,11 @@
                                     '</span>'+
                '</div>';
                    markAllReadBtn.classList.add('hidden');
-                   document.querySelector('#notificationCount').innerHTML = '0';
+                   var countEl = document.querySelector('#notificationCount');
+                   if (countEl) {
+                       countEl.textContent = '0';
+                       countEl.classList.add('hidden');
+                   }
                })
                .catch(error => console.error('Error:', error));
 
@@ -181,29 +185,36 @@
 </script>
 <script src="<?php echo e(asset('js/plugins/choices.min.js')); ?>"></script>
 <script>
-    var sessionCompaniesChoices = new Choices('#sessionCompanies', {
-        placeholder: true,
-        placeholderValue: 'Company Name',
-        shouldSort: false,
-    });
-    let selectedSessionCompanies = JSON.parse('<?php echo json_encode(session('active_company_ids')); ?>');
-    sessionCompaniesChoices.setChoices(function () {
-        return fetch('<?php echo e(route('api.company.index')); ?>')
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                return [
-                    ...data.map(function (company) {
-                        return {
-                            value: company.id,
-                            label: company.name,
-                            selected: selectedSessionCompanies?.includes(company.id + '')
-                        };
-                    })
-                ];
-            });
-    });
+    (function () {
+        var sessionCompaniesEl = document.querySelector('#sessionCompanies');
+        if (!sessionCompaniesEl || typeof Choices === 'undefined') {
+            return;
+        }
+
+        var sessionCompaniesChoices = new Choices(sessionCompaniesEl, {
+            placeholder: true,
+            placeholderValue: 'Company Name',
+            shouldSort: false,
+        });
+        let selectedSessionCompanies = JSON.parse('<?php echo json_encode(session('active_company_ids')); ?>');
+        sessionCompaniesChoices.setChoices(function () {
+            return fetch('<?php echo e(route('api.company.index')); ?>')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    return [
+                        ...data.map(function (company) {
+                            return {
+                                value: company.id,
+                                label: company.name,
+                                selected: selectedSessionCompanies?.includes(company.id + '')
+                            };
+                        })
+                    ];
+                });
+        });
+    })();
 </script>
 <script>
     // ── Sidebar collapse toggle (hamburger button) ────────────────

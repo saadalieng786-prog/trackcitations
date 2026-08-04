@@ -407,7 +407,7 @@
                 </a>
             </div>
             <div class="msg-new-conv-body">
-                <form id="createConversationForm" method="POST" action="{{ route('api.conversations.store') }}">
+                <form id="createConversationForm" method="POST" action="{{ route('messaging.conversations.store') }}">
                     @csrf
                     <div class="msg-form-group">
                         <label class="msg-form-label" for="conversationName">Conversation Name <span class="text-red-500">*</span></label>
@@ -416,7 +416,11 @@
                     </div>
                     <div class="msg-form-group">
                         <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
-                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple required></select>
+                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple required>
+                            @foreach(($users ?? []) as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <button type="submit" class="msg-submit-btn">
                         <i class="ti ti-send text-sm"></i>
@@ -454,22 +458,16 @@
         });
 
         // Choices.js for member select
-        var participantsChoices = new Choices('#Addparticipants', {
-            placeholder: true,
-            placeholderValue: 'Search and select users...',
-            removeItemButton: true,
-            itemSelectText: '',
-            shouldSort: false,
-        });
-
-        participantsChoices.setChoices(function () {
-            return fetch('{{ route('api.users.exclude') }}')
-                .then(function (response) { return response.json(); })
-                .then(function (data) {
-                    return data.map(function (user) {
-                        return { value: user.id, label: user.name };
-                    });
-                });
-        });
+        var participantsEl = document.querySelector('#Addparticipants');
+        if (participantsEl && typeof Choices !== 'undefined') {
+            new Choices(participantsEl, {
+                placeholder: true,
+                placeholderValue: 'Search and select users...',
+                removeItemButton: true,
+                itemSelectText: '',
+                shouldSort: false,
+                searchEnabled: true,
+            });
+        }
     </script>
 @endsection

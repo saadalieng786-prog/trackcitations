@@ -50,6 +50,8 @@ Route::get('admin/upcoming_court_date',[CourtDateController::class, 'index'])->n
 Route::group(['middleware' => 'auth'], function () {
     // Messaging.
     Route::get('messaging', [ConversationController::class, 'mainIndex'])->name('messaging.index');
+    Route::post('messaging/conversations', [ConversationController::class, 'store'])->name('messaging.conversations.store');
+    Route::post('messaging/{conversation}/messages', [MessageController::class, 'store'])->name('messaging.messages.store');
 
     // Chunked Background Ticket Export API
     Route::post('tickets/export/start', [TicketExportController::class, 'start'])->name('tickets.export.start');

@@ -22,29 +22,38 @@ class MessageController extends Controller
     public function store(Request $request, $conversationId)
     {
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'attachments' => 'nullable|file|max:5120|mimes:jpeg,png,jpg,gif,svg,heic,heif,pdf,doc,docx',
-            'conversation_id' => 'required|exists:conversations,id',
+            'conversation_id' => 'nullable|exists:conversations,id',
         ]);
-        $currentConversation = Conversation::findOrFail($conversationId);
-        if (!$currentConversation->users->contains(auth()->id())) {
-            abort(403);
+
+        if (! $request->filled('content') && ! $request->hasFile('attachments')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Message content or attachment is required.',
+            ], 422);
         }
 
-        // Step 1: Create the message
+        $currentConversation = Conversation::findOrFail($conversationId);
+        if (! $currentConversation->users()->where('users.id', auth()->id())->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not a participant in this conversation.',
+            ], 403);
+        }
+
         $message = Message::create([
-            'content' => $request->input('content'),
-            'conversation_id' => $request->conversation_id,
-            'sender_id' => auth()->id(),  // Assuming the user is authenticated
+            'content' => (string) $request->input('content', ''),
+            'conversation_id' => $currentConversation->id,
+            'sender_id' => auth()->id(),
         ]);
 
-        // Step 2: Handle file upload if a file is provided
+        $attachment = null;
         if ($request->hasFile('attachments')) {
             $file = $request->file('attachments');
-            $filename = auth()->user()->name . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = auth()->user()->name.'-'.time().'.'.$file->getClientOriginalExtension();
             $stored = AttachmentStorage::storeMessageUpload($file, 'attachments/messages', $filename);
 
-            // Step 3: Create an attachment record in the database
             $attachment = MessageAttachment::create([
                 'message_id' => $message->id,
                 'file_path' => $stored['url'],
@@ -52,14 +61,19 @@ class MessageController extends Controller
             ]);
         }
 
-        // Step 4: Broadcast the message event (optional)
-        broadcast(new \App\Events\MessageSent($message))->toOthers();
+        try {
+            broadcast(new \App\Events\MessageSent($message))->toOthers();
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
-        // Step 5: Return a response
+        $message->load(['sender', 'attachments']);
+
         return response()->json([
             'status' => 'success',
+            'id' => $message->id,
             'message' => $message,
-            'attachment' => $attachment ?? null,
+            'attachment' => $attachment,
         ]);
     }
 

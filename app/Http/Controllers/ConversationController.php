@@ -26,7 +26,13 @@ class ConversationController extends Controller
         ]);
 
         $conversation = Conversation::create(['name' => $request->name]);
-        $conversation->users()->attach($request->user_id);
+        $participantIds = collect($request->user_id)
+            ->map(fn ($id) => (int) $id)
+            ->push((int) auth()->id())
+            ->unique()
+            ->values()
+            ->all();
+        $conversation->users()->attach($participantIds);
 
         return redirect()->route('messaging.show', $conversation->id)->with('success', 'Conversation Created Successfully.');
     }
@@ -34,16 +40,30 @@ class ConversationController extends Controller
     public function mainIndex()
     {
         $conversations = auth()->user()->conversations;
-        return view('messaging.index', compact('conversations'));
+        $users = User::query()
+            ->where('id', '!=', auth()->id())
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('messaging.index', compact('conversations', 'users'));
     }
 
     public function mainShow(Conversation $currentConversation)
     {
         $conversations = auth()->user()->conversations;
-        if (!$currentConversation->users->contains(auth()->id())) {
+        if (!$currentConversation->users()->where('users.id', auth()->id())->exists()) {
             abort(403);
         }
-        return view('messaging.show', compact('currentConversation', 'conversations'));
+
+        $users = User::query()
+            ->where('id', '!=', auth()->id())
+            ->whereDoesntHave('conversations', function ($query) use ($currentConversation) {
+                $query->where('conversations.id', $currentConversation->id);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('messaging.show', compact('currentConversation', 'conversations', 'users'));
     }
 
     // Add a user to the conversation

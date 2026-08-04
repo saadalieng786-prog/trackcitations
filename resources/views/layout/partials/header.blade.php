@@ -78,9 +78,11 @@
                 <a class="pc-head-link dropdown-toggle relative" data-pc-toggle="dropdown" href="#" role="button" title="Notifications">
                     <svg class="pc-icon w-5 h-5"><use xlink:href="#custom-notification"></use></svg>
                     @if($unreadNotificationCount > 0)
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                        <span id="notificationCount" class="tc-notification-badge">
                             {{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}
                         </span>
+                    @else
+                        <span id="notificationCount" class="tc-notification-badge hidden">0</span>
                     @endif
                 </a>
                 <div class="dropdown-menu dropdown-menu-end w-[360px] rounded-xl shadow-xl border border-slate-200 p-0 overflow-hidden">
