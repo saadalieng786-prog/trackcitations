@@ -179,32 +179,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // component- dropdown scrollbar end
 
   // for sidebar close / mobile open
+  // Handler is owned by layout body script to avoid double-toggle + init-order issues.
+  // Kept selector check for theme compatibility (no-op here).
   var sidebar_hide = document.querySelector('#sidebar-hide');
-  if (sidebar_hide) {
-    sidebar_hide.addEventListener('click', function (e) {
-      e.preventDefault();
-      var sidebar = document.querySelector('.pc-sidebar');
-      if (!sidebar) return;
-
-      // Mobile: slide sidebar in/out
-      if (window.innerWidth < 1024) {
-        if (sidebar.classList.contains('mob-sidebar-active')) {
-          rm_menu();
-        } else {
-          sidebar.classList.add('mob-sidebar-active');
-          if (!sidebar.querySelector('.pc-menu-overlay')) {
-            sidebar.insertAdjacentHTML('beforeend', '<div class="pc-menu-overlay"></div>');
-            sidebar.querySelector('.pc-menu-overlay').addEventListener('click', function () {
-              rm_menu();
-            });
-          }
-        }
-        return;
-      }
-
-      // Desktop: collapse / expand
-      sidebar.classList.toggle('pc-sidebar-hide');
-    });
+  if (sidebar_hide && !sidebar_hide.dataset.tcSidebarBound) {
+    // binding deferred to layout
   }
 
   // for input focus add when click search icon
