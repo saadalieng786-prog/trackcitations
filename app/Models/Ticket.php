@@ -294,6 +294,9 @@ class Ticket extends Model
     {
         $prefix = $table ? $table.'.' : '';
 
-        return "COALESCE(CAST(NULLIF(REGEXP_REPLACE({$prefix}{$column}, '[^0-9.-]', ''), '') AS DECIMAL(10,2)), 0)";
+        // return "COALESCE(CAST(NULLIF(REGEXP_REPLACE({$prefix}{$column}, '[^0-9.-]', ''), '') AS DECIMAL(10,2)), 0)";
+        // Just fixing to be run on my local pc but remeber dont push this code
+        return "COALESCE(CAST(NULLIF({$prefix}{$column}, '') AS DECIMAL(10,2)), 0)";
+
     }
 }

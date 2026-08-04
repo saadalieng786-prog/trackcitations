@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('content')
-    @php($portal = auth()->user()->portalRoutePrefix())
+    @php $portal = auth()->user()->portalRoutePrefix(); @endphp
     <div class="col-span-12 lg:col-span-4 md:col-span-6">
         <div class="card">
             <div class="card-body">

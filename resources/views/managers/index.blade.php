@@ -20,22 +20,24 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered yajra-datatable">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Email</th>
-                            <th>State</th>
-                            <th>City</th>
-                            <th>Last access</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <div id="managers-table-wrapper" class="w-full" style="max-width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;">
+                        <table class="table table-bordered yajra-datatable" style="width:100%; min-width: 900px;">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>State</th>
+                                <th>City</th>
+                                <th>Last access</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,6 +51,8 @@
                     processing: true,
                     serverSide: true,
                     paging: true,
+                    responsive: false,
+                    bSortCellsTop: false,
                     ajax: {
                         url: '{{ route(auth()->user()->portalRoutePrefix().".managers.index") }}',
                     },
@@ -69,6 +73,16 @@
                     ],
                     order: [[0, 'desc']], // Default sort by the first column (id) in descending order
                 });
+
+                const managersTableWrapper = document.getElementById('managers-table-wrapper');
+                if (managersTableWrapper) {
+                    managersTableWrapper.addEventListener('wheel', function (event) {
+                        if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+                            managersTableWrapper.scrollLeft += event.deltaY;
+                            event.preventDefault();
+                        }
+                    }, { passive: false });
+                }
 
                 document.addEventListener('submit', function (e) {
                     const deleteForm = e.target.closest('.delete-manager-form');

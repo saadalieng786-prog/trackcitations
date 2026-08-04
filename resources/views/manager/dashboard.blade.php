@@ -1,6 +1,6 @@
 @extends('layout.master')
 @section('content')
-        @php($portal = auth()->user()->portalRoutePrefix())
+        @php $portal = auth()->user()->portalRoutePrefix(); @endphp
         <div class="col-span-12 lg:col-span-6 md:col-span-6">
             <div class="card">
                 <div class="card-body">
@@ -106,7 +106,7 @@
                     <a href="{{ route($portal.'.tickets.index') }}" class="btn btn-secondary btn-sm">All Open Cases</a>
                 </div>
                 <ul class="rounded-lg *:py-4 divide-y divide-inherit border-theme-border dark:border-themedark-border">
-                    @forelse($pendingTickets as $pendingTicket)
+                    @forelse(($pendingTickets ?? collect()) as $pendingTicket)
                         <li class="list-group-item">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="grow">
@@ -143,7 +143,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="mb-4">Upcoming court dates</h5>
-                @forelse($upComingCourtDates as $upComingCourtDate)
+                @forelse(($upComingCourtDates ?? collect()) as $upComingCourtDate)
                     @php
                         $date = \Carbon\Carbon::parse($upComingCourtDate->court_date);
                         $day = $date->format('M d, D');
@@ -175,7 +175,7 @@
                     <a href="{{ route($portal.'.tickets.index', ['status' => \App\Models\Ticket::TICKET_STATUS_CLOSED]) }}" class="btn btn-secondary btn-sm">View Closed</a>
                 </div>
                 <ul class="rounded-lg *:py-4 divide-y divide-inherit border-theme-border dark:border-themedark-border">
-                    @forelse($recentClosedTickets as $ticket)
+                    @forelse(($recentClosedTickets ?? collect()) as $ticket)
                         <li class="list-group-item">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="grow">
@@ -206,7 +206,7 @@
                     <a href="{{ route($portal.'.companies.index') }}" class="btn btn-secondary btn-sm">Manage Companies</a>
                 </div>
                 <ul class="rounded-lg *:py-4 divide-y divide-inherit border-theme-border dark:border-themedark-border">
-                    @forelse($companySnapshots as $company)
+                    @forelse(($companySnapshots ?? collect()) as $company)
                         <li class="list-group-item">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="grow">

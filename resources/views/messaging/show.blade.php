@@ -55,7 +55,7 @@
                 {{-- Scrollable Conversations List (Snaps to Top) --}}
                 <div class="tc-chat-conversations-list scroll-block">
                     @foreach($conversations as $conversation)
-                        @php($isActive = $conversation->id === $currentConversation->id)
+                        @php $isActive = $conversation->id === $currentConversation->id; @endphp
                         <a href="{{ route('messaging.show', $conversation->id) }}"
                            class="tc-chat-conv-item {{ $isActive ? 'active' : '' }}"
                            data-name="{{ strtolower($conversation->name) }}">

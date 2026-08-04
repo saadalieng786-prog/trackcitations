@@ -1,7 +1,7 @@
 @extends('layout.master')
 
 @section('content')
-@php($portal = auth()->user()->portalRoutePrefix())
+@php $portal = auth()->user()->portalRoutePrefix(); @endphp
 
 <div class="col-span-12">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">

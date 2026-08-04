@@ -105,6 +105,13 @@ class AttorneyController extends Controller
     public function store(Request $request)
     {
         //
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+            'notification_email' => $request->has('notification_email'),
+            'notification_sms' => $request->has('notification_sms'),
+            'notification_push' => $request->has('notification_push'),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -114,18 +121,13 @@ class AttorneyController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => 'sometimes|unique:users,phone',
+            'phone' => 'nullable|unique:users,phone',
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
             'notification_push' => '',
             'office_hours_start' => 'date_format:H:i',
             'office_hours_end' => 'date_format:H:i|after:office_hours_start',
-        ]);
-        $request->merge([
-            'notification_email' => $request->has('notification_email'),
-            'notification_sms' => $request->has('notification_sms'),
-            'notification_push' => $request->has('notification_push'),
         ]);
 
         $attorney = Attorney::create($request->only([
@@ -174,6 +176,13 @@ class AttorneyController extends Controller
      */
     public function update(Request $request, Attorney $attorney)
     {
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+            'notification_email' => $request->has('notification_email'),
+            'notification_sms' => $request->has('notification_sms'),
+            'notification_push' => $request->has('notification_push'),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -183,18 +192,13 @@ class AttorneyController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => '',
+            'phone' => 'nullable|unique:users,phone',
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
             'notification_push' => '',
             'office_hours_start' => 'date_format:H:i',
             'office_hours_end' => 'date_format:H:i|after:office_hours_start',
-        ]);
-        $request->merge([
-            'notification_email' => $request->has('notification_email'),
-            'notification_sms' => $request->has('notification_sms'),
-            'notification_push' => $request->has('notification_push'),
         ]);
 
         $data = $request->only(array_merge(

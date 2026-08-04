@@ -144,6 +144,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::resource('companies', CompanyController::class);
             Route::resource('managers', ManagerController::class);
             Route::resource('drivers', DriverController::class);
+            Route::resource('attorneys', AttorneyController::class);
         });
     }
 

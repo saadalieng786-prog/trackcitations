@@ -1,7 +1,7 @@
 @extends('layout.master')
 
 @section('content')
-    @php($portal = auth()->user()->portalRoutePrefix())
+    @php $portal = auth()->user()->portalRoutePrefix(); @endphp
     <div class="col-span-12">
 
         {{-- ── PAGE TOP TITLE & ACTIONS ─────────────────── --}}

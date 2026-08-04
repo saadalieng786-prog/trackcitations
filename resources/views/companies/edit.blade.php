@@ -322,7 +322,7 @@
                                                     </thead>
                                                     <tbody>
                                                     @forelse($company->managers as $index => $manager)
-                                                        @php($managerUser = $manager->user)
+                                                        @php $managerUser = $manager->user; @endphp
                                                         <tr>
                                                             <td>{{ $index + 1}}</td>
                                                             <td>{{ $managerUser?->name ?: 'Manager user missing' }}</td>
