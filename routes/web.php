@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('messaging', [ConversationController::class, 'mainIndex'])->name('messaging.index');
     Route::post('messaging/conversations', [ConversationController::class, 'store'])->name('messaging.conversations.store');
     Route::post('messaging/{conversation}/messages', [MessageController::class, 'store'])->name('messaging.messages.store');
+    Route::get('messaging/attachments/{attachment}/download', [MessageController::class, 'downloadAttachment'])->name('messaging.attachments.download');
 
     // Chunked Background Ticket Export API
     Route::post('tickets/export/start', [TicketExportController::class, 'start'])->name('tickets.export.start');

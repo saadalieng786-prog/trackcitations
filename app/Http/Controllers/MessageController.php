@@ -13,6 +13,7 @@ use App\Models\Message;
 use App\Models\MessageAttachment;
 use Illuminate\Http\Request;
 use App\Support\AttachmentStorage;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MessageController extends Controller
@@ -48,17 +49,49 @@ class MessageController extends Controller
             'sender_id' => auth()->id(),
         ]);
 
+        $currentConversation->touch();
+
         $attachment = null;
         if ($request->hasFile('attachments')) {
             $file = $request->file('attachments');
-            $filename = auth()->user()->name.'-'.time().'.'.$file->getClientOriginalExtension();
-            $stored = AttachmentStorage::storeMessageUpload($file, 'attachments/messages', $filename);
+            if (! $file->isValid()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Uploaded file is invalid: '.$file->getErrorMessage(),
+                ], 422);
+            }
 
-            $attachment = MessageAttachment::create([
-                'message_id' => $message->id,
-                'file_path' => $stored['url'],
-                'file_name' => basename($stored['path']),
-            ]);
+            try {
+                $extension = strtolower((string) $file->getClientOriginalExtension());
+                if ($extension === '') {
+                    $extension = strtolower((string) $file->extension()) ?: 'bin';
+                }
+
+                $filename = 'msg-'.auth()->id().'-'.time().'-'.Str::lower(Str::random(6)).'.'.$extension;
+                $stored = AttachmentStorage::storeMessageUpload($file, 'attachments/messages', $filename);
+
+                $attachment = MessageAttachment::create([
+                    'message_id' => $message->id,
+                    'file_path' => $stored['path'],
+                    'file_name' => $file->getClientOriginalName() ?: basename($stored['path']),
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                \Log::error('Message attachment upload failed', [
+                    'message_id' => $message->id,
+                    'user_id' => auth()->id(),
+                    'disk' => AttachmentStorage::messageDisk(),
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Message saved, but attachment upload failed: '.$e->getMessage(),
+                ], 500);
+            }
         }
 
         try {
@@ -75,6 +108,59 @@ class MessageController extends Controller
             'message' => $message,
             'attachment' => $attachment,
         ]);
+    }
+
+    public function downloadAttachment(MessageAttachment $attachment)
+    {
+        $attachment->loadMissing('message.conversation');
+        $conversation = $attachment->message?->conversation;
+
+        if (! $conversation || ! $conversation->users()->where('users.id', auth()->id())->exists()) {
+            abort(403);
+        }
+
+        $disk = AttachmentStorage::messageDisk();
+        $relativePath = AttachmentStorage::relativePathFromStoredPath($attachment->file_path);
+
+        if (blank($relativePath)) {
+            abort(404, 'Attachment path is missing.');
+        }
+
+        $disksToTry = array_values(array_unique([
+            AttachmentStorage::messageDisk(),
+            AttachmentStorage::ticketDisk(),
+            'public',
+            'local',
+        ]));
+
+        foreach ($disksToTry as $tryDisk) {
+            try {
+                if (! config("filesystems.disks.{$tryDisk}")) {
+                    continue;
+                }
+
+                if (! Storage::disk($tryDisk)->exists($relativePath)) {
+                    continue;
+                }
+
+                if (config("filesystems.disks.{$tryDisk}.driver") === 's3') {
+                    return redirect()->away(
+                        Storage::disk($tryDisk)->temporaryUrl($relativePath, now()->addMinutes(30))
+                    );
+                }
+
+                return Storage::disk($tryDisk)->response(
+                    $relativePath,
+                    $attachment->file_name ?: basename($relativePath),
+                    [],
+                    'inline'
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        abort(404, 'Attachment file was not found in storage. It may have been uploaded before Spaces was connected. Please re-upload the file.');
     }
 
     public function markAllAsRead(Request $request)
@@ -101,7 +187,11 @@ class MessageController extends Controller
             $message->reads()->create(['user_id' => $user->id]);
 
             // Broadcast a MessageRead event for each message
-            broadcast(new MessageRead($message))->toOthers();
+            try {
+                broadcast(new MessageRead($message))->toOthers();
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         return response()->json(['status' => 'success', 'message' => 'All messages marked as read']);
@@ -114,7 +204,7 @@ class MessageController extends Controller
         $message = Message::findOrFail($messageId);
 
         // Check if the user is part of the conversation
-        if (!$message->conversation->users->contains($user->id)) {
+        if (! $message->conversation->users()->where('users.id', $user->id)->exists()) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
@@ -126,7 +216,11 @@ class MessageController extends Controller
         $message->reads()->firstOrCreate(['user_id' => $user->id]);
 
         // Broadcast a single MessageRead event
-        broadcast(new MessageRead($message, $user))->toOthers();
+        try {
+            broadcast(new MessageRead($message))->toOthers();
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Message marked as read']);
     }

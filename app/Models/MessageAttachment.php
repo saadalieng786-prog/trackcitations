@@ -29,6 +29,15 @@ class MessageAttachment extends Model
             return null;
         }
 
+        // Prefer app download route so private S3 objects stay accessible.
+        if ($this->id) {
+            try {
+                return route('messaging.attachments.download', $this->id);
+            } catch (\Throwable) {
+                // fall through
+            }
+        }
+
         if (filter_var($this->file_path, FILTER_VALIDATE_URL)) {
             return $this->file_path;
         }

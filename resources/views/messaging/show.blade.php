@@ -12,7 +12,7 @@
                         @if(auth()->user()->isInternalAdmin())
                             <button type="button"
                                     class="btn btn-primary btn-sm !py-1 !px-2.5 flex items-center gap-1 text-xs"
-                                    onclick="$('#newChatCollapse').toggleClass('hidden')">
+                                    id="openNewChatBtn">
                                 <i class="ti ti-plus text-sm"></i> New
                             </button>
                         @endif
@@ -25,16 +25,16 @@
                     </div>
                 </div>
 
-                {{-- New Conversation Drawer Form (Internal Admins - hidden by default, 0 height) --}}
+                {{-- New Conversation Drawer Form (Internal Admins - hidden by default) --}}
                 @if(auth()->user()->isInternalAdmin())
-                    <div class="hidden msg-create-panel" id="newChatCollapse">
+                    <div class="tc-is-hidden msg-create-panel" id="newChatCollapse">
                         <div class="msg-create-panel-header">
                             <h6>Create New Conversation</h6>
-                            <button type="button" class="msg-create-close" onclick="$('#newChatCollapse').addClass('hidden')" aria-label="Close">
+                            <button type="button" class="msg-create-close" id="closeNewChatBtn" aria-label="Close">
                                 <i class="ti ti-x"></i>
                             </button>
                         </div>
-                        <form method="POST" action="{{ route('messaging.conversations.store') }}" class="msg-create-form">
+                        <form method="POST" action="{{ route('messaging.conversations.store') }}" class="msg-create-form" id="createConversationForm">
                             @csrf
                             <div class="msg-form-group">
                                 <label class="msg-form-label" for="conversationName">Conversation Name <span class="text-red-500">*</span></label>
@@ -42,7 +42,7 @@
                             </div>
                             <div class="msg-form-group">
                                 <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
-                                <select class="form-control" name="user_id[]" id="Addparticipants" multiple required>
+                                <select class="form-control" name="user_id[]" id="Addparticipants" multiple>
                                     @foreach(($users ?? []) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -121,14 +121,17 @@
                 {{-- Messages Scroll Stream --}}
                 <div class="tc-chat-stream-area scroll-block">
                     @foreach($currentConversation->messages as $message)
-                        @if($message->sender->id === auth()->user()->id)
+                        @php $sender = $message->sender; @endphp
+                        @if($sender && $sender->id === auth()->id())
                             {{-- OUTGOING MESSAGE (CURRENT USER) --}}
                             <div class="tc-msg-row outgoing" data-messageid="{{ $message->id }}">
                                 <div>
                                     <div class="tc-msg-bubble-out">
-                                        <p class="m-0 leading-relaxed">{{ $message->content }}</p>
+                                        @if($message->content !== '')
+                                            <p class="m-0 leading-relaxed">{{ $message->content }}</p>
+                                        @endif
                                         @foreach($message->attachments as $attachment)
-                                            <a href="{{ $attachment->file_path }}" download class="tc-msg-attachment-pill">
+                                            <a href="{{ route('messaging.attachments.download', $attachment->id) }}" target="_blank" rel="noopener" class="tc-msg-attachment-pill">
                                                 <i class="ti ti-file-download text-base"></i>
                                                 <span>{{ $attachment->file_name }}</span>
                                             </a>
@@ -136,7 +139,7 @@
                                     </div>
                                     <div class="flex items-center justify-end gap-1.5 mt-1 text-[11px] text-slate-400">
                                         <span>{{ \Carbon\Carbon::parse($message->created_at)->diffForHumans() }}</span>
-                                        <i class="ti ti-checks text-indigo-600 text-sm {{ !$message->isReadByAnyone() ? 'opacity-40' : '' }}" id="readIcon"></i>
+                                        <i class="ti ti-checks text-indigo-600 text-sm {{ !$message->isReadByAnyone() ? 'opacity-40' : '' }}"></i>
                                     </div>
                                 </div>
                             </div>
@@ -144,16 +147,18 @@
                             {{-- INCOMING MESSAGE (OTHER USER) --}}
                             <div class="tc-msg-row incoming" data-messageid="{{ $message->id }}">
                                 <div class="tc-chat-avatar-circle shrink-0 !w-8 !h-8 !text-xs">
-                                    {{ strtoupper(substr($message->sender->name, 0, 2)) }}
+                                    {{ strtoupper(substr(optional($sender)->name ?? 'U', 0, 2)) }}
                                 </div>
                                 <div>
                                     <div class="text-xs font-semibold text-slate-600 mb-1 ml-1">
-                                        {{ $message->sender->name }}
+                                        {{ optional($sender)->name ?? 'Unknown User' }}
                                     </div>
                                     <div class="tc-msg-bubble-in">
-                                        <p class="m-0 leading-relaxed">{{ $message->content }}</p>
+                                        @if($message->content !== '')
+                                            <p class="m-0 leading-relaxed">{{ $message->content }}</p>
+                                        @endif
                                         @foreach($message->attachments as $attachment)
-                                            <a href="{{ $attachment->file_path }}" download class="tc-msg-attachment-pill">
+                                            <a href="{{ route('messaging.attachments.download', $attachment->id) }}" target="_blank" rel="noopener" class="tc-msg-attachment-pill">
                                                 <i class="ti ti-file-download text-base"></i>
                                                 <span>{{ $attachment->file_name }}</span>
                                             </a>
@@ -177,17 +182,17 @@
                                 title="Attach File">
                             <i class="ti ti-paperclip text-lg"></i>
                         </button>
-                        <input type="file" id="messageAttachment" class="hidden" />
+                        <input type="file" id="messageAttachment" class="tc-is-hidden" />
 
                         <textarea id="newMessageText" placeholder="Type a message... (Press Enter to send)" rows="1"></textarea>
 
-                        <span class="hidden badge bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 text-xs rounded" id="attachmentName"></span>
+                        <span class="tc-is-hidden badge bg-indigo-100 text-indigo-700 font-semibold px-2 py-1 text-xs rounded" id="attachmentName"></span>
 
                         <button type="button"
                                 class="btn btn-primary btn-sm !py-2 !px-4 flex items-center gap-1.5 shrink-0"
                                 id="sendMessageButton">
-                            <span>Send</span>
-                            <i class="ti ti-send text-sm"></i>
+                            <span id="sendMessageLabel">Send</span>
+                            <i class="ti ti-send text-sm" id="sendMessageIcon"></i>
                         </button>
                     </div>
                 </div>
@@ -197,10 +202,10 @@
         </div>
 
         {{-- Backdrop Overlay for Chat Details --}}
-        <div id="infoDrawerBackdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40" onclick="toggleChatDetails()"></div>
+        <div id="infoDrawerBackdrop" class="tc-is-hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40" onclick="toggleChatDetails()"></div>
 
         {{-- ── 3. CONVERSATION DETAILS DRAWER ──────────────────────── --}}
-        <div class="hidden fixed inset-y-0 right-0 z-50 w-80 bg-white border-l border-slate-200 shadow-2xl p-5 overflow-y-auto" id="infoDrawer">
+        <div class="tc-is-hidden fixed inset-y-0 right-0 z-50 w-80 bg-white border-l border-slate-200 shadow-2xl p-5 overflow-y-auto" id="infoDrawer">
             <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
                 <h4 class="font-bold text-slate-900 text-base m-0">Chat Details</h4>
                 <button type="button" class="text-slate-400 hover:text-slate-600" onclick="toggleChatDetails()">
@@ -236,9 +241,8 @@
                         </div>
                         @if(auth()->user()->isInternalAdmin() && $user->id !== auth()->id())
                             <button type="button"
-                                    class="text-slate-400 hover:text-red-500 text-sm"
+                                    class="text-slate-400 hover:text-red-500 text-sm remove-user-btn"
                                     data-userid="{{ $user->id }}"
-                                    id="removeUserBtn"
                                     title="Remove Participant">
                                 <i class="ti ti-user-minus"></i>
                             </button>
@@ -287,29 +291,22 @@
 
 @section('post-scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://momentjs.com/downloads/moment.js"></script>
     <script src="{{ asset('js/plugins/choices.min.js') }}"></script>
 
     <script>
         function toggleChatDetails() {
-            $('#infoDrawer').toggleClass('hidden');
-            $('#infoDrawerBackdrop').toggleClass('hidden');
+            document.getElementById('infoDrawer')?.classList.toggle('tc-is-hidden');
+            document.getElementById('infoDrawerBackdrop')?.classList.toggle('tc-is-hidden');
         }
 
-        // Conversation List Filtering
         function filterConversations() {
-            const query = $('#searchConversations').val().toLowerCase();
-            $('.tc-chat-conv-item').each(function() {
-                const name = $(this).data('name');
-                if (name.includes(query)) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
+            const query = (document.getElementById('searchConversations')?.value || '').toLowerCase();
+            document.querySelectorAll('.tc-chat-conv-item').forEach(function(item) {
+                const name = (item.getAttribute('data-name') || '');
+                item.style.display = name.includes(query) ? '' : 'none';
             });
         }
 
-        // Auto-scroll to bottom of chat
         function scrollToChatBottom() {
             const stream = document.querySelector('.tc-chat-stream-area');
             if (stream) {
@@ -317,75 +314,100 @@
             }
         }
 
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             scrollToChatBottom();
 
-            // File Attachment selection
-            $('#attachmentIcon').on('click', function(e) {
+            const newChatPanel = document.getElementById('newChatCollapse');
+            document.getElementById('openNewChatBtn')?.addEventListener('click', function() {
+                newChatPanel?.classList.toggle('tc-is-hidden');
+            });
+            document.getElementById('closeNewChatBtn')?.addEventListener('click', function() {
+                newChatPanel?.classList.add('tc-is-hidden');
+            });
+
+            const fileInput = document.getElementById('messageAttachment');
+            const attachmentName = document.getElementById('attachmentName');
+            document.getElementById('attachmentIcon')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                $('#messageAttachment').click();
+                fileInput?.click();
             });
-
-            $('#messageAttachment').on('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    $('#attachmentName').text(file.name).removeClass('hidden');
+            fileInput?.addEventListener('change', function() {
+                if (this.files[0]) {
+                    attachmentName.textContent = this.files[0].name;
+                    attachmentName.classList.remove('tc-is-hidden');
                 } else {
-                    $('#attachmentName').addClass('hidden');
+                    attachmentName.classList.add('tc-is-hidden');
                 }
             });
 
-            // Send message on Enter
-            $('#newMessageText').on('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
+            const messageInput = document.getElementById('newMessageText');
+            const sendBtn = document.getElementById('sendMessageButton');
+            const sendLabel = document.getElementById('sendMessageLabel');
+            const sendIcon = document.getElementById('sendMessageIcon');
+            let sending = false;
 
-            $('#sendMessageButton').on('click', sendMessage);
+            function setSendingState(isSending) {
+                sending = isSending;
+                if (sendBtn) sendBtn.disabled = isSending;
+                if (messageInput) messageInput.disabled = isSending;
+                if (sendLabel) sendLabel.textContent = isSending ? 'Sending...' : 'Send';
+                if (sendIcon) {
+                    sendIcon.className = isSending ? 'ti ti-loader-2 text-sm animate-spin' : 'ti ti-send text-sm';
+                }
+            }
 
             function sendMessage() {
-                const content = $('#newMessageText').val().trim();
-                const fileInput = document.getElementById('messageAttachment');
-                const file = fileInput.files[0];
+                if (sending) return;
+                const content = (messageInput?.value || '').trim();
+                const file = fileInput?.files?.[0];
 
-                if (content === "" && !file) return;
+                // Block empty messages (no text and no file).
+                if (!content && !file) {
+                    messageInput?.focus();
+                    return;
+                }
+
+                setSendingState(true);
 
                 const formData = new FormData();
                 formData.append('content', content);
                 formData.append('conversation_id', '{{ $currentConversation->id }}');
-
-                if (file) {
-                    formData.append('attachments', file);
-                }
+                if (file) formData.append('attachments', file);
 
                 fetch('{{ route('messaging.messages.store', $currentConversation->id) }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json',
                     },
                     body: formData,
                 })
-                .then(async res => {
-                    const data = await res.json().catch(() => ({}));
+                .then(async function(res) {
+                    const data = await res.json().catch(function() { return {}; });
                     if (!res.ok) {
-                        throw new Error(data.message || 'Failed to send message');
+                        const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Failed to send message');
+                        throw new Error(msg);
                     }
                     return data;
                 })
-                .then(data => {
-                    $('#newMessageText').val('');
-                    fileInput.value = '';
-                    $('#attachmentName').addClass('hidden');
+                .then(function(data) {
+                    if (messageInput) messageInput.value = '';
+                    if (fileInput) fileInput.value = '';
+                    attachmentName?.classList.add('tc-is-hidden');
 
-                    // Append outgoing message bubble dynamically
+                    const safeText = (content || (file ? file.name : '')).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    let attachmentHtml = '';
+                    if (data.attachment && data.attachment.id) {
+                        const fileName = (data.attachment.file_name || 'Attachment').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        attachmentHtml = `<a href="/messaging/attachments/${data.attachment.id}/download" target="_blank" rel="noopener" class="tc-msg-attachment-pill"><i class="ti ti-file-download text-base"></i><span>${fileName}</span></a>`;
+                    }
+
                     const newMsgHtml = `
                         <div class="tc-msg-row outgoing" data-messageid="${data.id || (data.message && data.message.id) || ''}">
                             <div>
                                 <div class="tc-msg-bubble-out">
-                                    <p class="m-0 leading-relaxed">${content || (file ? file.name : '')}</p>
+                                    ${content ? `<p class="m-0 leading-relaxed">${safeText}</p>` : ''}
+                                    ${attachmentHtml}
                                 </div>
                                 <div class="flex items-center justify-end gap-1.5 mt-1 text-[11px] text-slate-400">
                                     <span>Just now</span>
@@ -394,26 +416,29 @@
                             </div>
                         </div>
                     `;
-                    $('.tc-chat-stream-area').append(newMsgHtml);
+                    document.querySelector('.tc-chat-stream-area')?.insertAdjacentHTML('beforeend', newMsgHtml);
                     scrollToChatBottom();
                 })
-                .catch(err => {
+                .catch(function(err) {
                     console.error('Error sending message:', err);
                     alert(err.message || 'Failed to send message');
+                })
+                .finally(function() {
+                    setSendingState(false);
                 });
             }
 
-            // Echo realtime listener (if configured)
-            if (window.Echo) {
-                window.Echo.private(`conversations.{{ $currentConversation->id }}`)
-                    .listen('MessageSent', (message) => {
-                        // Append incoming message dynamically
-                    });
-            }
+            messageInput?.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            sendBtn?.addEventListener('click', sendMessage);
 
-            // Choices setup for adding members (options come from server)
+            let participantsChoices = null;
             if (document.querySelector('#Addparticipants') && typeof Choices !== 'undefined') {
-                new Choices('#Addparticipants', {
+                participantsChoices = new Choices('#Addparticipants', {
                     placeholder: true,
                     placeholderValue: 'Select Users',
                     removeItemButton: true,
@@ -421,6 +446,16 @@
                     searchEnabled: true,
                 });
             }
+
+            document.getElementById('createConversationForm')?.addEventListener('submit', function(e) {
+                const selected = participantsChoices
+                    ? participantsChoices.getValue(true)
+                    : Array.from(document.getElementById('Addparticipants')?.selectedOptions || []).map(o => o.value);
+                if (!selected || selected.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one member.');
+                }
+            });
 
             if (document.querySelector('#addMemberSelect') && typeof Choices !== 'undefined') {
                 const addChoices = new Choices('#addMemberSelect', {
@@ -430,24 +465,52 @@
                     searchEnabled: true,
                 });
 
-                $('#addMemberSelect').on('change', function() {
-                    const userId = $(this).val();
+                document.getElementById('addMemberSelect')?.addEventListener('change', function() {
+                    const userId = addChoices.getValue(true);
                     if (!userId) return;
 
-                    fetch(`/conversations/{{ $currentConversation->id }}/add-user`, {
+                    fetch('{{ route('conversation.addUser', $currentConversation->id) }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         },
                         body: JSON.stringify({ user_id: userId })
                     })
-                    .then(res => res.json())
-                    .then(data => {
+                    .then(async function(res) {
+                        const data = await res.json().catch(function() { return {}; });
+                        if (!res.ok) throw new Error(data.message || 'Failed to add user');
                         location.reload();
+                    })
+                    .catch(function(err) {
+                        alert(err.message || 'Failed to add user');
                     });
                 });
             }
+
+            document.querySelectorAll('.remove-user-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const userId = btn.getAttribute('data-userid');
+                    if (!userId || !confirm('Remove this participant?')) return;
+
+                    fetch(`/conversations/{{ $currentConversation->id }}/remove-user/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                    })
+                    .then(async function(res) {
+                        const data = await res.json().catch(function() { return {}; });
+                        if (!res.ok) throw new Error(data.message || 'Failed to remove user');
+                        location.reload();
+                    })
+                    .catch(function(err) {
+                        alert(err.message || 'Failed to remove user');
+                    });
+                });
+            });
         });
     </script>
 @endsection

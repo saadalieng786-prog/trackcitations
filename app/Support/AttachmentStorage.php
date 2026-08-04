@@ -83,10 +83,15 @@ class AttachmentStorage
         $path = ltrim((string) $path, '/');
 
         if (str_starts_with($path, 'storage/')) {
-            return substr($path, strlen('storage/'));
+            $path = substr($path, strlen('storage/'));
         }
 
-        return $path;
+        $bucket = (string) config('filesystems.disks.s3.bucket');
+        if ($bucket !== '' && str_starts_with($path, $bucket.'/')) {
+            $path = substr($path, strlen($bucket) + 1);
+        }
+
+        return $path !== '' ? $path : null;
     }
 
     protected static function storeUploadedFile(UploadedFile $file, string $directory, string $disk): array
@@ -102,12 +107,48 @@ class AttachmentStorage
 
     protected static function storeUploadedFileAs(UploadedFile $file, string $directory, string $filename, string $disk): array
     {
-        $path = Storage::disk($disk)->putFileAs($directory, $file, $filename);
+        $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', $filename) ?: ('file-'.time());
+        $safeName = trim($safeName, '.-') ?: ('file-'.time());
+
+        $realPath = $file->getRealPath();
+        if (! $realPath || ! is_readable($realPath)) {
+            throw new \RuntimeException('Uploaded temp file is missing or unreadable.');
+        }
+
+        $path = trim($directory.'/'.$safeName, '/');
+
+        // Explicit private visibility avoids public-read ACL failures on private Spaces.
+        $wrote = Storage::disk($disk)->put($path, fopen($realPath, 'r'), [
+            'visibility' => 'private',
+        ]);
+
+        if (! $wrote) {
+            throw new \RuntimeException('Failed to write attachment to disk ['.$disk.'] path ['.$path.']. Check Spaces credentials and bucket permissions.');
+        }
+
+        // Some Spaces/S3 key policies allow PutObject but make HeadObject noisy.
+        // Only fail when we can positively confirm the object is missing.
+        try {
+            if (! Storage::disk($disk)->exists($path)) {
+                throw new \RuntimeException('Attachment write reported success but object is missing on disk ['.$disk.'] path ['.$path.'].');
+            }
+        } catch (\RuntimeException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        $url = null;
+        try {
+            $url = Storage::disk($disk)->url($path);
+        } catch (\Throwable) {
+            $url = null;
+        }
 
         return [
             'disk' => $disk,
             'path' => $path,
-            'url' => Storage::disk($disk)->url($path),
+            'url' => $url,
         ];
     }
 }

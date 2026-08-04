@@ -82,6 +82,10 @@ body {
   overflow: visible !important;
 }
 
+.tc-is-hidden {
+  display: none !important;
+}
+
 .tc-notification-badge {
   position: absolute !important;
   top: 2px !important;

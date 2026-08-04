@@ -20,7 +20,7 @@ class ConversationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'user_id' => 'required|array|min:1',
             'user_id.*' => 'required|integer|distinct|exists:users,id',
         ]);
@@ -39,7 +39,11 @@ class ConversationController extends Controller
 
     public function mainIndex()
     {
-        $conversations = auth()->user()->conversations;
+        $conversations = auth()->user()
+            ->conversations()
+            ->with(['messages' => fn ($q) => $q->latest()->limit(1)])
+            ->get();
+
         $users = User::query()
             ->where('id', '!=', auth()->id())
             ->orderBy('name')
@@ -50,10 +54,22 @@ class ConversationController extends Controller
 
     public function mainShow(Conversation $currentConversation)
     {
-        $conversations = auth()->user()->conversations;
-        if (!$currentConversation->users()->where('users.id', auth()->id())->exists()) {
+        if (! $currentConversation->users()->where('users.id', auth()->id())->exists()) {
             abort(403);
         }
+
+        $currentConversation->load([
+            'users.roles',
+            'messages' => fn ($q) => $q->orderBy('created_at'),
+            'messages.sender',
+            'messages.attachments',
+            'messages.reads',
+        ]);
+
+        $conversations = auth()->user()
+            ->conversations()
+            ->with(['messages' => fn ($q) => $q->latest()->limit(1)])
+            ->get();
 
         $users = User::query()
             ->where('id', '!=', auth()->id())
@@ -63,38 +79,48 @@ class ConversationController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $unread = $currentConversation->messages
+            ->where('sender_id', '!=', auth()->id())
+            ->filter(fn ($message) => ! $message->reads->contains('user_id', auth()->id()));
+
+        foreach ($unread as $message) {
+            $message->reads()->firstOrCreate(['user_id' => auth()->id()]);
+        }
+
         return view('messaging.show', compact('currentConversation', 'conversations', 'users'));
     }
 
-    // Add a user to the conversation
     public function addUser(Request $request, Conversation $conversation)
     {
+        if (! auth()->user()->isInternalAdmin()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $userId = $request->input('user_id');
+        $userId = (int) $request->input('user_id');
 
-        // Check if the user is already in the conversation
-        if ($conversation->users()->where('user_id', $userId)->exists()) {
+        if ($conversation->users()->where('users.id', $userId)->exists()) {
             return response()->json(['status' => 'error', 'message' => 'User is already in the conversation.'], 400);
         }
 
-        // Add the user to the conversation
         $conversation->users()->attach($userId);
 
         return response()->json(['status' => 'success', 'message' => 'User added to the conversation.']);
     }
 
-    // Remove a user from the conversation
     public function removeUser(Conversation $conversation, User $user)
     {
-        // Check if the user is part of the conversation
-        if (!$conversation->users()->where('user_id', $user->id)->exists()) {
+        if (! auth()->user()->isInternalAdmin()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        if (! $conversation->users()->where('users.id', $user->id)->exists()) {
             return response()->json(['status' => 'error', 'message' => 'User is not part of the conversation.'], 400);
         }
 
-        // Remove the user from the conversation
         $conversation->users()->detach($user->id);
 
         return response()->json(['status' => 'success', 'message' => 'User removed from the conversation.']);

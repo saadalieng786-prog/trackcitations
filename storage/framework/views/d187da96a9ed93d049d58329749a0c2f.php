@@ -415,7 +415,7 @@
                     </div>
                     <div class="msg-form-group">
                         <label class="msg-form-label" for="Addparticipants">Add Members <span class="text-red-500">*</span></label>
-                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple required>
+                        <select class="form-control" name="user_id[]" id="Addparticipants" multiple>
                             <?php $__currentLoopData = ($users ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -458,8 +458,9 @@
 
         // Choices.js for member select
         var participantsEl = document.querySelector('#Addparticipants');
+        var participantsChoices = null;
         if (participantsEl && typeof Choices !== 'undefined') {
-            new Choices(participantsEl, {
+            participantsChoices = new Choices(participantsEl, {
                 placeholder: true,
                 placeholderValue: 'Search and select users...',
                 removeItemButton: true,
@@ -468,6 +469,16 @@
                 searchEnabled: true,
             });
         }
+
+        document.getElementById('createConversationForm')?.addEventListener('submit', function(e) {
+            var selected = participantsChoices
+                ? participantsChoices.getValue(true)
+                : Array.from(participantsEl?.selectedOptions || []).map(function(o) { return o.value; });
+            if (!selected || selected.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one member.');
+            }
+        });
     </script>
 <?php $__env->stopSection(); ?>
 
