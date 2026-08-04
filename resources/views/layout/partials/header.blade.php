@@ -9,7 +9,7 @@
 
         {{-- ── LEFT: Toggle + Search Input ─── --}}
         <div class="flex items-center gap-4 grow max-w-[600px]">
-            <a href="#!" class="pc-head-link text-slate-500 hover:text-slate-700" id="sidebar-hide" title="Toggle sidebar">
+            <a href="#!" class="pc-head-link text-slate-500 hover:text-slate-700" id="sidebar-hide" title="Toggle sidebar" onclick="toggleSidebarMenu(event)">
                 <i class="ti ti-menu-2 text-xl"></i>
             </a>
 

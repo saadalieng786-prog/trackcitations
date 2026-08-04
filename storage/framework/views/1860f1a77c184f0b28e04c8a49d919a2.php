@@ -217,12 +217,31 @@
     })();
 </script>
 <script>
-    // ── Sidebar collapse toggle (hamburger button) ────────────────
+    // ── Sidebar toggle (desktop collapse + mobile open) ───────────
     function toggleSidebarMenu(e) {
         if (e) e.preventDefault();
         var sidebar = document.querySelector('.pc-sidebar');
         if (!sidebar) return;
-        // style.css sibling selectors handle header left + container margin automatically
+
+        if (window.innerWidth < 1024) {
+            if (sidebar.classList.contains('mob-sidebar-active')) {
+                sidebar.classList.remove('mob-sidebar-active');
+                var overlay = sidebar.querySelector('.pc-menu-overlay');
+                if (overlay) overlay.remove();
+            } else {
+                sidebar.classList.add('mob-sidebar-active');
+                if (!sidebar.querySelector('.pc-menu-overlay')) {
+                    sidebar.insertAdjacentHTML('beforeend', '<div class="pc-menu-overlay"></div>');
+                    sidebar.querySelector('.pc-menu-overlay').addEventListener('click', function () {
+                        sidebar.classList.remove('mob-sidebar-active');
+                        var o = sidebar.querySelector('.pc-menu-overlay');
+                        if (o) o.remove();
+                    });
+                }
+            }
+            return;
+        }
+
         sidebar.classList.toggle('pc-sidebar-hide');
     }
 

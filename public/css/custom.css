@@ -141,6 +141,24 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 1023.98px) {
+  .pc-sidebar.mob-sidebar-active {
+    left: 0 !important;
+    width: 280px !important;
+    overflow: visible !important;
+    z-index: 1100 !important;
+  }
+
+  .pc-sidebar.mob-sidebar-active .pc-menu-overlay {
+    z-index: 1 !important;
+  }
+
+  .pc-sidebar.mob-sidebar-active .navbar-wrapper {
+    z-index: 2 !important;
+    background: #ffffff !important;
+  }
+}
+
 /* Sidebar header row — taller to give logo room */
 .pc-sidebar .m-header {
   height: 72px !important;
@@ -1319,6 +1337,28 @@ html.dark .card-header {
 [data-pc-theme="dark"] .tc-chat-conv-item:hover,
 [data-pc-theme="dark"] .table.tc-clean-table tbody tr:hover {
   background-color: #334155 !important;
+}
+
+/* Driver dashboard tickets table */
+.tc-driver-tickets-table .tc-col-name {
+  max-width: 160px;
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+.tc-driver-tickets-table .table.tc-clean-table th,
+.tc-driver-tickets-table .table.tc-clean-table td {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  font-size: 12.5px !important;
+}
+
+@media (max-width: 1199.98px) {
+  .tc-driver-tickets-table .tc-col-optional {
+    display: none !important;
+  }
 }
 
 /* ─── 11. CHOICES.JS SELECT BOX FIXES (Prevents vertical letter wrapping) ─── */

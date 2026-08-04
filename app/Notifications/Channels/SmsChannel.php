@@ -16,23 +16,49 @@ class SmsChannel
         if (!method_exists($notification, 'toSms')) {
             return;
         }
+
+        $rawPhone = $notifiable->phone ?? null;
+        if (! is_string($rawPhone) || trim($rawPhone) === '') {
+            logger()->warning('Skipping SMS: notifiable has no phone number.', [
+                'notifiable_type' => is_object($notifiable) ? get_class($notifiable) : gettype($notifiable),
+                'notifiable_id' => is_object($notifiable) ? ($notifiable->id ?? null) : null,
+                'notification' => get_class($notification),
+            ]);
+
+            return;
+        }
+
         $message = $notification->toSms($notifiable);
-        $phone = $this->normalizePhone($notifiable->phone);
+        $phone = $this->normalizePhone($rawPhone);
 
-        $this->smsService->send($phone, $notification->toSms($notifiable), $message, $notification->ticket);
+        if ($phone === '') {
+            logger()->warning('Skipping SMS: phone normalized to empty.', [
+                'raw_phone' => $rawPhone,
+                'notifiable_id' => $notifiable->id ?? null,
+                'notification' => get_class($notification),
+            ]);
 
-        logger()->info("Sending SMS to {$notifiable->phone}: {$message}");
+            return;
+        }
+
+        $this->smsService->send($phone, $message, $message, $notification->ticket ?? null);
+
+        logger()->info("Sending SMS to {$phone}: {$message}");
     }
 
-    public function normalizePhone(string $phone, array $stripCountryCodes = ['+1', '1', '0020', '+20']): string
+    public function normalizePhone(?string $phone, array $stripCountryCodes = ['+1', '1', '0020', '+20']): string
     {
+        if ($phone === null || trim($phone) === '') {
+            return '';
+        }
+
         // Remove all non-digits
-        $digits = preg_replace('/\D+/', '', $phone);
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
 
         // Check and remove known prefixes
         foreach ($stripCountryCodes as $code) {
             $codeDigits = preg_replace('/\D+/', '', $code);
-            if (str_starts_with($digits, $codeDigits)) {
+            if ($codeDigits !== '' && str_starts_with($digits, $codeDigits)) {
                 return substr($digits, strlen($codeDigits));
             }
         }

@@ -178,15 +178,32 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   // component- dropdown scrollbar end
 
-  // for sidebar close
+  // for sidebar close / mobile open
   var sidebar_hide = document.querySelector('#sidebar-hide');
   if (sidebar_hide) {
-    sidebar_hide.addEventListener('click', function () {
-      if (document.querySelector('.pc-sidebar').classList.contains('pc-sidebar-hide')) {
-        document.querySelector('.pc-sidebar').classList.remove('pc-sidebar-hide');
-      } else {
-        document.querySelector('.pc-sidebar').classList.add('pc-sidebar-hide');
+    sidebar_hide.addEventListener('click', function (e) {
+      e.preventDefault();
+      var sidebar = document.querySelector('.pc-sidebar');
+      if (!sidebar) return;
+
+      // Mobile: slide sidebar in/out
+      if (window.innerWidth < 1024) {
+        if (sidebar.classList.contains('mob-sidebar-active')) {
+          rm_menu();
+        } else {
+          sidebar.classList.add('mob-sidebar-active');
+          if (!sidebar.querySelector('.pc-menu-overlay')) {
+            sidebar.insertAdjacentHTML('beforeend', '<div class="pc-menu-overlay"></div>');
+            sidebar.querySelector('.pc-menu-overlay').addEventListener('click', function () {
+              rm_menu();
+            });
+          }
+        }
+        return;
       }
+
+      // Desktop: collapse / expand
+      sidebar.classList.toggle('pc-sidebar-hide');
     });
   }
 
