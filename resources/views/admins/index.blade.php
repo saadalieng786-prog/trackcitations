@@ -14,8 +14,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered yajra-datatable">
+                <div class="card-body !px-0">
+                    <table class="table table-bordered yajra-datatable w-full" style="min-width: 800px;">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -45,6 +45,8 @@
                     processing: true,
                     serverSide: true,
                     paging: true,
+                    autoWidth: false,
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
                     ajax: {
                         url: '{{ route($portal.".admins.index") }}',
                     },
