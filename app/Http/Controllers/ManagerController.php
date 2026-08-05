@@ -165,6 +165,10 @@ class ManagerController extends Controller
     public function store(Request $request)
     {
         //
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -175,7 +179,7 @@ class ManagerController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => 'sometimes|unique:users,phone',
+            'phone' => 'nullable|unique:users,phone',
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -191,7 +195,10 @@ class ManagerController extends Controller
             'notification_push' => $request->has('notification_push'),
         ]);
 
-        foreach ($request->get('managerCompany_id') as $index => $company_id) {
+        $companyIds = $request->input('managerCompany_id', []) ?? [];
+        $companyWriteFlags = $request->input('managerCompany_isWrite', []) ?? [];
+
+        foreach ($companyIds as $index => $company_id) {
             $currentUser = \auth()->user();
             if ($currentUser->isCompanyAdmin() && !$currentUser->canWriteCompany((int) $company_id)) {
                 throw ValidationException::withMessages([
@@ -218,14 +225,15 @@ class ManagerController extends Controller
             'notification_push',
         ]));
 
-        foreach ($request->get('managerCompany_id') as $index => $company_id) {
+        foreach ($companyIds as $index => $company_id) {
+            $isWrite = ($companyWriteFlags[$index] ?? 'No') === 'Yes';
             $manager->companies()->attach($company_id, [
-                'is_write_access' => $request->get('managerCompany_isWrite')[$index] == 'Yes'
+                'is_write_access' => $isWrite,
             ]);
 
-            if ($request->get('managerCompany_isWrite')[$index] == 'Yes') {
+            if ($isWrite) {
                 $permissionName = "write.company.{$company_id}";
-                $permission = Permission::firstOrCreate(['name' => $permissionName]);
+                Permission::firstOrCreate(['name' => $permissionName]);
                 $user->givePermissionTo($permissionName);
             }
         }
@@ -258,6 +266,10 @@ class ManagerController extends Controller
     public function update(Request $request, Manager $manager)
     {
         //
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -268,18 +280,26 @@ class ManagerController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => '',
+            'phone' => 'nullable|unique:users,phone,'.$manager->user->id,
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
-            'notification_push' => ''
+            'notification_push' => '',
+            'managerCompany_id' => 'nullable|array',
+            'managerCompany_id.*' => 'nullable|exists:companies,id',
+            'managerCompany_isWrite' => 'nullable|array',
+            'managerCompany_isWrite.*' => 'nullable|in:Yes,No',
         ]);
         $request->merge([
             'notification_email' => $request->has('notification_email'),
             'notification_sms' => $request->has('notification_sms'),
             'notification_push' => $request->has('notification_push'),
         ]);
-        foreach ($request->get('managerCompany_id') as $index => $company_id) {
+
+        $companyIds = $request->input('managerCompany_id', []) ?? [];
+        $companyWriteFlags = $request->input('managerCompany_isWrite', []) ?? [];
+
+        foreach ($companyIds as $index => $company_id) {
             $currentUser = \auth()->user();
             if ($currentUser->isCompanyAdmin() && !$currentUser->canWriteCompany((int) $company_id)) {
                 throw ValidationException::withMessages([
@@ -316,14 +336,15 @@ class ManagerController extends Controller
         // Remove all old companies.
         $manager->companies()->detach();
 
-        foreach ($request->get('managerCompany_id') as $index => $company_id) {
+        foreach ($companyIds as $index => $company_id) {
+            $isWrite = ($companyWriteFlags[$index] ?? 'No') === 'Yes';
             $manager->companies()->attach($company_id, [
-                'is_write_access' => $request->get('managerCompany_isWrite')[$index] == 'Yes'
+                'is_write_access' => $isWrite,
             ]);
 
-            if ($request->get('managerCompany_isWrite')[$index] == 'Yes') {
+            if ($isWrite) {
                 $permissionName = "write.company.{$company_id}";
-                $permission = Permission::firstOrCreate(['name' => $permissionName]);
+                Permission::firstOrCreate(['name' => $permissionName]);
                 $manager->user->givePermissionTo($permissionName);
             }
         }

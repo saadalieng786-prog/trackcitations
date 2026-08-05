@@ -28,6 +28,12 @@ use App\Http\Controllers\CourtDateController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ReadController;
+use App\Http\Controllers\Api\UserController as APIUserController;
+use App\Http\Controllers\Api\DriverController as APIDriverController;
+use App\Http\Controllers\Api\CompanyController as APICompanyController;
+use App\Http\Controllers\Api\AttorneyController as APIAttorneyController;
+use App\Http\Controllers\Api\TicketAttachmentController as APITicketAttachmentController;
+use App\Http\Controllers\Api\TicketNoteController as APITicketNoteController;
 
 
 Route::get('/', [HomeController::class, 'homepage'])->name('homepage');
@@ -166,6 +172,24 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('dashboard', [DriverController::class, 'dashboard'])->name('dashboard');
         Route::resource('tickets', DriverTicketController::class);
     });
+});
+
+// AJAX endpoints for Blade forms — must use web middleware (session auth).
+Route::group(['middleware' => 'auth', 'prefix' => 'api', 'as' => 'api.'], function () {
+    Route::get('users/exclude/{conversation?}', [APIUserController::class, 'exclude'])->name('users.exclude');
+    Route::get('drivers', [APIDriverController::class, 'index'])->name('driver.index');
+    Route::get('companies', [APICompanyController::class, 'index'])->name('company.index');
+    Route::get('attorneys', [APIAttorneyController::class, 'index'])->name('attorney.index');
+    Route::post('ticket/{ticket}/attach', [APITicketAttachmentController::class, 'store'])->name('tickets-attach.store');
+    Route::post('ticket/{ticket}/note', [APITicketNoteController::class, 'store'])->name('tickets-note.store');
+
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations', [ConversationController::class, 'store'])->name('conversations.store');
+    Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
+    Route::post('/messages/{message}/read', [ReadController::class, 'store']);
+    Route::get('/messages/{message}/reads', [ReadController::class, 'getMessageReads']);
+
+    Route::post('setSessionCompanies', [HomeController::class, 'setSessionCompanies'])->name('setSessionCompanies');
 });
 
 

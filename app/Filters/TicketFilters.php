@@ -28,21 +28,28 @@ class TicketFilters extends Filters
 
     protected function name($name) {
         if ($name) {
-            return $this->builder->whereLike('name', "%$name%");
+            return $this->builder->where('name', 'like', "%{$name}%");
         }
     }
     protected function status($status) {
-        if (!is_null($status)) {
+        if ($status !== null && $status !== '') {
             return $this->builder->where('status', '=', $status);
         }
     }
     protected function court_date($courtDate) {
-        if (!empty($courtDate)) {
-            $dates = explode(' to ', $courtDate);
-            $startDate = date($dates[0]);
-            $endDate = date($dates[1]);
-            return $this->builder->whereBetween('court_date', [$startDate, $endDate]);
+        if (empty($courtDate)) {
+            return;
         }
+
+        $dates = preg_split('/\s+to\s+/i', trim($courtDate)) ?: [];
+        $startDate = $dates[0] ?? null;
+        $endDate = $dates[1] ?? $startDate;
+
+        if (empty($startDate)) {
+            return;
+        }
+
+        return $this->builder->whereBetween('court_date', [$startDate, $endDate]);
     }
     protected function company_id($company_id) {
         if ($company_id) {
