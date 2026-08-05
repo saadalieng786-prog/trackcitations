@@ -41,16 +41,18 @@
                 <a class="pc-head-link dropdown-toggle" data-pc-toggle="dropdown" href="#" role="button" title="Filter by Company">
                     <svg class="pc-icon w-5 h-5"><use xlink:href="#custom-layer"></use></svg>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end p-4 w-[320px] rounded-xl shadow-lg border border-slate-200">
+                <div class="dropdown-menu dropdown-menu-end tc-company-filter-menu p-4 w-[340px] rounded-xl shadow-lg border border-slate-200">
                     <div class="mb-3">
                         <h6 class="font-bold text-slate-800 text-sm mb-1">Filter by Company</h6>
-                        <p class="text-xs text-slate-400">Select companies to restrict dashboard view</p>
+                        <p class="text-xs text-slate-400 mb-0">Select companies to restrict dashboard view</p>
                     </div>
-                    <form action="{{ route('api.setSessionCompanies') }}" method="POST">
+                    <form action="{{ route('api.setSessionCompanies') }}" method="POST" id="sessionCompaniesForm">
                         @csrf
-                        <select class="form-control" name="company_ids[]" id="sessionCompanies" data-trigger multiple></select>
+                        <div class="tc-company-filter-field">
+                            <select class="form-control" name="company_ids[]" id="sessionCompanies" data-trigger multiple></select>
+                        </div>
                         <div class="flex gap-2 mt-3 pt-3 border-t border-slate-100">
-                            <button class="btn btn-outline-secondary btn-sm grow" type="button" onclick="this.closest('form').submit()">Reset</button>
+                            <button class="btn btn-outline-secondary btn-sm grow" type="button" id="sessionCompaniesReset">Reset</button>
                             <button class="btn btn-primary btn-sm grow" type="submit">Apply</button>
                         </div>
                     </form>

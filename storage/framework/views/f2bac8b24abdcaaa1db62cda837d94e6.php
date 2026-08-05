@@ -10,8 +10,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered yajra-datatable">
+                <div class="card-body !px-0">
+                    <table class="table table-bordered yajra-datatable w-full" style="min-width: 720px;">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -38,6 +38,8 @@
                     processing: true,
                     serverSide: true,
                     paging: true,
+                    autoWidth: false,
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
                     ajax: {
                         url: '<?php echo e(route(auth()->user()->portalRoutePrefix().".attorneys.index")); ?>',
                     },
@@ -82,4 +84,4 @@
             </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\attorneys\index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\attorneys\index.blade.php ENDPATH**/ ?>

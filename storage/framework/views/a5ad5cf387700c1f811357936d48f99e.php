@@ -217,14 +217,61 @@
     })();
 </script>
 <script>
-    // ── Sidebar collapse toggle (hamburger button) ────────────────
-    function toggleSidebarMenu(e) {
-        if (e) e.preventDefault();
-        var sidebar = document.querySelector('.pc-sidebar');
-        if (!sidebar) return;
-        // style.css sibling selectors handle header left + container margin automatically
-        sidebar.classList.toggle('pc-sidebar-hide');
-    }
+    (function () {
+        function closeMobileSidebar() {
+            var sidebar = document.querySelector('.pc-sidebar');
+            if (!sidebar) return;
+            sidebar.classList.remove('mob-sidebar-active');
+            var overlay = sidebar.querySelector('.pc-menu-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        function openMobileSidebar() {
+            var sidebar = document.querySelector('.pc-sidebar');
+            if (!sidebar) return;
+            sidebar.classList.add('mob-sidebar-active');
+            if (!sidebar.querySelector('.pc-menu-overlay')) {
+                var overlay = document.createElement('div');
+                overlay.className = 'pc-menu-overlay';
+                overlay.addEventListener('click', closeMobileSidebar);
+                sidebar.appendChild(overlay);
+            }
+        }
+
+        window.toggleSidebarMenu = function (e) {
+            if (e) e.preventDefault();
+            var sidebar = document.querySelector('.pc-sidebar');
+            if (!sidebar) return;
+
+            if (window.innerWidth < 1024) {
+                if (sidebar.classList.contains('mob-sidebar-active')) {
+                    closeMobileSidebar();
+                } else {
+                    openMobileSidebar();
+                }
+                return;
+            }
+
+            sidebar.classList.toggle('pc-sidebar-hide');
+        };
+
+        function bindSidebarToggle() {
+            var btn = document.getElementById('sidebar-hide');
+            if (!btn || btn.dataset.tcSidebarBound === '1') return;
+            btn.dataset.tcSidebarBound = '1';
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.toggleSidebarMenu(e);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindSidebarToggle);
+        } else {
+            bindSidebarToggle();
+        }
+    })();
 
     // ── Ctrl / Cmd + K → focus top header search input ───────────
     document.addEventListener('keydown', function (e) {

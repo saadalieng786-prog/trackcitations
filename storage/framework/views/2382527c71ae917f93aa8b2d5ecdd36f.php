@@ -5,13 +5,13 @@
         
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 m-0 tracking-tight">Archived Tickets List</h1>
+                <h1 class="text-2xl font-bold text-slate-900 m-0 tracking-tight">Pending Tickets list</h1>
                 <div class="text-xs text-slate-500 mt-1">
                     <a href="<?php echo e(route('dashboard')); ?>" class="text-slate-500 hover:text-indigo-600">Dashboard</a>
                     <span class="mx-1.5 text-slate-300">/</span>
                     <a href="<?php echo e(route($portal.'.tickets.index')); ?>" class="text-slate-500 hover:text-indigo-600">Tickets</a>
                     <span class="mx-1.5 text-slate-300">/</span>
-                    <span class="font-medium text-slate-700">Archived</span>
+                    <span class="font-medium text-slate-700">Pending</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -19,6 +19,9 @@
                    class="js-download-tickets btn btn-outline-secondary btn-sm flex items-center gap-2"
                    title="Export tickets in background">
                     <i class="ti ti-download text-base"></i> Download Tickets
+                </a>
+                <a href="<?php echo e(route($portal.'.tickets.create')); ?>" class="btn btn-primary btn-sm flex items-center gap-2">
+                    <i class="ti ti-plus text-base"></i> Create Ticket
                 </a>
             </div>
         </div>
@@ -50,7 +53,7 @@
                             <td><?php echo e($ticket->state ?? '—'); ?></td>
                             <td><?php echo e($ticket->company?->name ?? '—'); ?></td>
                             <td>
-                                <span class="tc-badge-soft-purple"><?php echo e($ticket->indicator ?? 'Archived'); ?></span>
+                                <span class="tc-badge-soft-orange"><?php echo e($ticket->indicator ?? 'Pending'); ?></span>
                             </td>
                             <td>
                                 <?php if($ticket->isDverDataq()['DVER']): ?>
@@ -62,13 +65,23 @@
                             <td><?php echo e(\Carbon\Carbon::parse($ticket->updated_at)->diffForHumans()); ?></td>
                             <td class="text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <form method="POST" action="<?php echo e(route($portal.'.tickets.restore', $ticket->id)); ?>" class="inline">
+                                    <a href="<?php echo e(route($portal.'.tickets.show', $ticket->id)); ?>" 
+                                       class="w-8 h-8 rounded-lg inline-flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
+                                       title="View Ticket">
+                                        <i class="ti ti-eye text-lg"></i>
+                                    </a>
+                                    <a href="<?php echo e(route($portal.'.tickets.edit', $ticket->id)); ?>" 
+                                       class="w-8 h-8 rounded-lg inline-flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
+                                       title="Edit Ticket">
+                                        <i class="ti ti-edit text-lg"></i>
+                                    </a>
+                                    <form action="<?php echo e(route($portal.'.tickets.destroy', $ticket->id)); ?>" method="POST" class="inline delete-ticket-form">
+                                        <?php echo method_field('DELETE'); ?>
                                         <?php echo csrf_field(); ?>
                                         <button type="submit" 
-                                                class="btn btn-outline-secondary btn-sm flex items-center gap-1.5 text-xs py-1 px-2.5"
-                                                title="Restore Ticket">
-                                            <i class="ti ti-arrow-back-up text-sm"></i>
-                                            <span>Restore</span>
+                                                class="w-8 h-8 rounded-lg inline-flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                title="Delete Ticket">
+                                            <i class="ti ti-trash text-lg"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -99,7 +112,7 @@
                 order: [[0, 'desc']],
                 language: {
                     search: "_INPUT_",
-                    searchPlaceholder: "Search archived tickets...",
+                    searchPlaceholder: "Search pending tickets...",
                     lengthMenu: "_MENU_ entries per page"
                 }
             });
@@ -107,4 +120,4 @@
     </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/admin/tickets/archive.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/admin/tickets/pending.blade.php ENDPATH**/ ?>

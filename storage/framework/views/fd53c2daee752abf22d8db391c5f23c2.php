@@ -1,8 +1,7 @@
 <?php $__env->startSection('content'); ?>
     <div class="col-span-12">
-        <form action="<?php echo e(route(Auth::user()->portalRoutePrefix().'.managers.update', $manager->id)); ?>" method="POST">
+        <form action="<?php echo e(route(Auth::user()->portalRoutePrefix().'.managers.store')); ?>" method="POST">
             <?php echo csrf_field(); ?>
-            <?php echo method_field('PUT'); ?>
             <div class="card">
                 <div class="card-body !py-0">
                     <ul class="flex flex-wrap w-full font-medium text-center nav-tabs">
@@ -59,7 +58,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="name">Name</label>
-                                                <input type="text"  name="name" id="name" class="form-control" value="<?php echo e(old('name', $manager->user->name)); ?>" required autofocus />
+                                                <input type="text"  name="name" id="name" class="form-control" value="<?php echo e(old('name')); ?>" required autofocus />
                                                 <?php if($errors->has('name')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('name')); ?></strong>
@@ -70,7 +69,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="email">Email</label>
-                                                <input type="email" name="email" id="email" class="form-control" value="<?php echo e(old('email', $manager->user->email)); ?>" required/>
+                                                <input type="email" name="email" id="email" class="form-control" value="<?php echo e(old('email')); ?>" required />
                                                 <?php if($errors->has('email')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('email')); ?></strong>
@@ -94,7 +93,7 @@
                                                 <label class="form-label text-primary text-[18px] font-bold" for="role">Access Role</label>
                                                 <select name="role" id="role" class="form-control" required>
                                                     <?php $__currentLoopData = $roleOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                        <option value="<?php echo e($value); ?>" <?php echo e(old('role', $manager->user->getRoleNames()->first()) === $value ? 'selected' : ''); ?>><?php echo e($label); ?></option>
+                                                        <option value="<?php echo e($value); ?>" <?php echo e(old('role', \App\Models\User::ROLE_COMPANY_ADMIN) === $value ? 'selected' : ''); ?>><?php echo e($label); ?></option>
                                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 </select>
                                                 <?php if($errors->has('role')): ?>
@@ -107,7 +106,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="phone">Phone</label>
-                                                <input type="text" name="phone" id="phone" class="form-control" value="<?php echo e(old('phone', $manager->user->phone)); ?>" />
+                                                <input type="text" name="phone" id="phone" class="form-control" value="<?php echo e(old('phone')); ?>" />
                                                 <?php if($errors->has('phone')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('phone')); ?></strong>
@@ -120,7 +119,7 @@
                                                 <label class="form-label text-primary text-[18px] font-bold" for="dateOfBirth">Date of birth ( optional )</label>
                                                 <div class="input-group date">
                                                     <input type="text" name="dob" class="form-control" placeholder="Select date"
-                                                           id="dateOfBirth" value="<?php echo e(old('dob', $manager->user->dob)); ?>"/>
+                                                           id="dateOfBirth" value="<?php echo e(old('dob')); ?>"/>
                                                     <span class="input-group-text">
                                                           <i class="feather icon-calendar"></i>
                                                         </span>
@@ -135,7 +134,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="address">Address</label>
-                                                <input type="text" name="address" id="address" class="form-control" value="<?php echo e(old('address', $manager->user->address)); ?>" />
+                                                <input type="text" name="address" id="address" class="form-control" value="<?php echo e(old('address')); ?>" />
                                                 <?php if($errors->has('address')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('address')); ?></strong>
@@ -146,7 +145,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="city">City</label>
-                                                <input type="text" name="city" id="city" class="form-control" value="<?php echo e(old('city', $manager->user->city)); ?>" />
+                                                <input type="text" name="city" id="city" class="form-control" value="<?php echo e(old('city')); ?>" />
                                                 <?php if($errors->has('city')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('city')); ?></strong>
@@ -158,57 +157,57 @@
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="state">State</label>
                                                 <select class="form-control" name="state" data-trigger name="state" id="state">
-                                                    <option value="AL" <?php echo e(old('state', $manager->user->state) == 'AL' ? 'selected' : ''); ?>>Alabama</option>
-                                                    <option value="AK" <?php echo e(old('state', $manager->user->state) == 'AK' ? 'selected' : ''); ?>>Alaska</option>
-                                                    <option value="AZ" <?php echo e(old('state', $manager->user->state) == 'AZ' ? 'selected' : ''); ?>>Arizona</option>
-                                                    <option value="AR" <?php echo e(old('state', $manager->user->state) == 'AR' ? 'selected' : ''); ?>>Arkansas</option>
-                                                    <option value="CA" <?php echo e(old('state', $manager->user->state) == 'CA' ? 'selected' : ''); ?>>California</option>
-                                                    <option value="CO" <?php echo e(old('state', $manager->user->state) == 'CO' ? 'selected' : ''); ?>>Colorado</option>
-                                                    <option value="CT" <?php echo e(old('state', $manager->user->state) == 'CT' ? 'selected' : ''); ?>>Connecticut</option>
-                                                    <option value="DE" <?php echo e(old('state', $manager->user->state) == 'DE' ? 'selected' : ''); ?>>Delaware</option>
-                                                    <option value="DC" <?php echo e(old('state', $manager->user->state) == 'DC' ? 'selected' : ''); ?>>District Of Columbia</option>
-                                                    <option value="FL" <?php echo e(old('state', $manager->user->state) == 'FL' ? 'selected' : ''); ?>>Florida</option>
-                                                    <option value="GA" <?php echo e(old('state', $manager->user->state) == 'GA' ? 'selected' : ''); ?>>Georgia</option>
-                                                    <option value="HI" <?php echo e(old('state', $manager->user->state) == 'HI' ? 'selected' : ''); ?>>Hawaii</option>
-                                                    <option value="ID" <?php echo e(old('state', $manager->user->state) == 'ID' ? 'selected' : ''); ?>>Idaho</option>
-                                                    <option value="IL" <?php echo e(old('state', $manager->user->state) == 'IL' ? 'selected' : ''); ?>>Illinois</option>
-                                                    <option value="IN" <?php echo e(old('state', $manager->user->state) == 'IN' ? 'selected' : ''); ?>>Indiana</option>
-                                                    <option value="IA" <?php echo e(old('state', $manager->user->state) == 'IA' ? 'selected' : ''); ?>>Iowa</option>
-                                                    <option value="KS" <?php echo e(old('state', $manager->user->state) == 'KS' ? 'selected' : ''); ?>>Kansas</option>
-                                                    <option value="KY" <?php echo e(old('state', $manager->user->state) == 'KY' ? 'selected' : ''); ?>>Kentucky</option>
-                                                    <option value="LA" <?php echo e(old('state', $manager->user->state) == 'LA' ? 'selected' : ''); ?>>Louisiana</option>
-                                                    <option value="ME" <?php echo e(old('state', $manager->user->state) == 'ME' ? 'selected' : ''); ?>>Maine</option>
-                                                    <option value="MD" <?php echo e(old('state', $manager->user->state) == 'MD' ? 'selected' : ''); ?>>Maryland</option>
-                                                    <option value="MA" <?php echo e(old('state', $manager->user->state) == 'MA' ? 'selected' : ''); ?>>Massachusetts</option>
-                                                    <option value="MI" <?php echo e(old('state', $manager->user->state) == 'MI' ? 'selected' : ''); ?>>Michigan</option>
-                                                    <option value="MN" <?php echo e(old('state', $manager->user->state) == 'MN' ? 'selected' : ''); ?>>Minnesota</option>
-                                                    <option value="MS" <?php echo e(old('state', $manager->user->state) == 'MS' ? 'selected' : ''); ?>>Mississippi</option>
-                                                    <option value="MO" <?php echo e(old('state', $manager->user->state) == 'MO' ? 'selected' : ''); ?>>Missouri</option>
-                                                    <option value="MT" <?php echo e(old('state', $manager->user->state) == 'MT' ? 'selected' : ''); ?>>Montana</option>
-                                                    <option value="NE" <?php echo e(old('state', $manager->user->state) == 'NE' ? 'selected' : ''); ?>>Nebraska</option>
-                                                    <option value="NV" <?php echo e(old('state', $manager->user->state) == 'NV' ? 'selected' : ''); ?>>Nevada</option>
-                                                    <option value="NH" <?php echo e(old('state', $manager->user->state) == 'NH' ? 'selected' : ''); ?>>New Hampshire</option>
-                                                    <option value="NJ" <?php echo e(old('state', $manager->user->state) == 'NJ' ? 'selected' : ''); ?>>New Jersey</option>
-                                                    <option value="NM" <?php echo e(old('state', $manager->user->state) == 'NM' ? 'selected' : ''); ?>>New Mexico</option>
-                                                    <option value="NY" <?php echo e(old('state', $manager->user->state) == 'NY' ? 'selected' : ''); ?>>New York</option>
-                                                    <option value="NC" <?php echo e(old('state', $manager->user->state) == 'NC' ? 'selected' : ''); ?>>North Carolina</option>
-                                                    <option value="ND" <?php echo e(old('state', $manager->user->state) == 'ND' ? 'selected' : ''); ?>>North Dakota</option>
-                                                    <option value="OH" <?php echo e(old('state', $manager->user->state) == 'OH' ? 'selected' : ''); ?>>Ohio</option>
-                                                    <option value="OK" <?php echo e(old('state', $manager->user->state) == 'OK' ? 'selected' : ''); ?>>Oklahoma</option>
-                                                    <option value="OR" <?php echo e(old('state', $manager->user->state) == 'OR' ? 'selected' : ''); ?>>Oregon</option>
-                                                    <option value="PA" <?php echo e(old('state', $manager->user->state) == 'PA' ? 'selected' : ''); ?>>Pennsylvania</option>
-                                                    <option value="RI" <?php echo e(old('state', $manager->user->state) == 'RI' ? 'selected' : ''); ?>>Rhode Island</option>
-                                                    <option value="SC" <?php echo e(old('state', $manager->user->state) == 'SC' ? 'selected' : ''); ?>>South Carolina</option>
-                                                    <option value="SD" <?php echo e(old('state', $manager->user->state) == 'SD' ? 'selected' : ''); ?>>South Dakota</option>
-                                                    <option value="TN" <?php echo e(old('state', $manager->user->state) == 'TN' ? 'selected' : ''); ?>>Tennessee</option>
-                                                    <option value="TX" <?php echo e(old('state', $manager->user->state) == 'TX' ? 'selected' : ''); ?>>Texas</option>
-                                                    <option value="UT" <?php echo e(old('state', $manager->user->state) == 'UT' ? 'selected' : ''); ?>>Utah</option>
-                                                    <option value="VT" <?php echo e(old('state', $manager->user->state) == 'VT' ? 'selected' : ''); ?>>Vermont</option>
-                                                    <option value="VA" <?php echo e(old('state', $manager->user->state) == 'VA' ? 'selected' : ''); ?>>Virginia</option>
-                                                    <option value="WA" <?php echo e(old('state', $manager->user->state) == 'WA' ? 'selected' : ''); ?>>Washington</option>
-                                                    <option value="WV" <?php echo e(old('state', $manager->user->state) == 'WV' ? 'selected' : ''); ?>>West Virginia</option>
-                                                    <option value="WI" <?php echo e(old('state', $manager->user->state) == 'WI' ? 'selected' : ''); ?>>Wisconsin</option>
-                                                    <option value="WY" <?php echo e(old('state', $manager->user->state) == 'WY' ? 'selected' : ''); ?>>Wyoming</option>
+                                                    <option value="AL" <?php echo e(old('state') == 'AL' ? 'selected' : ''); ?>>Alabama</option>
+                                                    <option value="AK" <?php echo e(old('state') == 'AK' ? 'selected' : ''); ?>>Alaska</option>
+                                                    <option value="AZ" <?php echo e(old('state') == 'AZ' ? 'selected' : ''); ?>>Arizona</option>
+                                                    <option value="AR" <?php echo e(old('state') == 'AR' ? 'selected' : ''); ?>>Arkansas</option>
+                                                    <option value="CA" <?php echo e(old('state') == 'CA' ? 'selected' : ''); ?>>California</option>
+                                                    <option value="CO" <?php echo e(old('state') == 'CO' ? 'selected' : ''); ?>>Colorado</option>
+                                                    <option value="CT" <?php echo e(old('state') == 'CT' ? 'selected' : ''); ?>>Connecticut</option>
+                                                    <option value="DE" <?php echo e(old('state') == 'DE' ? 'selected' : ''); ?>>Delaware</option>
+                                                    <option value="DC" <?php echo e(old('state') == 'DC' ? 'selected' : ''); ?>>District Of Columbia</option>
+                                                    <option value="FL" <?php echo e(old('state') == 'FL' ? 'selected' : ''); ?>>Florida</option>
+                                                    <option value="GA" <?php echo e(old('state') == 'GA' ? 'selected' : ''); ?>>Georgia</option>
+                                                    <option value="HI" <?php echo e(old('state') == 'HI' ? 'selected' : ''); ?>>Hawaii</option>
+                                                    <option value="ID" <?php echo e(old('state') == 'ID' ? 'selected' : ''); ?>>Idaho</option>
+                                                    <option value="IL" <?php echo e(old('state') == 'IL' ? 'selected' : ''); ?>>Illinois</option>
+                                                    <option value="IN" <?php echo e(old('state') == 'IN' ? 'selected' : ''); ?>>Indiana</option>
+                                                    <option value="IA" <?php echo e(old('state') == 'IA' ? 'selected' : ''); ?>>Iowa</option>
+                                                    <option value="KS" <?php echo e(old('state') == 'KS' ? 'selected' : ''); ?>>Kansas</option>
+                                                    <option value="KY" <?php echo e(old('state') == 'KY' ? 'selected' : ''); ?>>Kentucky</option>
+                                                    <option value="LA" <?php echo e(old('state') == 'LA' ? 'selected' : ''); ?>>Louisiana</option>
+                                                    <option value="ME" <?php echo e(old('state') == 'ME' ? 'selected' : ''); ?>>Maine</option>
+                                                    <option value="MD" <?php echo e(old('state') == 'MD' ? 'selected' : ''); ?>>Maryland</option>
+                                                    <option value="MA" <?php echo e(old('state') == 'MA' ? 'selected' : ''); ?>>Massachusetts</option>
+                                                    <option value="MI" <?php echo e(old('state') == 'MI' ? 'selected' : ''); ?>>Michigan</option>
+                                                    <option value="MN" <?php echo e(old('state') == 'MN' ? 'selected' : ''); ?>>Minnesota</option>
+                                                    <option value="MS" <?php echo e(old('state') == 'MS' ? 'selected' : ''); ?>>Mississippi</option>
+                                                    <option value="MO" <?php echo e(old('state') == 'MO' ? 'selected' : ''); ?>>Missouri</option>
+                                                    <option value="MT" <?php echo e(old('state') == 'MT' ? 'selected' : ''); ?>>Montana</option>
+                                                    <option value="NE" <?php echo e(old('state') == 'NE' ? 'selected' : ''); ?>>Nebraska</option>
+                                                    <option value="NV" <?php echo e(old('state') == 'NV' ? 'selected' : ''); ?>>Nevada</option>
+                                                    <option value="NH" <?php echo e(old('state') == 'NH' ? 'selected' : ''); ?>>New Hampshire</option>
+                                                    <option value="NJ" <?php echo e(old('state') == 'NJ' ? 'selected' : ''); ?>>New Jersey</option>
+                                                    <option value="NM" <?php echo e(old('state') == 'NM' ? 'selected' : ''); ?>>New Mexico</option>
+                                                    <option value="NY" <?php echo e(old('state') == 'NY' ? 'selected' : ''); ?>>New York</option>
+                                                    <option value="NC" <?php echo e(old('state') == 'NC' ? 'selected' : ''); ?>>North Carolina</option>
+                                                    <option value="ND" <?php echo e(old('state') == 'ND' ? 'selected' : ''); ?>>North Dakota</option>
+                                                    <option value="OH" <?php echo e(old('state') == 'OH' ? 'selected' : ''); ?>>Ohio</option>
+                                                    <option value="OK" <?php echo e(old('state') == 'OK' ? 'selected' : ''); ?>>Oklahoma</option>
+                                                    <option value="OR" <?php echo e(old('state') == 'OR' ? 'selected' : ''); ?>>Oregon</option>
+                                                    <option value="PA" <?php echo e(old('state') == 'PA' ? 'selected' : ''); ?>>Pennsylvania</option>
+                                                    <option value="RI" <?php echo e(old('state') == 'RI' ? 'selected' : ''); ?>>Rhode Island</option>
+                                                    <option value="SC" <?php echo e(old('state') == 'SC' ? 'selected' : ''); ?>>South Carolina</option>
+                                                    <option value="SD" <?php echo e(old('state') == 'SD' ? 'selected' : ''); ?>>South Dakota</option>
+                                                    <option value="TN" <?php echo e(old('state') == 'TN' ? 'selected' : ''); ?>>Tennessee</option>
+                                                    <option value="TX" <?php echo e(old('state') == 'TX' ? 'selected' : ''); ?>>Texas</option>
+                                                    <option value="UT" <?php echo e(old('state') == 'UT' ? 'selected' : ''); ?>>Utah</option>
+                                                    <option value="VT" <?php echo e(old('state') == 'VT' ? 'selected' : ''); ?>>Vermont</option>
+                                                    <option value="VA" <?php echo e(old('state') == 'VA' ? 'selected' : ''); ?>>Virginia</option>
+                                                    <option value="WA" <?php echo e(old('state') == 'WA' ? 'selected' : ''); ?>>Washington</option>
+                                                    <option value="WV" <?php echo e(old('state') == 'WV' ? 'selected' : ''); ?>>West Virginia</option>
+                                                    <option value="WI" <?php echo e(old('state') == 'WI' ? 'selected' : ''); ?>>Wisconsin</option>
+                                                    <option value="WY" <?php echo e(old('state') == 'WY' ? 'selected' : ''); ?>>Wyoming</option>
                                                 </select>
                                                 <?php if($errors->has('state')): ?>
                                                     <span class="invalid-feedback text-danger">
@@ -220,7 +219,7 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="zip">Zip code</label>
-                                                <input type="text" name="zip" id="zip" class="form-control" value="<?php echo e(old('zip', $manager->user->zip)); ?>"/>
+                                                <input type="text" name="zip" id="zip" class="form-control" value="<?php echo e(old('zip')); ?>"/>
                                                 <?php if($errors->has('zip')): ?>
                                                     <span class="invalid-feedback text-danger">
                                                             <strong><?php echo e($errors->first('zip')); ?></strong>
@@ -233,10 +232,10 @@
                                                 <label class="form-label text-primary text-[18px] font-bold" for="timezone">Timezone</label>
                                                 <select name="timezone" id="timezone" class="form-control">
                                                     <option value="">Select a Timezone</option>
-                                                    <option value="UTC-08:00" <?php echo e(old('timezone', $manager->user->timezone) == 'UTC-08:00' ? 'selected' : ''); ?>>(UTC-08:00) Pacific Time (US & Canada)</option>
-                                                    <option value="UTC-07:00" <?php echo e(old('timezone', $manager->user->timezone) == 'UTC-07:00' ? 'selected' : ''); ?>>(UTC-07:00) Mountain Time (US & Canada)</option>
-                                                    <option value="UTC-06:00" <?php echo e(old('timezone', $manager->user->timezone) == 'UTC-06:00' ? 'selected' : ''); ?>>(UTC-06:00) Central Time (US & Canada)</option>
-                                                    <option value="UTC-05:00" <?php echo e(old('timezone', $manager->user->timezone) == 'UTC-05:00' ? 'selected' : ''); ?>>(UTC-05:00) Eastern Time (US & Canada)</option>
+                                                    <option value="UTC-08:00" <?php echo e(old('timezone') == 'UTC-08:00' ? 'selected' : ''); ?>>(UTC-08:00) Pacific Time (US & Canada)</option>
+                                                    <option value="UTC-07:00" <?php echo e(old('timezone') == 'UTC-07:00' ? 'selected' : ''); ?>>(UTC-07:00) Mountain Time (US & Canada)</option>
+                                                    <option value="UTC-06:00" <?php echo e(old('timezone') == 'UTC-06:00' ? 'selected' : ''); ?>>(UTC-06:00) Central Time (US & Canada)</option>
+                                                    <option value="UTC-05:00" <?php echo e(old('timezone') == 'UTC-05:00' ? 'selected' : ''); ?>>(UTC-05:00) Eastern Time (US & Canada)</option>
                                                 </select>
                                                 <?php if($errors->has('timezone')): ?>
                                                     <span class="invalid-feedback text-danger">
@@ -271,7 +270,7 @@
                                             </div>
                                             <div class="form-check form-switch p-0">
                                                 <input class="form-check-input h4 position-relative m-0" type="checkbox"
-                                                       name="notification_email" role="switch" <?php echo e(old('notification_email', $manager->user->notification_email) ? 'checked' : ''); ?>/>
+                                                       name="notification_email" role="switch" <?php echo e(old('notification_email') ? 'checked' : ''); ?>/>
                                             </div>
                                         </div>
                                     </div>
@@ -283,7 +282,7 @@
                                             </div>
                                             <div class="form-check form-switch p-0">
                                                 <input class="form-check-input h4 position-relative m-0" type="checkbox"
-                                                       name="notification_sms" role="switch" <?php echo e(old('notification_sms', $manager->user->notification_sms) ? 'checked' : ''); ?>/>
+                                                       name="notification_sms" role="switch" <?php echo e(old('notification_sms') ? 'checked' : ''); ?>/>
                                             </div>
                                         </div>
                                     </div>
@@ -295,7 +294,7 @@
                                             </div>
                                             <div class="form-check form-switch p-0">
                                                 <input class="form-check-input h4 position-relative m-0" type="checkbox"
-                                                       name="notification_push" role="switch" <?php echo e(old('notification_push', $manager->user->notification_push) ? 'checked' : ''); ?>/>
+                                                       name="notification_push" role="switch" <?php echo e(old('notification_push') ? 'checked' : ''); ?>/>
                                             </div>
                                         </div>
                                     </div>
@@ -359,53 +358,32 @@
                     </div>
                     <div class="grid grid-cols-12 gap-1" id="companyManagersList">
                         <?php if(old('managerCompany_id')): ?>
-                            <?php $__currentLoopData = old('managerCompany_id'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $managerCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="col-span-12 lg:col-span-6 xl:col-span-4 company-manager-item">
-                                    <div class="card">
-                                        <div class="card-body flex justify-between align-middle items-center">
-                                            <div class="font-bold">
-                                                <h5 class="mb-3 block"><?php echo e(old('managerCompany_name')[$index]); ?></h5>
-                                                <span class="ti <?php echo e(old('managerCompany_name')[$index] === 'Yes' ?  'text-success ti-check' : 'text-danger ti-x'); ?> text-right text-[20px]"></span> Write Access
-                                            </div>
-                                            <div class="text-right">
-                                                <a href="#" id="removeCompanyManagerBtn" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
-                                                    <i class="ti ti-trash text-xl leading-none"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" name="managerCompany_id[]" value="<?php echo e(old('managerCompany_id')[$index]); ?>">
-                                        <input type="hidden" name="managerCompany_name[]" value="<?php echo e(old('managerCompany_name')[$index]); ?>">
-                                        <input type="hidden" name="managerCompany_isWrite[]" value="<?php echo e(old('managerCompany_isWrite')[$index]); ?>">
+                        <?php $__currentLoopData = old('managerCompany_id'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $managerCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="col-span-12 lg:col-span-6 xl:col-span-4 company-manager-item">
+                            <div class="card">
+                                <div class="card-body flex justify-between align-middle items-center">
+                                    <div class="font-bold">
+                                        <h5 class="mb-3 block"><?php echo e(old('managerCompany_name')[$index]); ?></h5>
+                                        <span class="ti <?php echo e(old('managerCompany_name')[$index] === 'Yes' ?  'text-success ti-check' : 'text-danger ti-x'); ?> text-right text-[20px]"></span> Write Access
+                                    </div>
+                                    <div class="text-right">
+                                        <a href="#" id="removeCompanyManagerBtn" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                                            <i class="ti ti-trash text-xl leading-none"></i>
+                                        </a>
                                     </div>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php else: ?>
-                            <?php $__currentLoopData = $manager->companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $managerCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="col-span-12 lg:col-span-6 xl:col-span-4 company-manager-item">
-                                    <div class="card">
-                                        <div class="card-body flex justify-between align-middle items-center">
-                                            <div class="font-bold">
-                                                <h5 class="mb-3 block"><?php echo e($managerCompany->name); ?></h5>
-                                                <span class="ti <?php echo e($managerCompany->pivot->is_write_access ?  'text-success ti-check' : 'text-danger ti-x'); ?> text-right text-[20px]"></span> Write Access
-                                            </div>
-                                            <div class="text-right">
-                                                <a href="#" id="removeCompanyManagerBtn" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
-                                                    <i class="ti ti-trash text-xl leading-none"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" name="managerCompany_id[]" value="<?php echo e($managerCompany->id); ?>">
-                                        <input type="hidden" name="managerCompany_name[]" value="<?php echo e($managerCompany->name); ?>">
-                                        <input type="hidden" name="managerCompany_isWrite[]" value="<?php echo e($managerCompany->pivot->is_write_access ? 'Yes' : 'No'); ?>">
-                                    </div>
-                                </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <input type="hidden" name="managerCompany_id[]" value="<?php echo e(old('managerCompany_id')[$index]); ?>">
+                                <input type="hidden" name="managerCompany_name[]" value="<?php echo e(old('managerCompany_name')[$index]); ?>">
+                                <input type="hidden" name="managerCompany_isWrite[]" value="<?php echo e(old('managerCompany_isWrite')[$index]); ?>">
+                            </div>
+                        </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-span-12 text-right">
                     <button type="reset" class="btn btn-outline-secondary mx-1">Cancel</button>
-                    <button type="submit" class="btn btn-primary mx-1">Update Company Admin</button>
+                    <button type="submit" class="btn btn-primary mx-1">Create Company Admin</button>
                 </div>
             </div>
         </form>
@@ -516,4 +494,4 @@
     <link rel="stylesheet" href="<?php echo e(asset('css/plugins/choices.min.css')); ?>" />
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\managers\edit.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/managers/create.blade.php ENDPATH**/ ?>

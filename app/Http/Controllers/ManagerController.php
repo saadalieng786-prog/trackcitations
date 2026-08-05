@@ -265,14 +265,20 @@ class ManagerController extends Controller
      */
     public function update(Request $request, Manager $manager)
     {
-        //
+        $user = $manager->user;
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => 'This manager does not have a linked user account.',
+            ]);
+        }
+
         $request->merge([
             'phone' => $request->filled('phone') ? $request->phone : null,
         ]);
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required|in:'.implode(',', array_keys(User::companyAdminRoleOptions())),
             'dob' => 'nullable|date',
             'password' => 'nullable|string|min:8',
@@ -280,7 +286,7 @@ class ManagerController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => 'nullable|unique:users,phone,'.$manager->user->id,
+            'phone' => 'nullable|unique:users,phone,'.$user->id,
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -323,15 +329,11 @@ class ManagerController extends Controller
                 'notification_sms',
                 'notification_push',
             ],
-            $request->password ? ['password'] : []
+            $request->filled('password') ? ['password'] : []
         ));
 
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password); // Hash the password
-        }
-
-        $manager->user()->update($data);
-        $manager->user->syncRoles([$request->string('role')->toString()]);
+        $user->update($data);
+        $user->syncRoles([$request->string('role')->toString()]);
 
         // Remove all old companies.
         $manager->companies()->detach();
@@ -345,7 +347,7 @@ class ManagerController extends Controller
             if ($isWrite) {
                 $permissionName = "write.company.{$company_id}";
                 Permission::firstOrCreate(['name' => $permissionName]);
-                $manager->user->givePermissionTo($permissionName);
+                $user->givePermissionTo($permissionName);
             }
         }
 

@@ -176,6 +176,13 @@ class AttorneyController extends Controller
      */
     public function update(Request $request, Attorney $attorney)
     {
+        $user = $attorney->user;
+        if (! $user) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => 'This attorney does not have a linked user account.',
+            ]);
+        }
+
         $request->merge([
             'phone' => $request->filled('phone') ? $request->phone : null,
             'notification_email' => $request->has('notification_email'),
@@ -185,14 +192,14 @@ class AttorneyController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'dob' => 'nullable|date',
             'password' => 'nullable|string|min:8',
             'address' => '',
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => 'nullable|unique:users,phone',
+            'phone' => 'nullable|unique:users,phone,'.$user->id,
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -216,14 +223,10 @@ class AttorneyController extends Controller
                 'notification_sms',
                 'notification_push',
             ],
-            $request->password ? ['password'] : []
+            $request->filled('password') ? ['password'] : []
         ));
 
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password); // Hash the password
-        }
-
-        $attorney->user()->update($data);
+        $user->update($data);
 
         $attorney->update($request->only([
             'office_hours_start',

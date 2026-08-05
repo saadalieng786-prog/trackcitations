@@ -9,8 +9,8 @@
 
         
         <div class="flex items-center gap-4 grow max-w-[600px]">
-            <a href="#!" class="pc-head-link text-slate-500 hover:text-slate-700" id="sidebar-hide" title="Toggle sidebar">
-                <i class="ti ti-menu-2 text-xl"></i>
+            <a href="#!" class="pc-head-link text-slate-500 hover:text-slate-700 relative z-50" id="sidebar-hide" title="Toggle sidebar" role="button" aria-label="Toggle sidebar">
+                <i class="ti ti-menu-2 text-xl pointer-events-none"></i>
             </a>
 
             

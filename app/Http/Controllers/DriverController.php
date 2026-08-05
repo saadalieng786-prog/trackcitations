@@ -175,6 +175,10 @@ class DriverController extends Controller
         //
         $this->authorize('create', new Driver());
 
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -184,7 +188,7 @@ class DriverController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => '',
+            'phone' => 'nullable|unique:users,phone',
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -252,6 +256,13 @@ class DriverController extends Controller
         //
         $this->authorize('update', $driver);
 
+        $user = $driver->user;
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => 'This driver does not have a linked user account.',
+            ]);
+        }
+
         $currentUser = \auth()->user();
         if ($currentUser->isCompanyAdmin() && !$currentUser->canWriteCompany((int) $request->company_id)) {
             $company = Company::findOrFail($request->company_id);
@@ -260,16 +271,20 @@ class DriverController extends Controller
             ]);
         }
 
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'dob' => 'nullable|date',
             'password' => 'nullable|string|min:8',
             'address' => '',
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => '',
+            'phone' => 'nullable|unique:users,phone,'.$user->id,
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -297,13 +312,10 @@ class DriverController extends Controller
                 'notification_sms',
                 'notification_push',
             ],
-            $request->password ? ['password'] : []
+            $request->filled('password') ? ['password'] : []
         ));
 
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password); // Hash the password
-        }
-        $driver->user()->update($data);
+        $user->update($data);
 
         return redirect()->route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id)->with('success', 'Driver updated successfully.');
     }

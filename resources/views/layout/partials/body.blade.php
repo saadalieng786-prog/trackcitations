@@ -191,29 +191,50 @@
             return;
         }
 
+        var filterMenu = document.querySelector('.tc-company-filter-menu');
+        if (filterMenu) {
+            filterMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+        }
+
         var sessionCompaniesChoices = new Choices(sessionCompaniesEl, {
             placeholder: true,
-            placeholderValue: 'Company Name',
+            placeholderValue: 'Select companies',
+            searchEnabled: true,
+            searchPlaceholderValue: 'Search companies...',
+            removeItemButton: true,
+            itemSelectText: '',
             shouldSort: false,
+            position: 'bottom',
+            allowHTML: false,
         });
-        let selectedSessionCompanies = JSON.parse('{!! json_encode(session('active_company_ids')) !!}');
+
+        var selectedSessionCompanies = JSON.parse('{!! json_encode(array_map("strval", session("active_company_ids", []))) !!}');
+
         sessionCompaniesChoices.setChoices(function () {
             return fetch('{{ route('api.company.index') }}')
                 .then(function (response) {
                     return response.json();
                 })
                 .then(function (data) {
-                    return [
-                        ...data.map(function (company) {
-                            return {
-                                value: company.id,
-                                label: company.name,
-                                selected: selectedSessionCompanies?.includes(company.id + '')
-                            };
-                        })
-                    ];
+                    return data.map(function (company) {
+                        return {
+                            value: company.id,
+                            label: company.name,
+                            selected: selectedSessionCompanies.includes(String(company.id))
+                        };
+                    });
                 });
         });
+
+        var resetBtn = document.getElementById('sessionCompaniesReset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                sessionCompaniesChoices.removeActiveItems();
+                document.getElementById('sessionCompaniesForm')?.submit();
+            });
+        }
     })();
 </script>
 <script>

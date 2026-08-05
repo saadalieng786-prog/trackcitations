@@ -93,47 +93,50 @@
                     <a href="<?php echo e(route($portal.'.tickets.index')); ?>" class="btn btn-secondary">View All</a>
                 </div>
             </div>
-            <div class="card-body">
-                <table class="table table-bordered yajra-datatable">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Date Received</th>
-                        <th>State</th>
-                        <th>Company</th>
-                        <th>Indicator</th>
-                        <th>Points Saved</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php $__empty_1 = true; $__currentLoopData = $tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                    <tr>
-                        <td><?php echo e($ticket->id); ?></td>
-                        <td><?php echo e($ticket->name); ?></td>
-                        <td><?php echo e($ticket->date_issued); ?></td>
-                        <td><?php echo e($ticket->state); ?></td>
-                        <td><?php echo e($ticket->company->name); ?></td>
-                        <td><?php echo e($ticket->indicator); ?></td>
-                        <td><?php echo e(number_format($ticket->points_saved, 2)); ?></td>
-                        <td>
-                            <a href="<?php echo e(route($portal.'.tickets.show', $ticket->id)); ?>" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
-                                <i class="ti ti-eye text-xl leading-none"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+            <div class="card-body !px-0 sm:!px-3">
+                <div class="tc-table-scroll-container tc-driver-tickets-table">
+                    <table class="table tc-clean-table mb-0">
+                        <thead>
                         <tr>
-                            <td colspan="7" class="text-center">
-                                <h4 class="my-4">
-                                    You don't have any tickets, You can submit one from here
-                                </h4>
-                                <a href="<?php echo e(route($portal.'.tickets.create')); ?>" class="btn btn-primary">Create Ticket</a></td>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th class="tc-col-optional">State</th>
+                            <th class="tc-col-optional">Company</th>
+                            <th>Status</th>
+                            <th class="tc-col-optional">Pts Saved</th>
+                            <th>Action</th>
                         </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        <?php $__empty_1 = true; $__currentLoopData = $tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <tr>
+                            <td><?php echo e($ticket->id); ?></td>
+                            <td class="tc-col-name"><?php echo e($ticket->name); ?></td>
+                            <td><?php echo e($ticket->date_issued ? \Carbon\Carbon::parse($ticket->date_issued)->format('M j, Y') : '—'); ?></td>
+                            <td class="tc-col-optional"><?php echo e($ticket->state ?: '—'); ?></td>
+                            <td class="tc-col-optional"><?php echo e(optional($ticket->company)->name ?: '—'); ?></td>
+                            <td><?php echo e($ticket->indicator ?: '—'); ?></td>
+                            <td class="tc-col-optional"><?php echo e(number_format($ticket->points_saved, 1)); ?></td>
+                            <td>
+                                <a href="<?php echo e(route($portal.'.tickets.show', $ticket->id)); ?>" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                                    <i class="ti ti-eye text-xl leading-none"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="8" class="text-center !whitespace-normal">
+                                    <h4 class="my-4">
+                                        You don't have any tickets, You can submit one from here
+                                    </h4>
+                                    <a href="<?php echo e(route($portal.'.tickets.create')); ?>" class="btn btn-primary">Create Ticket</a>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -183,4 +186,4 @@
     <script src="<?php echo e(asset('js/widgets/invites-goal-chart.js')); ?>"></script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\driver\dashboard.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\driver\dashboard.blade.php ENDPATH**/ ?>

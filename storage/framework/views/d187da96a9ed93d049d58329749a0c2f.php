@@ -220,6 +220,27 @@
             .msg-mobile-toggle { display: flex; }
         }
 
+        @media (max-width: 768px) {
+            .msg-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 110px);
+            }
+            .msg-sidebar {
+                width: 100%;
+                min-width: 0;
+                max-height: 42vh;
+                border-right: none;
+                border-bottom: 1px solid #e9edf3;
+            }
+            .msg-new-conv-panel {
+                width: 100% !important;
+                min-width: 0 !important;
+                border-left: none;
+                border-top: 1px solid #e9edf3;
+            }
+        }
+
         /* ── New Conversation Panel ── */
         .msg-new-conv-panel {
             width: 280px;
@@ -482,4 +503,4 @@
     </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/messaging/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/messaging/index.blade.php ENDPATH**/ ?>

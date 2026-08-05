@@ -394,6 +394,10 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         //
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -404,7 +408,7 @@ class AdminController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => 'unique:users,phone',
+            'phone' => 'nullable|unique:users,phone',
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -460,9 +464,20 @@ class AdminController extends Controller
     public function update(Request $request, Admin $admin)
     {
         //
+        $user = $admin->user;
+        if (! $user) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => 'This administrator does not have a linked user account.',
+            ]);
+        }
+
+        $request->merge([
+            'phone' => $request->filled('phone') ? $request->phone : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required|in:'.implode(',', array_keys(User::internalAdminRoleOptions())),
             'dob' => 'nullable|date',
             'password' => 'nullable|string|min:8',
@@ -470,7 +485,7 @@ class AdminController extends Controller
             'city' => '',
             'state' => '',
             'zip' => '',
-            'phone' => '',
+            'phone' => 'nullable|unique:users,phone,'.$user->id,
             'timezone' => '',
             'notification_email' => '',
             'notification_sms' => '',
@@ -496,15 +511,11 @@ class AdminController extends Controller
                 'notification_sms',
                 'notification_push',
             ],
-            $request->password ? ['password'] : []
+            $request->filled('password') ? ['password'] : []
         ));
 
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password); // Hash the password
-        }
-
-        $admin->user()->update($data);
-        $admin->user->syncRoles([$request->string('role')->toString()]);
+        $user->update($data);
+        $user->syncRoles([$request->string('role')->toString()]);
 
         return redirect()->route(auth()->user()->portalRoutePrefix().'.admins.edit', $admin->id)->with('success', 'Administrator updated successfully.');
     }
