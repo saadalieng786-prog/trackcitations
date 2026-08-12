@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Integrations\Salesforce\SalesforceSyncService;
+use App\Integrations\Salesforce\SalesforceSyncLogger;
 use App\Models\Company;
 use App\Models\SalesForce;
 use App\Models\Ticket;
@@ -10,6 +11,7 @@ use App\Models\TicketAttachment;
 use Carbon\Carbon;
 use App\Services\SalesforceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class SalesForceController extends Controller
 {
@@ -50,6 +52,7 @@ class SalesForceController extends Controller
         ];
 
         $syncTimes = [
+            'last_run' => optional($salesforce->updated_at)?->format('M j, Y g:i A') ?: 'N/A',
             'records' => $this->formatSyncTime($salesforce->sf_last_sync_time),
             'attachments' => $this->formatSyncTime($salesforce->sf_att_last_sync_time),
             'files' => $this->formatSyncTime($salesforce->sf_file_last_sync_time),
@@ -191,6 +194,7 @@ class SalesForceController extends Controller
         ]);
 
         $salesForce = $this->settings();
+        $email = $request->string('Email')->toString();
 
         $salesForce->update(['status' => SalesForce::STATUS_RUNNING, 'reason' => '']);
 
@@ -201,18 +205,61 @@ class SalesForceController extends Controller
 
         $sf->resetSFConnection();
 
-        $records = $sf->fetchContacts(["Account.Primary_Contact_Email__c" => $request->Email]);
+        // Match company/contact email fields used in Salesforce, not only Primary_Contact_Email__c.
+        $records = $sf->fetchContactsByEmail($email);
 
-        if($records['totalSize'] > 0) {
-            $this->sfSyncService->sync($records['records']);
-            // rarely when records more than 2000
-            while(isset($records['nextRecordsUrl']) && $records['nextRecordsUrl']!='') {
-                $records = $sf->apiCall($records['nextRecordsUrl']);
-                $this->sfSyncService->sync($records['records']);
-            }
+        if (isset($records['error']) || isset($records['errorCode'])) {
+            $message = is_string($records['message'] ?? null)
+                ? $records['message']
+                : json_encode($records);
+            $salesForce->update([
+                'status' => SalesForce::STATUS_FAILED,
+                'reason' => 'Company email import failed: '.$message,
+            ]);
+
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.salesforce.index')
+                ->with('error', 'Salesforce import failed. Check sync monitor for details.');
         }
 
-        return redirect()->route(auth()->user()->portalRoutePrefix().'.salesforce.index')->with(['success' => 'Salesforce imported '. $records['totalSize'] . ' records']);
+        $total = (int) ($records['totalSize'] ?? 0);
+
+        if ($total > 0) {
+            $this->sfSyncService->sync($records['records'] ?? []);
+            while (! empty($records['nextRecordsUrl'])) {
+                $records = $sf->apiCall($records['nextRecordsUrl']);
+                $this->sfSyncService->sync($records['records'] ?? []);
+            }
+            $salesForce->update(['status' => SalesForce::STATUS_FINISHED, 'reason' => '']);
+        } else {
+            $salesForce->update(['status' => SalesForce::STATUS_FINISHED, 'reason' => '']);
+        }
+
+        return redirect()
+            ->route(auth()->user()->portalRoutePrefix().'.salesforce.index')
+            ->with([
+                'success' => $total > 0
+                    ? "Salesforce imported {$total} contact record(s) for {$email}."
+                    : "No Salesforce contacts found for {$email} with Export__c = TRUE. Checked Contact.Email, Primary Contact Email, Contact Email, Citation Tracker User Email, and Alternate Email.",
+            ]);
+    }
+
+    public function sync()
+    {
+        Artisan::call('salesforce:sync');
+        $output = trim(Artisan::output());
+
+        return redirect()
+            ->route(auth()->user()->portalRoutePrefix().'.salesforce.sync-log')
+            ->with('success', 'Salesforce sync finished. Review the log below.'.($output ? ' '.$output : ''));
+    }
+
+    public function syncLog()
+    {
+        $log = SalesforceSyncLogger::read();
+        $portal = auth()->user()->portalRoutePrefix();
+
+        return view('admin.salesforce.sync-log', compact('log', 'portal'));
     }
 
     protected function settings(): SalesForce
@@ -240,6 +287,15 @@ class SalesForceController extends Controller
         }
 
         try {
+            // OAuth issued_at is often epoch milliseconds.
+            if (ctype_digit((string) $value) && strlen((string) $value) >= 12) {
+                return Carbon::createFromTimestampMs((int) $value)->format('M j, Y g:i A');
+            }
+
+            if (ctype_digit((string) $value) && strlen((string) $value) === 10) {
+                return Carbon::createFromTimestamp((int) $value)->format('M j, Y g:i A');
+            }
+
             return Carbon::parse($value)->format('M j, Y g:i A');
         } catch (\Throwable) {
             return (string) $value;

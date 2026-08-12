@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Support\AttachmentStorage;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class SalesforceSyncService
@@ -138,7 +139,7 @@ class SalesforceSyncService
         DB::beginTransaction();
 
         try {
-            $companyId = $this->syncCompany($record['Account']);
+            $companyId = $this->syncCompany($record['Account'] ?? []);
             $this->syncDriver($record, $companyId);
             $lawyerId = $this->syncAttorney($record);
             $this->syncTicket($record, $companyId, $lawyerId);
@@ -150,61 +151,89 @@ class SalesforceSyncService
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            $message = '<error>[SalesforceSync] Error syncing record: ' . $e->getMessage() .json_encode($record) . '</error>';
+            $message = '[SalesforceSync] Error syncing record: ' . $e->getMessage();
             SalesForce::first()->update(['status' => SalesForce::STATUS_FAILED, 'reason' => $message]);
+            SalesforceSyncLogger::error('Record sync failed', [
+                'message' => $e->getMessage(),
+                'contact_id' => $record['Id'] ?? null,
+                'account_id' => $record['Account']['Id'] ?? null,
+            ]);
 
-            $this->output->writeln($message);
+            $this->output->writeln('<error>'.$message.'</error>');
         }
     }
 
     protected function syncCompany(array $account): int
     {
-        $managerData = [
-            'phone' => $account['Phone'] ?? null,
-            'address' => $account['BillingStreet'],
-            'city' => $account['BillingCity'],
-            'state' => $account['BillingState'],
-            'zip' => $account['BillingPostalCode'],
-            'name' => $account['Name'] ?? null,
-            'password' => Hash::make($account['Contact_Email__c']),
-            'email' => $account['Contact_Email__c'] ?: $account['Primary_Contact_Email__c'],
-        ];
+        $accountId = $account['Id'] ?? null;
+        if (! $accountId) {
+            throw new Exception('Salesforce Account Id is missing on contact record.');
+        }
 
+        // Prefer Account email fields for the company manager.
+        // Contact.Email is reserved for the driver user to avoid unique email collisions.
+        $managerEmail = $this->firstFilled([
+            $account['Contact_Email__c'] ?? null,
+            $account['Primary_Contact_Email__c'] ?? null,
+            $account['Citation_Tracker_User_Email__c'] ?? null,
+            $account['Alternate_Email__c'] ?? null,
+        ]);
+
+        $managerData = [
+            'phone' => $account['Phone'] ?? ($account['Text_Phone__c'] ?? null),
+            'address' => $account['BillingStreet'] ?? null,
+            'city' => $account['BillingCity'] ?? null,
+            'state' => $account['BillingState'] ?? null,
+            'zip' => $account['BillingPostalCode'] ?? null,
+            'name' => $account['Name'] ?? ($managerEmail ?: 'Salesforce Manager'),
+            'password' => Hash::make($managerEmail ?: Str::random(32)),
+            'email' => $managerEmail,
+        ];
 
         $companyData = [
-            'name' => $account['Name'],
+            'name' => $account['Name'] ?? ('Salesforce Account '.$accountId),
             'parent_company_id' => $this->resolveParentCompanyId($account['ParentId'] ?? null),
-            'ct_email' => $account['Citation_Tracker_User_Email__c'],
-            'ct_fname' => $account['Citation_Tracker_User_First_Name__c'],
-            'ct_lname' => $account['Citation_Tracker_User_Last_Name__c'],
-            'dot' => $account['DOT_Number__c'],
-            'sf_id' => $account['Id'],
+            'ct_email' => $account['Citation_Tracker_User_Email__c'] ?? null,
+            'ct_fname' => $account['Citation_Tracker_User_First_Name__c'] ?? null,
+            'ct_lname' => $account['Citation_Tracker_User_Last_Name__c'] ?? null,
+            'dot' => $account['DOT_Number__c'] ?? null,
+            'sf_id' => $accountId,
         ];
 
-        if ($this->companyIds[$account['Id']] === null) {
+        if (($this->companyIds[$accountId] ?? null) === null) {
             $company = Company::create($companyData);
-            $managerUser= User::where('email', $managerData['email']);
-            if ($managerUser->exists()) {
-                $user = $managerUser->first();
-                $manager = $user->roleable;
+
+            if (filled($managerEmail)) {
+                $managerUser = User::where('email', $managerEmail);
+                if ($managerUser->exists()) {
+                    $user = $managerUser->first();
+                    $manager = $user->roleable;
+                } else {
+                    $manager = Manager::create([]);
+                    $user = $manager->user()->create($managerData);
+                    $user->assignRole(User::ROLE_COMPANY_ADMIN);
+                }
+
+                if ($manager) {
+                    $manager->companies()->syncWithoutDetaching([
+                        $company->id => ['is_write_access' => true],
+                    ]);
+                }
             } else {
-                $manager = Manager::create([]);
-                $user = $manager->user()->create($managerData);
-                $user->assignRole(User::ROLE_COMPANY_ADMIN);
+                SalesforceSyncLogger::info('Company synced without manager user (no Account email fields)', [
+                    'account_id' => $accountId,
+                    'company_id' => $company->id,
+                ]);
             }
 
-            $manager->companies()->attach($company->id, [
-                'is_write_access' => true
-            ]);
-
-            $this->companyIds[$account['Id']] = $company->id;
+            $this->companyIds[$accountId] = $company->id;
         } else {
             DB::table('companies')
-                ->where('id', $this->companyIds[$account['Id']])
+                ->where('id', $this->companyIds[$accountId])
                 ->update($companyData);
         }
 
-        return $this->companyIds[$account['Id']];
+        return $this->companyIds[$accountId];
     }
 
     protected function syncDriver(array $record, int $companyId): ?int
@@ -243,6 +272,24 @@ class SalesforceSyncService
         }
 
         if (! $driver) {
+            // Avoid unique email collisions if this email already belongs to another user role.
+            $existingUser = User::where('email', $email)->first();
+            if ($existingUser && ! ($existingUser->roleable instanceof Driver)) {
+                SalesforceSyncLogger::info('Skipping driver user create; email already used by another role', [
+                    'email' => $email,
+                    'existing_roleable' => $existingUser->roleable_type,
+                    'contact_id' => $sfId,
+                ]);
+
+                $driver = Driver::create([
+                    'company_id' => $companyId,
+                    'sf_id' => $sfId,
+                ]);
+                $this->driverInfo[$sfId] = $driver->id;
+
+                return $driver->id;
+            }
+
             $driver = Driver::create([
                 'company_id' => $companyId,
                 'sf_id' => $sfId,
@@ -539,6 +586,17 @@ class SalesforceSyncService
     {
         if (!$date) return null;
         return date('Y-m-d H:i:s', strtotime(str_replace(['T', '.000+0000'], [' ', ''], $date)));
+    }
+
+    protected function firstFilled(array $values): ?string
+    {
+        foreach ($values as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                return trim($value);
+            }
+        }
+
+        return null;
     }
 
     protected function getIndicator(array $record): string

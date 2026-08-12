@@ -187,9 +187,20 @@ class SalesforceService
             ";
 
         if ($params) {
-            foreach ($params as $field => $value) {
-                $safeValue = addslashes($value);
-                $query .= " AND {$field} = '{$safeValue}'";
+            if (isset($params['__email_or__'])) {
+                $safeEmail = $params['__email_or__'];
+                $query .= " AND (
+                    Email = '{$safeEmail}'
+                    OR Account.Primary_Contact_Email__c = '{$safeEmail}'
+                    OR Account.Contact_Email__c = '{$safeEmail}'
+                    OR Account.Citation_Tracker_User_Email__c = '{$safeEmail}'
+                    OR Account.Alternate_Email__c = '{$safeEmail}'
+                )";
+            } else {
+                foreach ($params as $field => $value) {
+                    $safeValue = addslashes($value);
+                    $query .= " AND {$field} = '{$safeValue}'";
+                }
             }
         } else {
             if (
@@ -207,6 +218,15 @@ class SalesforceService
         $result = $sf->apiCall('/services/data/v58.0/query', ['q' => $query]);
 
         return $result;
+    }
+
+    public function fetchContactsByEmail(string $email)
+    {
+        $safeEmail = addslashes($email);
+
+        return $this->fetchContacts([
+            '__email_or__' => $safeEmail,
+        ]);
     }
 
     public function fetchAttachments()

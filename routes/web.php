@@ -127,6 +127,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('salesforce/settings', [SalesForceController::class, 'index'])->name('salesforce.index');
             Route::put('salesforce/settings', [SalesForceController::class, 'update'])->name('salesforce.update');
             Route::post('salesforce/import', [SalesForceController::class, 'import'])->name('salesforce.import');
+            Route::post('salesforce/sync', [SalesForceController::class, 'sync'])->name('salesforce.sync');
+            Route::get('salesforce/sync-log', [SalesForceController::class, 'syncLog'])->name('salesforce.sync-log');
             Route::get('salesforce/import', function () use ($portal) {
                 return redirect()->route($portal . '.salesforce.index');
             });
