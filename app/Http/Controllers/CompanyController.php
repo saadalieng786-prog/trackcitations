@@ -101,9 +101,14 @@ class CompanyController extends Controller
                 $item->ct_fname = $item->ct_fname . ' ' . $item->ct_lname;
                 $item->parent_name = optional($item->parentCompany)->name ?: 'Top-level';
                 $item->children_count = $item->childCompanies->count();
-                $item->action = '';
+                $item->name = '<a href="'.route($role.'.companies.show', $item->id).'" class="font-semibold text-primary hover:underline">'
+                    .e($item->name)
+                    .'</a>';
+                $item->action = '<a href="'.route($role.'.companies.show', $item->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary" title="View company">'
+                    .'<i class="ti ti-eye text-xl leading-none"></i>'
+                    .'</a>';
                 if (auth()->user()->isInternalAdmin() || auth()->user()->canWriteCompany($item->id)) {
-                    $item->action .= '<a href="'.route($role.'.companies.edit', $item->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                    $item->action .= '<a href="'.route($role.'.companies.edit', $item->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary" title="Edit company">
                                         <i class="ti ti-edit text-xl leading-none"></i>
                                     </a>';
                 }
@@ -112,7 +117,7 @@ class CompanyController extends Controller
                     $item->action .= '<form action="'.route($role.'.companies.destroy', $item->id).'" method="POST" class="inline delete-company-form">
                                         <input type="hidden" name="_method" value="DELETE">
                         '. csrf_field() .'
-                                        <button href="#" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                                        <button href="#" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary" title="Delete company">
                                             <i class="ti ti-trash text-xl leading-none"></i>
                                         </button>';
                 }
@@ -182,7 +187,7 @@ class CompanyController extends Controller
             }
         }
 
-        return redirect()->route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->id)->with('success', 'Company created successfully.');
+        return redirect()->route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id)->with('success', 'Company created successfully.');
     }
 
     /**
@@ -190,7 +195,9 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        //
+        $this->authorize('view', $company);
+
+        return view('companies.show', $this->companyOverviewData($company));
     }
 
     /**
@@ -198,8 +205,19 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
-        //
         $this->authorize('update', $company);
+
+        $data = $this->companyOverviewData($company);
+        $data['parentCompanyOptions'] = $this->parentCompanyOptions($company);
+
+        return view('companies.edit', $data);
+    }
+
+    /**
+     * Shared payload for company overview / edit relationship tabs.
+     */
+    protected function companyOverviewData(Company $company): array
+    {
         $company->load([
             'parentCompany',
             'childCompanies',
@@ -207,7 +225,6 @@ class CompanyController extends Controller
             'contacts',
         ]);
 
-        // Remove broken shell records left by older syncs (Driver/Manager row without a login user).
         Driver::withoutGlobalScopes()
             ->where('company_id', $company->id)
             ->whereDoesntHave('user')
@@ -263,15 +280,41 @@ class CompanyController extends Controller
             ->groupBy('company_id')
             ->pluck('drivers_count', 'company_id');
 
-        $parentCompanyOptions = $this->parentCompanyOptions($company);
+        $companyTickets = Ticket::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->orderByDesc('id')
+            ->get();
 
-        return view('companies.edit', compact(
+        $driversByEmail = $companyDrivers
+            ->filter(fn (Driver $driver) => filled($driver->user?->email))
+            ->keyBy(fn (Driver $driver) => strtolower((string) $driver->user->email));
+
+        $openTicketsCount = Ticket::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->active()
+            ->count();
+
+        $closedTicketsCount = Ticket::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->where('status', Ticket::TICKET_STATUS_CLOSED)
+            ->count();
+
+        $pointsSavedTotal = (float) (Ticket::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->selectRaw('COALESCE(SUM('.Ticket::pointsSavedSql().'), 0) as aggregate')
+            ->value('aggregate') ?? 0);
+
+        return compact(
             'company',
-            'parentCompanyOptions',
             'companyDrivers',
             'driverTicketStats',
-            'childCompanyDriverCounts'
-        ));
+            'childCompanyDriverCounts',
+            'companyTickets',
+            'driversByEmail',
+            'openTicketsCount',
+            'closedTicketsCount',
+            'pointsSavedTotal'
+        );
     }
 
     /**
@@ -325,7 +368,7 @@ class CompanyController extends Controller
             }
         }
 
-        return redirect()->route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->id)->with('success', 'Company updated successfully.');
+        return redirect()->route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id)->with('success', 'Company updated successfully.');
     }
 
     /**

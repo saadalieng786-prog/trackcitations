@@ -1,6 +1,21 @@
 @extends('layout.master')
 @section('content')
     <div class="col-span-12">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 m-0">Edit Company</h1>
+                <div class="text-xs text-slate-500 mt-1">
+                    <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.index') }}" class="text-slate-500 hover:text-indigo-600">Companies</a>
+                    <span class="mx-1.5 text-slate-300">/</span>
+                    <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id) }}" class="text-slate-500 hover:text-indigo-600">{{ $company->name }}</a>
+                    <span class="mx-1.5 text-slate-300">/</span>
+                    <span class="font-medium text-slate-700">Edit</span>
+                </div>
+            </div>
+            <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id) }}" class="btn btn-outline-secondary btn-sm">
+                View Company Overview
+            </a>
+        </div>
         <form action="{{ route(auth()->user()->portalRoutePrefix().'.companies.update', $company->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -49,6 +64,17 @@
                             >
                                 <i class="ti ti-steering-wheel ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
                                 Drivers ({{ $companyDrivers->count() }})
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a
+                                href="javascript:void(0);"
+                                data-pc-toggle="tab"
+                                data-pc-target="companyTicketsTab"
+                                class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
+                            >
+                                <i class="ti ti-ticket ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
+                                Tickets ({{ $companyTickets->count() }})
                             </a>
                         </li>
                         <li class="group">
@@ -185,7 +211,7 @@
                                                 <p class="mb-1 text-xs uppercase tracking-wide text-muted">Hierarchy Path</p>
                                                 <p class="mb-0 text-sm font-medium">
                                                     @if($company->parentCompany)
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id) }}" class="text-primary">
+                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.show', $company->parentCompany->id) }}" class="text-primary">
                                                             {{ $company->parentCompany->name }}
                                                         </a>
                                                         <span class="mx-1 text-muted">→</span>
@@ -200,7 +226,7 @@
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Parent Company</p>
                                                 @if($company->parentCompany)
-                                                    <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id) }}" class="mb-0 font-semibold text-primary">
+                                                    <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.show', $company->parentCompany->id) }}" class="mb-0 font-semibold text-primary">
                                                         {{ $company->parentCompany->name }}
                                                     </a>
                                                 @else
@@ -226,7 +252,7 @@
                                                 @forelse($company->childCompanies as $childCompany)
                                                     <div class="flex items-center justify-between border-b py-2 last:border-b-0 gap-3">
                                                         <div>
-                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $childCompany->id) }}" class="font-medium text-primary">
+                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.show', $childCompany->id) }}" class="font-medium text-primary">
                                                                 {{ $childCompany->name }}
                                                             </a>
                                                             <p class="mb-0 text-xs text-muted">DOT: {{ $childCompany->dot ?: 'N/A' }}</p>
@@ -507,6 +533,115 @@
                     </div>
                 </div>
 
+                <div class="hidden tab-pane" id="companyTicketsTab">
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="col-span-12">
+                            <div class="card">
+                                <div class="card-header flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Tickets ({{ $companyTickets->count() }})</h5>
+                                        <span class="text-muted text-sm">
+                                            All tickets for {{ $company->name }}. Click a ticket or driver to open the record.
+                                        </span>
+                                    </div>
+                                    <div class="w-full sm:w-80">
+                                        <input type="search" id="companyTicketsSearch" class="form-control" placeholder="Search tickets by ID, driver, state, status..." onkeydown="if(event.key==='Enter'){event.preventDefault();}" />
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0" id="companyTicketsTable">
+                                            <thead>
+                                            <tr>
+                                                <th>Ticket #</th>
+                                                <th>Driver Name</th>
+                                                <th>Date Received</th>
+                                                <th>State</th>
+                                                <th>Status / Indicator</th>
+                                                <th>Original Points</th>
+                                                <th>Final Points</th>
+                                                <th>Points Saved</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @forelse($companyTickets as $ticket)
+                                                @php
+                                                    $emailKey = strtolower((string) ($ticket->user_email ?? ''));
+                                                    $linkedDriver = $driversByEmail->get($emailKey);
+                                                    $driverName = $ticket->name ?: ($linkedDriver?->user?->name ?: '—');
+                                                    $statusLabel = match ((int) ($ticket->status ?? -1)) {
+                                                        \App\Models\Ticket::TICKET_STATUS_CLOSED => 'Closed',
+                                                        \App\Models\Ticket::TICKET_STATUS_ARCHIVED => 'Archived',
+                                                        \App\Models\Ticket::TICKET_STATUS_OPEN => 'Open',
+                                                        default => 'Open',
+                                                    };
+                                                    $indicator = $ticket->indicator ?: '—';
+                                                    $searchBlob = strtolower(trim(implode(' ', array_filter([
+                                                        (string) $ticket->id,
+                                                        (string) ($ticket->ticket_number ?? ''),
+                                                        (string) ($ticket->citation_no ?? ''),
+                                                        $driverName,
+                                                        $ticket->user_email,
+                                                        $ticket->state,
+                                                        $statusLabel,
+                                                        $indicator,
+                                                    ]))));
+                                                @endphp
+                                                <tr data-ticket-search="{{ $searchBlob }}">
+                                                    <td>
+                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id) }}" class="font-medium text-primary">
+                                                            #{{ $ticket->id }}
+                                                        </a>
+                                                        @if($ticket->ticket_number)
+                                                            <div class="text-xs text-muted">{{ $ticket->ticket_number }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($linkedDriver)
+                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $linkedDriver->id) }}" class="font-medium text-primary">
+                                                                {{ $driverName }}
+                                                            </a>
+                                                        @else
+                                                            {{ $driverName }}
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($ticket->date_issued)
+                                                            {{ \Carbon\Carbon::parse($ticket->date_issued)->format('M j, Y') }}
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $ticket->state ?: '—' }}</td>
+                                                    <td>
+                                                        <div>{{ $statusLabel }}</div>
+                                                        <div class="text-xs text-muted">{{ $indicator }}</div>
+                                                    </td>
+                                                    <td>{{ number_format((float) $ticket->original_points_value, 1) }}</td>
+                                                    <td>{{ number_format((float) $ticket->final_points_value, 1) }}</td>
+                                                    <td>{{ number_format((float) $ticket->points_saved, 1) }}</td>
+                                                    <td class="text-center">
+                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id) }}" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="View ticket">
+                                                            <i class="ti ti-eye text-xl leading-none"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="9" class="text-center text-muted py-4">No tickets are linked to this company yet.</td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p id="companyTicketsEmptyFilter" class="mb-0 mt-3 text-sm text-muted hidden">No tickets match your search.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-span-12 text-right">
                     <button type="reset" class="btn btn-outline-secondary mx-1">Cancel</button>
                     <button type="submit" class="btn btn-primary mx-1">Update Company</button>
@@ -592,6 +727,29 @@
 
                 if (emptyMessage) {
                     emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-driver-search]').length === 0);
+                }
+            });
+        })();
+
+        (function () {
+            const searchInput = document.getElementById('companyTicketsSearch');
+            const table = document.getElementById('companyTicketsTable');
+            const emptyMessage = document.getElementById('companyTicketsEmptyFilter');
+            if (!searchInput || !table) return;
+
+            searchInput.addEventListener('input', function () {
+                const query = (searchInput.value || '').trim().toLowerCase();
+                let visible = 0;
+
+                table.querySelectorAll('tbody tr[data-ticket-search]').forEach(function (row) {
+                    const blob = row.getAttribute('data-ticket-search') || '';
+                    const match = !query || blob.indexOf(query) !== -1;
+                    row.style.display = match ? '' : 'none';
+                    if (match) visible += 1;
+                });
+
+                if (emptyMessage) {
+                    emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-ticket-search]').length === 0);
                 }
             });
         })();

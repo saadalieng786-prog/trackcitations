@@ -2150,3 +2150,214 @@ html.dark .btn-link-secondary:hover {
   color: #a5b4fc !important;
   background-color: #334155 !important;
 }
+
+/* ─── Company Overview (dedicated show page) ─── */
+.tc-company-overview .tc-company-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--tc-indigo);
+  background: var(--tc-indigo-soft);
+  border: 1px solid var(--tc-indigo-border);
+  flex-shrink: 0;
+}
+
+.tc-company-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--tc-indigo-soft);
+  color: var(--tc-indigo);
+  border: 1px solid var(--tc-indigo-border);
+}
+
+.tc-company-chip.muted {
+  background: #f8fafc;
+  color: var(--tc-text-muted);
+  border-color: var(--tc-border);
+}
+
+.tc-company-shell {
+  background: #fff;
+  border: 1px solid var(--tc-border);
+  border-radius: var(--tc-radius-lg);
+  box-shadow: var(--tc-card-shadow);
+  overflow: hidden;
+}
+
+.tc-company-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem 0;
+  border-bottom: 1px solid var(--tc-border);
+  background: #fbfcfe;
+}
+
+.tc-company-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--tc-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tc-company-tab:hover {
+  color: var(--tc-indigo);
+}
+
+.tc-company-tab.active {
+  color: var(--tc-indigo);
+  border-bottom-color: var(--tc-indigo);
+}
+
+.tc-company-panel {
+  display: none;
+  padding: 1.35rem 1.25rem 1.5rem;
+}
+
+.tc-company-panel.active {
+  display: block;
+}
+
+.tc-company-section-title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--tc-text-main);
+}
+
+.tc-company-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tc-company-info-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tc-text-light);
+  margin-bottom: 0.25rem;
+}
+
+.tc-company-info-value {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--tc-text-main);
+  word-break: break-word;
+}
+
+.tc-company-quick-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tc-company-quick-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--tc-border);
+  border-radius: 12px;
+  background: #fbfcfe;
+}
+
+.tc-company-quick-item.block {
+  display: block;
+}
+
+.tc-company-quick-item span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tc-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.tc-company-quick-item strong {
+  font-size: 1.05rem;
+  color: var(--tc-text-main);
+}
+
+.tc-company-hierarchy-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: var(--tc-indigo-soft);
+  border: 1px solid var(--tc-indigo-border);
+  color: var(--tc-indigo);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.tc-company-hierarchy-path a {
+  color: var(--tc-indigo);
+  text-decoration: none;
+}
+
+.tc-company-hierarchy-path a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .tc-company-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tc-company-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .tc-company-tab {
+    white-space: nowrap;
+  }
+}
+
+[data-pc-theme="dark"] .tc-company-shell,
+html.dark .tc-company-shell {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-pc-theme="dark"] .tc-company-tabs,
+html.dark .tc-company-tabs {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-pc-theme="dark"] .tc-company-quick-item,
+html.dark .tc-company-quick-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-pc-theme="dark"] .tc-company-chip.muted,
+html.dark .tc-company-chip.muted {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
