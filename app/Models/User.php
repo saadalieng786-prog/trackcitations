@@ -230,6 +230,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return self::ROLE_DRIVER;
     }
 
+    /**
+     * Primary role used for notification master switches (same priority as portal).
+     */
+    public function notificationRoleKey(): string
+    {
+        return $this->portalRoutePrefix();
+    }
+
+    public function inAppNotificationsEnabled(): bool
+    {
+        return NotificationRoleSetting::isEnabled($this->notificationRoleKey());
+    }
+
     public function conversations()
     {
         return $this->belongsToMany(Conversation::class)->latest();

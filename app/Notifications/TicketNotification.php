@@ -29,9 +29,14 @@ class TicketNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
+        $channels = [];
 
-        // Add the mail channel only if there is content
+        // Role master switch only gates in-app (database) notifications.
+        if (! ($notifiable instanceof \App\Models\User) || $notifiable->inAppNotificationsEnabled()) {
+            $channels[] = 'database';
+        }
+
+        // Email / SMS still follow per-user preferences.
         if ($this->getContent($notifiable)) {
             if ($notifiable->notification_email) {
                 $channels[] = 'mail';

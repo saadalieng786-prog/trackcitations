@@ -71,11 +71,11 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card p-0 overflow-hidden">
                 <div class="card-header">
-                    <div class="sm:flex items-center justify-between">
+                    <div class="sm:flex items-center justify-between gap-3">
                         <h5 class="mb-3 sm:mb-0">Tickets list</h5>
-                        <div>
+                        <div class="flex flex-wrap items-center gap-2">
                             <a href="#!" class="js-download-tickets btn btn-success"><span class="fa fa-file-excel mr-2"></span>Download Tickets</a>
                             @if(auth()->user()->roleable->companiesCountWithWriteAccess())
                                 <a href="{{ route(auth()->user()->portalRoutePrefix().'.tickets.create') }}" class="btn btn-primary">Create Ticket</a>
@@ -83,8 +83,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered yajra-datatable">
+                <div class="card-body p-0">
+                    <table class="table tc-clean-table yajra-datatable w-full">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -96,7 +96,7 @@
                             <th>Original Points</th>
                             <th>Final Points</th>
                             <th>Points Saved</th>
-                            <th>Action</th>
+                            <th class="text-right">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -115,10 +115,13 @@
             <script src="{{ asset('js/plugins/dataTables.min.js') }}"></script>
             <script src="{{ asset('js/plugins/dataTables.bootstrap5.min.js') }}"></script>
             <script>
+                $(document).ready(function () {
                 var table = $('.yajra-datatable').DataTable({
                     processing: true,
                     serverSide: true,
                     paging: true,
+                    autoWidth: false,
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
                     ajax: {
                         url: '{{ route(auth()->user()->portalRoutePrefix().".tickets.index") }}',
                         data: function (d) {
@@ -131,24 +134,26 @@
                     },
                     columns: [
                         {data: 'id', name: 'id'},
-                        {data: 'name', name: 'name'},
-                        {data: 'date_issued', name: 'date_issued'},
-                        {data: 'state', name: 'state'},
+                        {data: 'name', name: 'name', defaultContent: '—'},
+                        {data: 'date_issued', name: 'date_issued', defaultContent: '—'},
+                        {data: 'state', name: 'state', defaultContent: '—'},
                         {
                             data: 'company.name',
                             name: 'company.name',
+                            defaultContent: '—',
                             orderable: false,
                             searchable: false
                         },
-                        {data: 'indicator', name: 'indicator'},
-                        {data: 'original_points_value', name: 'original_points_value', orderable: false, searchable: false},
-                        {data: 'final_points_value', name: 'final_points_value', orderable: false, searchable: false},
-                        {data: 'points_saved', name: 'points_saved', orderable: false, searchable: false},
+                        {data: 'indicator', name: 'indicator', defaultContent: '—'},
+                        {data: 'original_points_value', name: 'original_points_value', orderable: false, searchable: false, defaultContent: '0'},
+                        {data: 'final_points_value', name: 'final_points_value', orderable: false, searchable: false, defaultContent: '0'},
+                        {data: 'points_saved', name: 'points_saved', orderable: false, searchable: false, defaultContent: '0'},
                         {
                             data: 'action',
                             name: 'action',
                             orderable: false,
-                            searchable: false
+                            searchable: false,
+                            className: 'text-right'
                         },
                     ],
                     order: [[0, 'desc']], // Default sort by the first column (id) in descending order
@@ -162,8 +167,10 @@
 
                 // Reset the filters
                 $('#filterForm').on('reset', function () {
-                    $('input, select').val('');
-                    table.draw();
+                    setTimeout(function () {
+                        $('input, select', '#filterForm').val('');
+                        table.draw();
+                    }, 0);
                 });
 
 
@@ -171,7 +178,7 @@
                 flatpickr(document.querySelector('#courtDate'), {
                     mode: 'range',
                     @if (Request::get('court_date'))
-                    defaultDate: [new Date('{{ explode(' to ',  Request::get('court_date'))[0] }}'), new Date('{{ explode(' to ',  Request::get('court_date'))[1] }}')]
+                    defaultDate: [new Date('{{ explode(' to ',  Request::get('court_date'))[0] }}'), new Date('{{ explode(' to ',  Request::get('court_date'))[1] ?? explode(' to ', Request::get('court_date'))[0] }}')]
                     @endif
                 });
 
@@ -231,33 +238,6 @@
                         });
                 });
 
-                // document.querySelector('#bulkActionForm').addEventListener('submit', function (e) {
-                //     const form = e.target;
-                //     const selectedAction = document.querySelector('#bulkAction').value;
-                //     const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-ticketid]:checked'));
-                //
-                //     // Ensure an action is selected and at least one checkbox is checked
-                //     if (!selectedAction || selectedCheckboxes.length === 0) {
-                //         e.preventDefault(); // Stop form submission
-                //         return Toast.fire({
-                //             icon: 'info',
-                //             title: 'Please select an action and at least one item.'
-                //         });
-                //     }
-                //
-                //     // Remove any existing hidden inputs for IDs
-                //     form.querySelectorAll('input[name="ids[]"]').forEach(input => input.remove());
-                //
-                //     // Append the checked IDs as hidden inputs to the form
-                //     selectedCheckboxes.forEach(checkbox => {
-                //         const hiddenInput = document.createElement('input');
-                //         hiddenInput.type = 'hidden';
-                //         hiddenInput.name = 'ids[]';
-                //         hiddenInput.value = checkbox.dataset.ticketid;
-                //         form.appendChild(hiddenInput);
-                //     });
-                // });
-
                 document.addEventListener('submit', function (e) {
                     const deleteForm = e.target.closest('.delete-ticket-form');
                     if (deleteForm) {
@@ -280,10 +260,12 @@
                         });
                     }
                 });
+                });
             </script>
         @endsection
 
         @section('css')
             <link rel="stylesheet" href="{{ asset('css/plugins/flatpickr.min.css') }}" />
             <link rel="stylesheet" href="{{ asset('css/plugins/choices.min.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/plugins/dataTables.bootstrap5.min.css') }}" />
 @endsection

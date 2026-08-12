@@ -1,7 +1,12 @@
 <header class="pc-header">
     @php
-        $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
-        $unreadNotifications     = auth()->user()->unreadNotifications()->latest()->limit(10)->get();
+        $inAppNotificationsEnabled = auth()->user()->inAppNotificationsEnabled();
+        $unreadNotificationCount = $inAppNotificationsEnabled
+            ? auth()->user()->unreadNotifications()->count()
+            : 0;
+        $unreadNotifications = $inAppNotificationsEnabled
+            ? auth()->user()->unreadNotifications()->latest()->limit(10)->get()
+            : collect();
         $userInitials            = collect(explode(' ', Auth::user()->name))->map(fn($p)=>strtoupper(substr($p,0,1)))->take(2)->implode('');
     @endphp
 
@@ -75,7 +80,8 @@
                 </div>
             </div>
 
-            {{-- Notifications --}}
+            {{-- Notifications (hidden when role master switch is off) --}}
+            @if($inAppNotificationsEnabled)
             <div class="dropdown">
                 <a class="pc-head-link dropdown-toggle relative" data-pc-toggle="dropdown" href="#" role="button" title="Notifications">
                     <svg class="pc-icon w-5 h-5"><use xlink:href="#custom-notification"></use></svg>
@@ -109,6 +115,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             {{-- User Profile Avatar Dropdown --}}
             <div class="dropdown ms-2">

@@ -22,4 +22,5 @@ yarn-error.log
 /.zed
 /public/2025
 /sfdc_datasync
+/storage/framework/views/
 *.log

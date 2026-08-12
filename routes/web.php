@@ -16,6 +16,7 @@ use App\Http\Controllers\MessageReadController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesForceController;
+use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\StorageSettingsController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\TicketExportController;
@@ -135,6 +136,11 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('storage/settings', [StorageSettingsController::class, 'index'])->name('storage.index');
             Route::put('storage/settings', [StorageSettingsController::class, 'update'])->name('storage.update');
             Route::post('storage/settings/test', [StorageSettingsController::class, 'test'])->name('storage.test');
+
+            if (in_array($portal, ['super_admin', 'staff_admin'], true)) {
+                Route::get('notifications/settings', [NotificationSettingsController::class, 'index'])->name('notifications.settings');
+                Route::put('notifications/settings', [NotificationSettingsController::class, 'update'])->name('notifications.update');
+            }
         });
     }
 

@@ -215,6 +215,15 @@
                         <span class="pc-mtext">Storage Settings</span>
                     </a>
                 </li>
+
+                <?php if (\Illuminate\Support\Facades\Blade::check('hasanyrole', 'super_admin|staff_admin')): ?>
+                <li class="pc-item <?php echo e(request()->routeIs($portal.'.notifications.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route($portal.'.notifications.settings')); ?>" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-bell"></i></span>
+                        <span class="pc-mtext">Notification Settings</span>
+                    </a>
+                </li>
+                <?php endif; ?>
                 <?php endif; ?>
 
                 

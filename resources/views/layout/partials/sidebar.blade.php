@@ -212,6 +212,15 @@
                         <span class="pc-mtext">Storage Settings</span>
                     </a>
                 </li>
+
+                @hasanyrole('super_admin|staff_admin')
+                <li class="pc-item {{ request()->routeIs($portal.'.notifications.*') ? 'active' : '' }}">
+                    <a href="{{ route($portal.'.notifications.settings') }}" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-bell"></i></span>
+                        <span class="pc-mtext">Notification Settings</span>
+                    </a>
+                </li>
+                @endhasanyrole
                 @endhasanyrole
 
                 {{-- ──── SUPPORT ──── --}}
