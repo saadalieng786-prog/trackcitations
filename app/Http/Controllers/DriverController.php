@@ -244,6 +244,13 @@ class DriverController extends Controller
     {
         //
         $this->authorize('update', $driver);
+        $driver->load('user');
+
+        if (! $driver->user) {
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.drivers.index')
+                ->with('error', 'This driver record has no linked login user and cannot be edited. It was likely created by an incomplete Salesforce sync.');
+        }
 
         return view('drivers.edit', compact('driver'));
     }

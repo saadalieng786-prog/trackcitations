@@ -52,8 +52,20 @@ class Company extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function drivers()
+    {
+        return $this->hasMany(Driver::class);
+    }
+
     public function contacts() {
         return $this->hasMany(CompanyContact::class);
+    }
+
+    public function driversCount(): int
+    {
+        return Driver::withoutGlobalScopes()
+            ->where('company_id', $this->id)
+            ->count();
     }
 
     public function isParentCompany(): bool

@@ -1,9 +1,8 @@
-@extends('layout.master')
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="col-span-12">
-        <form action="{{ route(auth()->user()->portalRoutePrefix().'.companies.update', $company->id) }}" method="POST">
-            @csrf
-            @method('PUT')
+        <form action="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.update', $company->id)); ?>" method="POST">
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
             <div class="card">
                 <div class="card-body !py-0">
                     <ul class="flex flex-wrap w-full font-medium text-center nav-tabs">
@@ -48,7 +47,7 @@
                                 class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
                             >
                                 <i class="ti ti-steering-wheel ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
-                                Drivers ({{ $companyDrivers->count() }})
+                                Drivers (<?php echo e($companyDrivers->count()); ?>)
                             </a>
                         </li>
                         <li class="group">
@@ -73,7 +72,8 @@
                                 <div class="card-header">
     <h5 class="text-primary text-[28px] font-bold">Company Information</h5>
                                     <span class="text-muted text-sm">
-                                            {{ __("company's information and citation tracker details.") }}
+                                            <?php echo e(__("company's information and citation tracker details.")); ?>
+
                                         </span>
                                 </div>
                                 <div class="card-body">
@@ -81,67 +81,67 @@
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="name">Company Name</label>
-                                                <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $company->name) }}" />
-                                                @if ($errors->has('name'))
+                                                <input type="text" name="name" id="name" class="form-control" value="<?php echo e(old('name', $company->name)); ?>" />
+                                                <?php if($errors->has('name')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('name') }}</strong>
+                                                        <strong><?php echo e($errors->first('name')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="ct_email">Email</label>
-                                                <input type="email" name="ct_email" id="ct_email" class="form-control" value="{{ old('ct_email', $company->ct_email) }}" />
-                                                @if ($errors->has('ct_email'))
+                                                <input type="email" name="ct_email" id="ct_email" class="form-control" value="<?php echo e(old('ct_email', $company->ct_email)); ?>" />
+                                                <?php if($errors->has('ct_email')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('ct_email') }}</strong>
+                                                        <strong><?php echo e($errors->first('ct_email')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="ct_fname">Firstname</label>
-                                                <input type="text" name="ct_fname" id="ct_fname" class="form-control" value="{{ old('ct_fname', $company->ct_fname) }}" />
-                                                @if ($errors->has('ct_fname'))
+                                                <input type="text" name="ct_fname" id="ct_fname" class="form-control" value="<?php echo e(old('ct_fname', $company->ct_fname)); ?>" />
+                                                <?php if($errors->has('ct_fname')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('ct_fname') }}</strong>
+                                                        <strong><?php echo e($errors->first('ct_fname')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="ct_lname">Lastname</label>
-                                                <input type="text" name="ct_lname" id="ct_lname" class="form-control" value="{{ old('ct_lname', $company->ct_lname) }}" />
-                                                @if ($errors->has('ct_lname'))
+                                                <input type="text" name="ct_lname" id="ct_lname" class="form-control" value="<?php echo e(old('ct_lname', $company->ct_lname)); ?>" />
+                                                <?php if($errors->has('ct_lname')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('ct_lname') }}</strong>
+                                                        <strong><?php echo e($errors->first('ct_lname')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="dot">DOT Number</label>
-                                                <input type="text" name="dot" id="dot" class="form-control" value="{{ old('dot', $company->dot) }}" />
-                                                @if ($errors->has('dot'))
+                                                <input type="text" name="dot" id="dot" class="form-control" value="<?php echo e(old('dot', $company->dot)); ?>" />
+                                                <?php if($errors->has('dot')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('dot') }}</strong>
+                                                        <strong><?php echo e($errors->first('dot')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold" for="sf_id">Salesforce ID ( Optional )</label>
-                                                <input type="text" name="sf_id" id="sf_id" class="form-control" value="{{ old('sf_id', $company->sf_id) }}" />
-                                                @if ($errors->has('sf_id'))
+                                                <input type="text" name="sf_id" id="sf_id" class="form-control" value="<?php echo e(old('sf_id', $company->sf_id)); ?>" />
+                                                <?php if($errors->has('sf_id')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('sf_id') }}</strong>
+                                                        <strong><?php echo e($errors->first('sf_id')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
@@ -149,17 +149,18 @@
                                                 <label class="form-label text-primary text-[18px] font-bold" for="parent_company_id">Parent Company</label>
                                                 <select name="parent_company_id" id="parent_company_id" class="form-control">
                                                     <option value="">Top-level company</option>
-                                                    @foreach($parentCompanyOptions as $parentCompany)
-                                                        <option value="{{ $parentCompany->id }}" {{ (string) old('parent_company_id', $company->parent_company_id) === (string) $parentCompany->id ? 'selected' : '' }}>
-                                                            {{ $parentCompany->name }}
+                                                    <?php $__currentLoopData = $parentCompanyOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $parentCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($parentCompany->id); ?>" <?php echo e((string) old('parent_company_id', $company->parent_company_id) === (string) $parentCompany->id ? 'selected' : ''); ?>>
+                                                            <?php echo e($parentCompany->name); ?>
+
                                                         </option>
-                                                    @endforeach
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 </select>
-                                                @if ($errors->has('parent_company_id'))
+                                                <?php if($errors->has('parent_company_id')): ?>
                                                     <span class="invalid-feedback text-danger">
-                                                        <strong>{{ $errors->first('parent_company_id') }}</strong>
+                                                        <strong><?php echo e($errors->first('parent_company_id')); ?></strong>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -184,60 +185,64 @@
                                             <div class="rounded border p-4 mb-2 bg-slate-50 dark:bg-transparent">
                                                 <p class="mb-1 text-xs uppercase tracking-wide text-muted">Hierarchy Path</p>
                                                 <p class="mb-0 text-sm font-medium">
-                                                    @if($company->parentCompany)
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id) }}" class="text-primary">
-                                                            {{ $company->parentCompany->name }}
+                                                    <?php if($company->parentCompany): ?>
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id)); ?>" class="text-primary">
+                                                            <?php echo e($company->parentCompany->name); ?>
+
                                                         </a>
                                                         <span class="mx-1 text-muted">→</span>
-                                                    @endif
-                                                    <span>{{ $company->name }}</span>
+                                                    <?php endif; ?>
+                                                    <span><?php echo e($company->name); ?></span>
                                                     <span class="mx-1 text-muted">→</span>
-                                                    <span>Drivers ({{ $companyDrivers->count() }})</span>
+                                                    <span>Drivers (<?php echo e($companyDrivers->count()); ?>)</span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Parent Company</p>
-                                                @if($company->parentCompany)
-                                                    <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id) }}" class="mb-0 font-semibold text-primary">
-                                                        {{ $company->parentCompany->name }}
+                                                <?php if($company->parentCompany): ?>
+                                                    <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.edit', $company->parentCompany->id)); ?>" class="mb-0 font-semibold text-primary">
+                                                        <?php echo e($company->parentCompany->name); ?>
+
                                                     </a>
-                                                @else
+                                                <?php else: ?>
                                                     <p class="mb-0 font-semibold">Top-level company</p>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Child Companies</p>
-                                                <p class="mb-0 font-semibold">{{ $company->childCompanies->count() }}</p>
+                                                <p class="mb-0 font-semibold"><?php echo e($company->childCompanies->count()); ?></p>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Drivers On This Company</p>
-                                                <p class="mb-0 font-semibold">{{ $companyDrivers->count() }}</p>
+                                                <p class="mb-0 font-semibold"><?php echo e($companyDrivers->count()); ?></p>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-6">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-3 font-semibold">Child Trucking Companies</p>
-                                                @forelse($company->childCompanies as $childCompany)
+                                                <?php $__empty_1 = true; $__currentLoopData = $company->childCompanies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $childCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                                     <div class="flex items-center justify-between border-b py-2 last:border-b-0 gap-3">
                                                         <div>
-                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.companies.edit', $childCompany->id) }}" class="font-medium text-primary">
-                                                                {{ $childCompany->name }}
+                                                            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.edit', $childCompany->id)); ?>" class="font-medium text-primary">
+                                                                <?php echo e($childCompany->name); ?>
+
                                                             </a>
-                                                            <p class="mb-0 text-xs text-muted">DOT: {{ $childCompany->dot ?: 'N/A' }}</p>
+                                                            <p class="mb-0 text-xs text-muted">DOT: <?php echo e($childCompany->dot ?: 'N/A'); ?></p>
                                                         </div>
                                                         <span class="text-sm text-muted whitespace-nowrap">
-                                                            Drivers: {{ (int) ($childCompanyDriverCounts[$childCompany->id] ?? 0) }}
+                                                            Drivers: <?php echo e((int) ($childCompanyDriverCounts[$childCompany->id] ?? 0)); ?>
+
                                                         </span>
                                                     </div>
-                                                @empty
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                     <p class="mb-0 text-sm text-muted">No child companies linked yet.</p>
-                                                @endforelse
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-6">
@@ -245,15 +250,15 @@
                                                 <p class="mb-3 font-semibold">Rollup Snapshot</p>
                                                 <div class="flex items-center justify-between border-b py-2">
                                                     <span>Drivers (incl. children)</span>
-                                                    <span>{{ $company->driversCountIncludingChildren() }}</span>
+                                                    <span><?php echo e($company->driversCountIncludingChildren()); ?></span>
                                                 </div>
                                                 <div class="flex items-center justify-between border-b py-2">
                                                     <span>Open Tickets</span>
-                                                    <span>{{ $company->openTicketsCountIncludingChildren() }}</span>
+                                                    <span><?php echo e($company->openTicketsCountIncludingChildren()); ?></span>
                                                 </div>
                                                 <div class="flex items-center justify-between py-2">
                                                     <span>Closed Tickets</span>
-                                                    <span>{{ $company->closedTicketsCountIncludingChildren() }}</span>
+                                                    <span><?php echo e($company->closedTicketsCountIncludingChildren()); ?></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -270,14 +275,15 @@
                                 <div class="card-header">
     <h5 class="text-primary text-[28px] font-bold">Company Contacts</h5>
                                     <span class="text-muted text-sm">
-                                        {{ __("All of these contacts will get notified.") }}
+                                        <?php echo e(__("All of these contacts will get notified.")); ?>
+
                                     </span>
                                 </div>
                                 <div class="card-body">
                                     <div class="grid grid-cols-12 gap-6">
                                         <div class="col-span-12">
-                                            <div class="table-responsive" id="companyContactsList">
-                                                <table class="table table-hover mb-0" id="companyContactsTable">
+                                            <div class="table-responsive" id="companyContacts">
+                                                <table class="table table-hover mb-0">
                                                     <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -289,37 +295,37 @@
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    @if (old('companyContactName'))
-                                                        @foreach(old('companyContactName') as $index => $companyContact)
+                                                    <?php if(old('companyContactName')): ?>
+                                                        <?php $__currentLoopData = old('companyContactName'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $companyContact): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                             <tr>
-                                                                <td>{{ $index + 1}}</td>
-                                                                <td><input type="text" name="companyContactName[{{ $index }}]" class="form-control" placeholder="Name" value="{{ old("companyContactName")[$index] }}" required /></td>
-                                                                <td><input type="email" name="companyContactEmail[{{ $index }}]" class="form-control" placeholder="Email" value="{{ old("companyContactEmail")[$index] }}"  required /></td>
-                                                                <td><input type="text" name="companyContactPhone[{{ $index }}]" class="form-control" placeholder="Phone" value="{{ old("companyContactPhone")[$index] }}" /></td>
-                                                                <td><input type="text" name="companyContactCell[{{ $index }}]" class="form-control" placeholder="Cell" value="{{ old("companyContactCell")[$index] }}" /></td>
+                                                                <td><?php echo e($index + 1); ?></td>
+                                                                <td><input type="text" name="companyContactName[<?php echo e($index); ?>]" class="form-control" placeholder="Name" value="<?php echo e(old("companyContactName")[$index]); ?>" required /></td>
+                                                                <td><input type="email" name="companyContactEmail[<?php echo e($index); ?>]" class="form-control" placeholder="Email" value="<?php echo e(old("companyContactEmail")[$index]); ?>"  required /></td>
+                                                                <td><input type="text" name="companyContactPhone[<?php echo e($index); ?>]" class="form-control" placeholder="Phone" value="<?php echo e(old("companyContactPhone")[$index]); ?>" /></td>
+                                                                <td><input type="text" name="companyContactCell[<?php echo e($index); ?>]" class="form-control" placeholder="Cell" value="<?php echo e(old("companyContactCell")[$index]); ?>" /></td>
                                                                 <td class="text-center">
                                                                     <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default js-remove-contact-row">
                                                                         <i class="ti ti-trash text-xl leading-none"></i>
                                                                     </a>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
-                                                    @else
-                                                        @foreach($company->contacts as $index => $contact)
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php else: ?>
+                                                        <?php $__currentLoopData = $company->contacts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $contact): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                             <tr>
-                                                                <td>{{ $index + 1}}</td>
-                                                                <td><input type="text" name="companyContactName[{{ $index }}]" class="form-control" placeholder="Name" value="{{ $contact->name }}" required /></td>
-                                                                <td><input type="email" name="companyContactEmail[{{ $index }}]" class="form-control" placeholder="Email" value="{{ $contact->email }}"  required /></td>
-                                                                <td><input type="text" name="companyContactPhone[{{ $index }}]" class="form-control" placeholder="Phone" value="{{ $contact->phone }}" /></td>
-                                                                <td><input type="text" name="companyContactCell[{{ $index }}]" class="form-control" placeholder="Cell" value="{{ $contact->cell }}" /></td>
+                                                                <td><?php echo e($index + 1); ?></td>
+                                                                <td><input type="text" name="companyContactName[<?php echo e($index); ?>]" class="form-control" placeholder="Name" value="<?php echo e($contact->name); ?>" required /></td>
+                                                                <td><input type="email" name="companyContactEmail[<?php echo e($index); ?>]" class="form-control" placeholder="Email" value="<?php echo e($contact->email); ?>"  required /></td>
+                                                                <td><input type="text" name="companyContactPhone[<?php echo e($index); ?>]" class="form-control" placeholder="Phone" value="<?php echo e($contact->phone); ?>" /></td>
+                                                                <td><input type="text" name="companyContactCell[<?php echo e($index); ?>]" class="form-control" placeholder="Cell" value="<?php echo e($contact->cell); ?>" /></td>
                                                                 <td class="text-center">
                                                                     <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default js-remove-contact-row">
                                                                         <i class="ti ti-trash text-xl leading-none"></i>
                                                                     </a>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
-                                                    @endif
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php endif; ?>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -343,14 +349,15 @@
                                 <div class="card-header">
                                     <h5 class="text-primary text-[28px] font-bold">Company Managers</h5>
                                     <span class="text-muted text-sm">
-                                        {{ __("Who Manages this company with/without write access.") }}
+                                        <?php echo e(__("Who Manages this company with/without write access.")); ?>
+
                                     </span>
                                 </div>
                                 <div class="card-body">
                                     <div class="grid grid-cols-12 gap-6">
                                         <div class="col-span-12">
-                                            <div class="table-responsive" id="companyManagersList">
-                                                <table class="table table-hover mb-0" id="companyManagersTable">
+                                            <div class="table-responsive" id="companyContacts">
+                                                <table class="table table-hover mb-0">
                                                     <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -361,40 +368,24 @@
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    @php
-                                                        $companyManagers = $company->managers
-                                                            ->filter(fn ($manager) => filled(optional($manager->user)->email))
-                                                            ->values();
-                                                    @endphp
-                                                    @forelse($companyManagers as $index => $manager)
-                                                        @php $managerUser = $manager->user; @endphp
+                                                    <?php $__empty_1 = true; $__currentLoopData = $company->managers->filter(fn ($manager) => $manager->user); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $manager): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                        <?php $managerUser = $manager->user; ?>
                                                         <tr>
-                                                            <td>{{ $index + 1 }}</td>
-                                                            <td>
-                                                                <a href="{{ route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id) }}" class="font-medium text-primary">
-                                                                    {{ $managerUser->name ?: 'Unnamed manager' }}
-                                                                </a>
-                                                            </td>
-                                                            <td>{{ $managerUser->email }}</td>
-                                                            <td>{!! $manager->pivot->is_write_access ? '<i class="text-success text-lg ti ti-check"></i>' : '<i class="text-danger text-lg ti ti-x"></i>' !!}</td>
+                                                            <td><?php echo e($index + 1); ?></td>
+                                                            <td><?php echo e($managerUser->name); ?></td>
+                                                            <td><?php echo e($managerUser->email); ?></td>
+                                                            <td><?php echo $manager->pivot->is_write_access ? '<i class="text-success text-lg ti ti-check"></i>' : '<i class="text-danger text-lg ti ti-x"></i>'; ?></td>
                                                             <td class="text-center">
-                                                                <a href="{{ route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id) }}" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit manager">
+                                                                <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit manager">
                                                                     <i class="ti ti-pencil text-xl leading-none"></i>
                                                                 </a>
                                                             </td>
                                                         </tr>
-                                                    @empty
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                         <tr>
-                                                            <td colspan="5" class="text-center text-muted py-4">
-                                                                No company managers linked yet.
-                                                                @if($companyDrivers->isNotEmpty())
-                                                                    <span class="d-block mt-1 text-xs">
-                                                                        If Salesforce Account emails match a Driver email, a separate company manager login is not created automatically. Add a manager from the Managers page, or use a different Account contact email in Salesforce.
-                                                                    </span>
-                                                                @endif
-                                                            </td>
+                                                            <td colspan="5" class="text-center text-muted py-4">No company managers linked yet.</td>
                                                         </tr>
-                                                    @endforelse
+                                                    <?php endif; ?>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -412,9 +403,9 @@
                             <div class="card">
                                 <div class="card-header flex flex-wrap items-center justify-between gap-3">
                                     <div>
-                                        <h5 class="text-primary text-[28px] font-bold mb-0">Drivers ({{ $companyDrivers->count() }})</h5>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Drivers (<?php echo e($companyDrivers->count()); ?>)</h5>
                                         <span class="text-muted text-sm">
-                                            Drivers associated with {{ $company->name }}. Click a driver name to open the profile.
+                                            Drivers associated with <?php echo e($company->name); ?>. Click a driver name to open the profile.
                                         </span>
                                     </div>
                                     <div class="w-full sm:w-72">
@@ -440,8 +431,8 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @forelse($companyDrivers as $index => $driver)
-                                                @php
+                                            <?php $__empty_1 = true; $__currentLoopData = $companyDrivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <?php
                                                     $driverUser = $driver->user;
                                                     $emailKey = strtolower((string) ($driverUser?->email ?? ''));
                                                     $stats = $driverTicketStats->get($emailKey);
@@ -454,49 +445,51 @@
                                                         $driverUser?->city,
                                                         $driverUser?->state,
                                                     ]))));
-                                                @endphp
-                                                <tr data-driver-search="{{ $searchBlob }}">
-                                                    <td>{{ $index + 1 }}</td>
+                                                ?>
+                                                <tr data-driver-search="<?php echo e($searchBlob); ?>">
+                                                    <td><?php echo e($index + 1); ?></td>
                                                     <td>
-                                                        @if($driverUser)
-                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id) }}" class="font-medium text-primary">
-                                                                {{ $driverUser->name ?: 'Unnamed driver' }}
+                                                        <?php if($driverUser): ?>
+                                                            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id)); ?>" class="font-medium text-primary">
+                                                                <?php echo e($driverUser->name ?: 'Unnamed driver'); ?>
+
                                                             </a>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span class="text-muted">Driver user missing</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
-                                                    <td>{{ $driverUser?->email ?: '—' }}</td>
-                                                    <td>{{ $driverUser?->state ?: '—' }}</td>
-                                                    <td>{{ $driverUser?->city ?: '—' }}</td>
-                                                    <td>{{ $openCount }}</td>
-                                                    <td>{{ $closedCount }}</td>
-                                                    <td>{{ number_format($pointsSaved, 1) }}</td>
+                                                    <td><?php echo e($driverUser?->email ?: '—'); ?></td>
+                                                    <td><?php echo e($driverUser?->state ?: '—'); ?></td>
+                                                    <td><?php echo e($driverUser?->city ?: '—'); ?></td>
+                                                    <td><?php echo e($openCount); ?></td>
+                                                    <td><?php echo e($closedCount); ?></td>
+                                                    <td><?php echo e(number_format($pointsSaved, 1)); ?></td>
                                                     <td>
-                                                        @if($driverUser?->last_login_at)
-                                                            {{ \Carbon\Carbon::parse($driverUser->last_login_at)->format('M j, Y g:i A') }}
-                                                        @else
+                                                        <?php if($driverUser?->last_login_at): ?>
+                                                            <?php echo e(\Carbon\Carbon::parse($driverUser->last_login_at)->format('M j, Y g:i A')); ?>
+
+                                                        <?php else: ?>
                                                             —
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td>
-                                                        @if($driverUser?->email)
+                                                        <?php if($driverUser?->email): ?>
                                                             <span class="badge bg-success-50 text-success">Portal Access</span>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span class="badge bg-warning-50 text-warning">No Login</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td class="text-center">
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id) }}" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit driver">
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit driver">
                                                             <i class="ti ti-pencil text-xl leading-none"></i>
                                                         </a>
                                                     </td>
                                                 </tr>
-                                            @empty
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                 <tr>
                                                     <td colspan="11" class="text-center text-muted py-4">No drivers are linked to this company yet.</td>
                                                 </tr>
-                                            @endforelse
+                                            <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -514,18 +507,16 @@
             </div>
         </form>
     </div>
-@endsection
-@section('post-scripts')
-    <script src="{{ asset('js/plugins/flatpickr.min.js') }}"></script>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('post-scripts'); ?>
+    <script src="<?php echo e(asset('js/plugins/flatpickr.min.js')); ?>"></script>
     <script>
         // Function to update row index numbers
         function updateRowIndexes() {
-            const rows = document.querySelectorAll('#companyContactsTable tbody tr');
+            const rows = document.querySelectorAll('#companyContacts table tbody tr');
             rows.forEach((row, index) => {
-                const firstCell = row.querySelector('td');
-                if (firstCell) {
-                    firstCell.textContent = index + 1;
-                }
+                // Set the first cell in each row to the correct index (1-based)
+                row.querySelector('td').textContent = index + 1;
             });
         }
 
@@ -547,7 +538,7 @@
             if (addItemBtn) {
                 e.preventDefault();
                 // Get the table body where the rows should be added
-                let tableBody = document.querySelector('#companyContactsTable tbody');
+                let tableBody = document.querySelector('#companyContacts table tbody');
                 if (tableBody) {
                     // Get the index for the new row based on current row count
                     let newIndex = tableBody.querySelectorAll('tr').length;
@@ -596,8 +587,10 @@
             });
         })();
     </script>
-@endsection
-@section('css')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('css'); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.2.1/ol.css">
-    <link rel="stylesheet" href="{{ asset('css/plugins/flatpickr.min.css') }}" />
-@endsection
+    <link rel="stylesheet" href="<?php echo e(asset('css/plugins/flatpickr.min.css')); ?>" />
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/companies/edit.blade.php ENDPATH**/ ?>

@@ -7,9 +7,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Driver;
+use App\Models\Manager;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class CompanyController extends Controller
@@ -196,10 +200,78 @@ class CompanyController extends Controller
     {
         //
         $this->authorize('update', $company);
-        $company->load(['parentCompany', 'childCompanies.contacts', 'managers.user', 'contacts']);
+        $company->load([
+            'parentCompany',
+            'childCompanies',
+            'managers.user',
+            'contacts',
+        ]);
+
+        // Remove broken shell records left by older syncs (Driver/Manager row without a login user).
+        Driver::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->whereDoesntHave('user')
+            ->delete();
+
+        $orphanManagerIds = Manager::query()
+            ->whereDoesntHave('user')
+            ->whereHas('companies', fn ($query) => $query->where('companies.id', $company->id))
+            ->pluck('id');
+
+        if ($orphanManagerIds->isNotEmpty()) {
+            $company->managers()->detach($orphanManagerIds);
+            Manager::query()
+                ->whereIn('id', $orphanManagerIds)
+                ->whereDoesntHave('companies')
+                ->delete();
+        }
+
+        $company->unsetRelation('managers');
+        $company->load(['managers.user']);
+
+        $companyDrivers = Driver::withoutGlobalScopes()
+            ->with('user')
+            ->where('company_id', $company->id)
+            ->whereHas('user')
+            ->orderBy('id')
+            ->get();
+
+        $driverEmails = $companyDrivers
+            ->map(fn (Driver $driver) => $driver->user?->email)
+            ->filter()
+            ->values();
+
+        $driverTicketStats = collect();
+        if ($driverEmails->isNotEmpty()) {
+            $driverTicketStats = Ticket::withoutGlobalScopes()
+                ->where('company_id', $company->id)
+                ->whereIn('user_email', $driverEmails)
+                ->select([
+                    'user_email',
+                    DB::raw('SUM(CASE WHEN status IS NULL OR status NOT IN ('.Ticket::TICKET_STATUS_ARCHIVED.','.Ticket::TICKET_STATUS_CLOSED.') THEN 1 ELSE 0 END) as open_count'),
+                    DB::raw('SUM(CASE WHEN status = '.Ticket::TICKET_STATUS_CLOSED.' THEN 1 ELSE 0 END) as closed_count'),
+                    DB::raw('COALESCE(SUM('.Ticket::pointsSavedSql().'), 0) as points_saved'),
+                ])
+                ->groupBy('user_email')
+                ->get()
+                ->keyBy(fn ($row) => strtolower((string) $row->user_email));
+        }
+
+        $childCompanyDriverCounts = Driver::withoutGlobalScopes()
+            ->whereIn('company_id', $company->childCompanies->pluck('id'))
+            ->select('company_id', DB::raw('COUNT(*) as drivers_count'))
+            ->groupBy('company_id')
+            ->pluck('drivers_count', 'company_id');
+
         $parentCompanyOptions = $this->parentCompanyOptions($company);
 
-        return view('companies.edit', compact('company', 'parentCompanyOptions'));
+        return view('companies.edit', compact(
+            'company',
+            'parentCompanyOptions',
+            'companyDrivers',
+            'driverTicketStats',
+            'childCompanyDriverCounts'
+        ));
     }
 
     /**

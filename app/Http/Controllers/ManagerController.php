@@ -255,6 +255,14 @@ class ManagerController extends Controller
     public function edit(Manager $manager)
     {
         //
+        $manager->load(['user', 'companies']);
+
+        if (! $manager->user) {
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.managers.index')
+                ->with('error', 'This manager record has no linked login user and cannot be edited. It was likely created by an incomplete Salesforce sync.');
+        }
+
         $roleOptions = User::companyAdminRoleOptions();
 
         return view('managers.edit', compact('manager', 'roleOptions'));
