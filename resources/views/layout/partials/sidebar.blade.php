@@ -112,7 +112,17 @@
                     <a href="{{ route($portal.'.tickets.pending') }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-clock"></i></span>
                         <span class="pc-mtext">Pending Tickets</span>
-                        <span class="pc-badge ms-auto">12</span>
+                        @php
+                            $pendingTicketsCount = \App\Models\Ticket::query()
+                                ->where(function ($query) {
+                                    $query->where('indicator', \App\Models\Ticket::INDICATOR_PENDING)
+                                        ->orWhereNull('indicator');
+                                })
+                                ->count();
+                        @endphp
+                        @if ($pendingTicketsCount > 0)
+                            <span class="pc-badge ms-auto">{{ $pendingTicketsCount > 99 ? '99+' : $pendingTicketsCount }}</span>
+                        @endif
                     </a>
                 </li>
                 @endhasanyrole
@@ -232,7 +242,6 @@
                     <a href="{{ route('support.index') }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-headset"></i></span>
                         <span class="pc-mtext">Support</span>
-                        <span class="pc-badge ms-auto">24</span>
                     </a>
                 </li>
 

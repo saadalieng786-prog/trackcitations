@@ -13,7 +13,7 @@
         <div class="col-span-6">
             <div class="card">
                 <div class="card-body">
-                    <!--<h5 class="mb-4">Upcoming court dates</h5>-->
+                    <!--<h5 class="mb-4">Upcoming Court Dates</h5>-->
                     @forelse($chunk as $upComingCourtDate)
                         @php
                             $date = \Carbon\Carbon::parse($upComingCourtDate->court_date);

@@ -52,7 +52,9 @@ Route::post('/broadcasting/custom', function (\Illuminate\Http\Request $request)
 })->middleware(['auth']);
 
 // getting Upcoming Court Dates
-Route::get('admin/upcoming_court_date',[CourtDateController::class, 'index'])->name('upcoming_court_date');
+Route::get('admin/upcoming_court_date', [CourtDateController::class, 'index'])
+    ->middleware('auth')
+    ->name('upcoming_court_date');
 
 Route::group(['middleware' => 'auth'], function () {
     // Messaging.
