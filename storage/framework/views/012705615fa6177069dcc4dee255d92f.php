@@ -54,17 +54,17 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card p-0 overflow-hidden">
                 <div class="card-header">
-                    <div class="sm:flex items-center justify-between">
+                    <div class="sm:flex items-center justify-between gap-3">
                         <h5 class="mb-3 sm:mb-0">Tickets list</h5>
-                        <div>
+                        <div class="flex flex-wrap items-center gap-2">
                             <a href="#!" class="js-download-tickets btn btn-success"><span class="fa fa-file-excel mr-2"></span>Download Tickets</a>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered yajra-datatable">
+                <div class="card-body p-0">
+                    <table class="table tc-clean-table yajra-datatable w-full">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -73,7 +73,7 @@
                             <th>State</th>
                             <th>Company</th>
                             <th>Indicator</th>
-                            <th>Action</th>
+                            <th class="text-right">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -92,10 +92,13 @@
             <script src="<?php echo e(asset('js/plugins/dataTables.min.js')); ?>"></script>
             <script src="<?php echo e(asset('js/plugins/dataTables.bootstrap5.min.js')); ?>"></script>
             <script>
+                $(document).ready(function () {
                 var table = $('.yajra-datatable').DataTable({
                     processing: true,
                     serverSide: true,
                     paging: true,
+                    autoWidth: false,
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
                     ajax: {
                         url: '<?php echo e(route("attorney.tickets.index")); ?>',
                         data: function (d) {
@@ -108,21 +111,23 @@
                     },
                     columns: [
                         {data: 'id', name: 'id'},
-                        {data: 'name', name: 'name'},
-                        {data: 'date_issued', name: 'date_issued'},
-                        {data: 'state', name: 'state'},
+                        {data: 'name', name: 'name', defaultContent: '—'},
+                        {data: 'date_issued', name: 'date_issued', defaultContent: '—'},
+                        {data: 'state', name: 'state', defaultContent: '—'},
                         {
                             data: 'company.name',
                             name: 'company.name',
+                            defaultContent: '—',
                             orderable: false,
                             searchable: false
                         },
-                        {data: 'indicator', name: 'indicator'},
+                        {data: 'indicator', name: 'indicator', defaultContent: '—'},
                         {
                             data: 'action',
                             name: 'action',
                             orderable: false,
-                            searchable: false
+                            searchable: false,
+                            className: 'text-right'
                         },
                     ],
                     order: [[0, 'desc']], // Default sort by the first column (id) in descending order
@@ -136,8 +141,10 @@
 
                 // Reset the filters
                 $('#filterForm').on('reset', function () {
-                    $('input, select').val('');
-                    table.draw();
+                    setTimeout(function () {
+                        $('input, select', '#filterForm').val('');
+                        table.draw();
+                    }, 0);
                 });
 
 
@@ -145,8 +152,9 @@
                 flatpickr(document.querySelector('#courtDate'), {
                     mode: 'range',
                     <?php if(Request::get('court_date')): ?>
-                    defaultDate: [new Date('<?php echo e(explode(' to ',  Request::get('court_date'))[0]); ?>'), new Date('<?php echo e(explode(' to ',  Request::get('court_date'))[1]); ?>')]
+                    defaultDate: [new Date('<?php echo e(explode(' to ',  Request::get('court_date'))[0]); ?>'), new Date('<?php echo e(explode(' to ',  Request::get('court_date'))[1] ?? explode(' to ', Request::get('court_date'))[0]); ?>')]
                     <?php endif; ?>
+                });
                 });
             </script>
         <?php $__env->stopSection(); ?>
@@ -154,6 +162,7 @@
         <?php $__env->startSection('css'); ?>
             <link rel="stylesheet" href="<?php echo e(asset('css/plugins/flatpickr.min.css')); ?>" />
             <link rel="stylesheet" href="<?php echo e(asset('css/plugins/choices.min.css')); ?>" />
+            <link rel="stylesheet" href="<?php echo e(asset('css/plugins/dataTables.bootstrap5.min.css')); ?>" />
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layout.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views\attorney\tickets\index.blade.php ENDPATH**/ ?>

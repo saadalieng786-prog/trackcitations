@@ -1,5 +1,20 @@
 <?php $__env->startSection('content'); ?>
     <div class="col-span-12">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 m-0">Edit Company</h1>
+                <div class="text-xs text-slate-500 mt-1">
+                    <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.index')); ?>" class="text-slate-500 hover:text-indigo-600">Companies</a>
+                    <span class="mx-1.5 text-slate-300">/</span>
+                    <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id)); ?>" class="text-slate-500 hover:text-indigo-600"><?php echo e($company->name); ?></a>
+                    <span class="mx-1.5 text-slate-300">/</span>
+                    <span class="font-medium text-slate-700">Edit</span>
+                </div>
+            </div>
+            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.show', $company->id)); ?>" class="btn btn-outline-secondary btn-sm">
+                View Company Overview
+            </a>
+        </div>
         <form action="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.update', $company->id)); ?>" method="POST">
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
@@ -37,6 +52,28 @@
                             >
                                 <i class="ti ti-users ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
                                 Company Managers
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a
+                                href="javascript:void(0);"
+                                data-pc-toggle="tab"
+                                data-pc-target="companyDriversTab"
+                                class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
+                            >
+                                <i class="ti ti-steering-wheel ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
+                                Drivers (<?php echo e($companyDrivers->count()); ?>)
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a
+                                href="javascript:void(0);"
+                                data-pc-toggle="tab"
+                                data-pc-target="companyTicketsTab"
+                                class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
+                            >
+                                <i class="ti ti-ticket ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
+                                Tickets (<?php echo e($companyTickets->count()); ?>)
                             </a>
                         </li>
                         <li class="group">
@@ -165,16 +202,39 @@
                                 <div class="card-header">
     <h5 class="text-primary text-[28px] font-bold">Company Hierarchy</h5>
                                     <span class="text-muted text-sm">
-                                        <?php echo e(__("Review this company's parent/child structure and rollup impact.")); ?>
-
+                                        Parent Company → Trucking Company → Drivers
                                     </span>
                                 </div>
                                 <div class="card-body">
                                     <div class="grid grid-cols-12 gap-6">
+                                        <div class="col-span-12">
+                                            <div class="rounded border p-4 mb-2 bg-slate-50 dark:bg-transparent">
+                                                <p class="mb-1 text-xs uppercase tracking-wide text-muted">Hierarchy Path</p>
+                                                <p class="mb-0 text-sm font-medium">
+                                                    <?php if($company->parentCompany): ?>
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.show', $company->parentCompany->id)); ?>" class="text-primary">
+                                                            <?php echo e($company->parentCompany->name); ?>
+
+                                                        </a>
+                                                        <span class="mx-1 text-muted">→</span>
+                                                    <?php endif; ?>
+                                                    <span><?php echo e($company->name); ?></span>
+                                                    <span class="mx-1 text-muted">→</span>
+                                                    <span>Drivers (<?php echo e($companyDrivers->count()); ?>)</span>
+                                                </p>
+                                            </div>
+                                        </div>
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Parent Company</p>
-                                                <p class="mb-0 font-semibold"><?php echo e(optional($company->parentCompany)->name ?: 'Top-level company'); ?></p>
+                                                <?php if($company->parentCompany): ?>
+                                                    <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.show', $company->parentCompany->id)); ?>" class="mb-0 font-semibold text-primary">
+                                                        <?php echo e($company->parentCompany->name); ?>
+
+                                                    </a>
+                                                <?php else: ?>
+                                                    <p class="mb-0 font-semibold">Top-level company</p>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-4">
@@ -185,17 +245,26 @@
                                         </div>
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
-                                                <p class="mb-1 text-sm text-muted">Lifetime Points Saved</p>
-                                                <p class="mb-0 font-semibold"><?php echo e(number_format($company->lifetimePointsSaved(), 2)); ?></p>
+                                                <p class="mb-1 text-sm text-muted">Drivers On This Company</p>
+                                                <p class="mb-0 font-semibold"><?php echo e($companyDrivers->count()); ?></p>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-6">
                                             <div class="rounded border p-4 h-full">
-                                                <p class="mb-3 font-semibold">Child Companies</p>
+                                                <p class="mb-3 font-semibold">Child Trucking Companies</p>
                                                 <?php $__empty_1 = true; $__currentLoopData = $company->childCompanies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $childCompany): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                                    <div class="flex items-center justify-between border-b py-2 last:border-b-0">
-                                                        <span><?php echo e($childCompany->name); ?></span>
-                                                        <span class="text-sm text-muted">DOT: <?php echo e($childCompany->dot ?: 'N/A'); ?></span>
+                                                    <div class="flex items-center justify-between border-b py-2 last:border-b-0 gap-3">
+                                                        <div>
+                                                            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.companies.show', $childCompany->id)); ?>" class="font-medium text-primary">
+                                                                <?php echo e($childCompany->name); ?>
+
+                                                            </a>
+                                                            <p class="mb-0 text-xs text-muted">DOT: <?php echo e($childCompany->dot ?: 'N/A'); ?></p>
+                                                        </div>
+                                                        <span class="text-sm text-muted whitespace-nowrap">
+                                                            Drivers: <?php echo e((int) ($childCompanyDriverCounts[$childCompany->id] ?? 0)); ?>
+
+                                                        </span>
                                                     </div>
                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                     <p class="mb-0 text-sm text-muted">No child companies linked yet.</p>
@@ -206,7 +275,7 @@
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-3 font-semibold">Rollup Snapshot</p>
                                                 <div class="flex items-center justify-between border-b py-2">
-                                                    <span>Drivers</span>
+                                                    <span>Drivers (incl. children)</span>
                                                     <span><?php echo e($company->driversCountIncludingChildren()); ?></span>
                                                 </div>
                                                 <div class="flex items-center justify-between border-b py-2">
@@ -239,8 +308,8 @@
                                 <div class="card-body">
                                     <div class="grid grid-cols-12 gap-6">
                                         <div class="col-span-12">
-                                            <div class="table-responsive" id="companyContacts">
-                                                <table class="table table-hover mb-0">
+                                            <div class="table-responsive" id="companyContactsList">
+                                                <table class="table table-hover mb-0" id="companyContactsTable">
                                                     <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -261,7 +330,7 @@
                                                                 <td><input type="text" name="companyContactPhone[<?php echo e($index); ?>]" class="form-control" placeholder="Phone" value="<?php echo e(old("companyContactPhone")[$index]); ?>" /></td>
                                                                 <td><input type="text" name="companyContactCell[<?php echo e($index); ?>]" class="form-control" placeholder="Cell" value="<?php echo e(old("companyContactCell")[$index]); ?>" /></td>
                                                                 <td class="text-center">
-                                                                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default" id="removeItem">
+                                                                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default js-remove-contact-row">
                                                                         <i class="ti ti-trash text-xl leading-none"></i>
                                                                     </a>
                                                                 </td>
@@ -276,7 +345,7 @@
                                                                 <td><input type="text" name="companyContactPhone[<?php echo e($index); ?>]" class="form-control" placeholder="Phone" value="<?php echo e($contact->phone); ?>" /></td>
                                                                 <td><input type="text" name="companyContactCell[<?php echo e($index); ?>]" class="form-control" placeholder="Cell" value="<?php echo e($contact->cell); ?>" /></td>
                                                                 <td class="text-center">
-                                                                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default" id="removeItem">
+                                                                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default js-remove-contact-row">
                                                                         <i class="ti ti-trash text-xl leading-none"></i>
                                                                     </a>
                                                                 </td>
@@ -313,8 +382,8 @@
                                 <div class="card-body">
                                     <div class="grid grid-cols-12 gap-6">
                                         <div class="col-span-12">
-                                            <div class="table-responsive" id="companyContacts">
-                                                <table class="table table-hover mb-0">
+                                            <div class="table-responsive" id="companyManagersList">
+                                                <table class="table table-hover mb-0" id="companyManagersTable">
                                                     <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -325,22 +394,39 @@
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    <?php $__empty_1 = true; $__currentLoopData = $company->managers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $manager): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                    <?php
+                                                        $companyManagers = $company->managers
+                                                            ->filter(fn ($manager) => filled(optional($manager->user)->email))
+                                                            ->values();
+                                                    ?>
+                                                    <?php $__empty_1 = true; $__currentLoopData = $companyManagers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $manager): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                                         <?php $managerUser = $manager->user; ?>
                                                         <tr>
                                                             <td><?php echo e($index + 1); ?></td>
-                                                            <td><?php echo e($managerUser?->name ?: 'Manager user missing'); ?></td>
-                                                            <td><?php echo e($managerUser?->email ?: 'No linked login email'); ?></td>
+                                                            <td>
+                                                                <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id)); ?>" class="font-medium text-primary">
+                                                                    <?php echo e($managerUser->name ?: 'Unnamed manager'); ?>
+
+                                                                </a>
+                                                            </td>
+                                                            <td><?php echo e($managerUser->email); ?></td>
                                                             <td><?php echo $manager->pivot->is_write_access ? '<i class="text-success text-lg ti ti-check"></i>' : '<i class="text-danger text-lg ti ti-x"></i>'; ?></td>
                                                             <td class="text-center">
-                                                                <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" id="removeItem">
+                                                                <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.managers.edit', $manager->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit manager">
                                                                     <i class="ti ti-pencil text-xl leading-none"></i>
                                                                 </a>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                         <tr>
-                                                            <td colspan="5" class="text-center text-muted py-4">No company managers linked yet.</td>
+                                                            <td colspan="5" class="text-center text-muted py-4">
+                                                                No company managers linked yet.
+                                                                <?php if($companyDrivers->isNotEmpty()): ?>
+                                                                    <span class="d-block mt-1 text-xs">
+                                                                        If Salesforce Account emails match a Driver email, a separate company manager login is not created automatically. Add a manager from the Managers page, or use a different Account contact email in Salesforce.
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            </td>
                                                         </tr>
                                                     <?php endif; ?>
                                                     </tbody>
@@ -353,6 +439,223 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="hidden tab-pane" id="companyDriversTab">
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="col-span-12 lg:col-span-12">
+                            <div class="card">
+                                <div class="card-header flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Drivers (<?php echo e($companyDrivers->count()); ?>)</h5>
+                                        <span class="text-muted text-sm">
+                                            Drivers associated with <?php echo e($company->name); ?>. Click a driver name to open the profile.
+                                        </span>
+                                    </div>
+                                    <div class="w-full sm:w-72">
+                                        <input type="search" id="companyDriversSearch" class="form-control" placeholder="Search drivers by name, email, city, state..." onkeydown="if(event.key==='Enter'){event.preventDefault();}" />
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0" id="companyDriversTable">
+                                            <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Driver Name</th>
+                                                <th>Email</th>
+                                                <th>State</th>
+                                                <th>City</th>
+                                                <th>Open Tickets</th>
+                                                <th>Closed Tickets</th>
+                                                <th>Points Saved</th>
+                                                <th>Last Access</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <?php $__empty_1 = true; $__currentLoopData = $companyDrivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <?php
+                                                    $driverUser = $driver->user;
+                                                    $emailKey = strtolower((string) ($driverUser?->email ?? ''));
+                                                    $stats = $driverTicketStats->get($emailKey);
+                                                    $openCount = (int) ($stats->open_count ?? 0);
+                                                    $closedCount = (int) ($stats->closed_count ?? 0);
+                                                    $pointsSaved = (float) ($stats->points_saved ?? 0);
+                                                    $searchBlob = strtolower(trim(implode(' ', array_filter([
+                                                        $driverUser?->name,
+                                                        $driverUser?->email,
+                                                        $driverUser?->city,
+                                                        $driverUser?->state,
+                                                    ]))));
+                                                ?>
+                                                <tr data-driver-search="<?php echo e($searchBlob); ?>">
+                                                    <td><?php echo e($index + 1); ?></td>
+                                                    <td>
+                                                        <?php if($driverUser): ?>
+                                                            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id)); ?>" class="font-medium text-primary">
+                                                                <?php echo e($driverUser->name ?: 'Unnamed driver'); ?>
+
+                                                            </a>
+                                                        <?php else: ?>
+                                                            <span class="text-muted">Driver user missing</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?php echo e($driverUser?->email ?: '—'); ?></td>
+                                                    <td><?php echo e($driverUser?->state ?: '—'); ?></td>
+                                                    <td><?php echo e($driverUser?->city ?: '—'); ?></td>
+                                                    <td><?php echo e($openCount); ?></td>
+                                                    <td><?php echo e($closedCount); ?></td>
+                                                    <td><?php echo e(number_format($pointsSaved, 1)); ?></td>
+                                                    <td>
+                                                        <?php if($driverUser?->last_login_at): ?>
+                                                            <?php echo e(\Carbon\Carbon::parse($driverUser->last_login_at)->format('M j, Y g:i A')); ?>
+
+                                                        <?php else: ?>
+                                                            —
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if($driverUser?->email): ?>
+                                                            <span class="badge bg-success-50 text-success">Portal Access</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning-50 text-warning">No Login</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit driver">
+                                                            <i class="ti ti-pencil text-xl leading-none"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                                <tr>
+                                                    <td colspan="11" class="text-center text-muted py-4">No drivers are linked to this company yet.</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p id="companyDriversEmptyFilter" class="mb-0 mt-3 text-sm text-muted hidden">No drivers match your search.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden tab-pane" id="companyTicketsTab">
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="col-span-12">
+                            <div class="card">
+                                <div class="card-header flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Tickets (<?php echo e($companyTickets->count()); ?>)</h5>
+                                        <span class="text-muted text-sm">
+                                            All tickets for <?php echo e($company->name); ?>. Click a ticket or driver to open the record.
+                                        </span>
+                                    </div>
+                                    <div class="w-full sm:w-80">
+                                        <input type="search" id="companyTicketsSearch" class="form-control" placeholder="Search tickets by ID, driver, state, status..." onkeydown="if(event.key==='Enter'){event.preventDefault();}" />
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0" id="companyTicketsTable">
+                                            <thead>
+                                            <tr>
+                                                <th>Ticket #</th>
+                                                <th>Driver Name</th>
+                                                <th>Date Received</th>
+                                                <th>State</th>
+                                                <th>Status / Indicator</th>
+                                                <th>Original Points</th>
+                                                <th>Final Points</th>
+                                                <th>Points Saved</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <?php $__empty_1 = true; $__currentLoopData = $companyTickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <?php
+                                                    $emailKey = strtolower((string) ($ticket->user_email ?? ''));
+                                                    $linkedDriver = $driversByEmail->get($emailKey);
+                                                    $driverName = $ticket->name ?: ($linkedDriver?->user?->name ?: '—');
+                                                    $statusLabel = match ((int) ($ticket->status ?? -1)) {
+                                                        \App\Models\Ticket::TICKET_STATUS_CLOSED => 'Closed',
+                                                        \App\Models\Ticket::TICKET_STATUS_ARCHIVED => 'Archived',
+                                                        \App\Models\Ticket::TICKET_STATUS_OPEN => 'Open',
+                                                        default => 'Open',
+                                                    };
+                                                    $indicator = $ticket->indicator ?: '—';
+                                                    $searchBlob = strtolower(trim(implode(' ', array_filter([
+                                                        (string) $ticket->id,
+                                                        (string) ($ticket->ticket_number ?? ''),
+                                                        (string) ($ticket->citation_no ?? ''),
+                                                        $driverName,
+                                                        $ticket->user_email,
+                                                        $ticket->state,
+                                                        $statusLabel,
+                                                        $indicator,
+                                                    ]))));
+                                                ?>
+                                                <tr data-ticket-search="<?php echo e($searchBlob); ?>">
+                                                    <td>
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id)); ?>" class="font-medium text-primary">
+                                                            #<?php echo e($ticket->id); ?>
+
+                                                        </a>
+                                                        <?php if($ticket->ticket_number): ?>
+                                                            <div class="text-xs text-muted"><?php echo e($ticket->ticket_number); ?></div>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if($linkedDriver): ?>
+                                                            <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.drivers.edit', $linkedDriver->id)); ?>" class="font-medium text-primary">
+                                                                <?php echo e($driverName); ?>
+
+                                                            </a>
+                                                        <?php else: ?>
+                                                            <?php echo e($driverName); ?>
+
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if($ticket->date_issued): ?>
+                                                            <?php echo e(\Carbon\Carbon::parse($ticket->date_issued)->format('M j, Y')); ?>
+
+                                                        <?php else: ?>
+                                                            —
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?php echo e($ticket->state ?: '—'); ?></td>
+                                                    <td>
+                                                        <div><?php echo e($statusLabel); ?></div>
+                                                        <div class="text-xs text-muted"><?php echo e($indicator); ?></div>
+                                                    </td>
+                                                    <td><?php echo e(number_format((float) $ticket->original_points_value, 1)); ?></td>
+                                                    <td><?php echo e(number_format((float) $ticket->final_points_value, 1)); ?></td>
+                                                    <td><?php echo e(number_format((float) $ticket->points_saved, 1)); ?></td>
+                                                    <td class="text-center">
+                                                        <a href="<?php echo e(route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id)); ?>" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="View ticket">
+                                                            <i class="ti ti-eye text-xl leading-none"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                                <tr>
+                                                    <td colspan="9" class="text-center text-muted py-4">No tickets are linked to this company yet.</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p id="companyTicketsEmptyFilter" class="mb-0 mt-3 text-sm text-muted hidden">No tickets match your search.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-span-12 text-right">
                     <button type="reset" class="btn btn-outline-secondary mx-1">Cancel</button>
                     <button type="submit" class="btn btn-primary mx-1">Update Company</button>
@@ -366,10 +669,12 @@
     <script>
         // Function to update row index numbers
         function updateRowIndexes() {
-            const rows = document.querySelectorAll('#companyContacts table tbody tr');
+            const rows = document.querySelectorAll('#companyContactsTable tbody tr');
             rows.forEach((row, index) => {
-                // Set the first cell in each row to the correct index (1-based)
-                row.querySelector('td').textContent = index + 1;
+                const firstCell = row.querySelector('td');
+                if (firstCell) {
+                    firstCell.textContent = index + 1;
+                }
             });
         }
 
@@ -377,7 +682,7 @@
         updateRowIndexes()
 
         document.addEventListener('click', function (e) {
-            let removeRepeatedItemBtn = e.target.closest('#removeItem');
+            let removeRepeatedItemBtn = e.target.closest('.js-remove-contact-row');
             if (removeRepeatedItemBtn) {
                 e.preventDefault();
                 let parentRow = removeRepeatedItemBtn.closest('tr'); // Find the closest <tr> element
@@ -391,7 +696,7 @@
             if (addItemBtn) {
                 e.preventDefault();
                 // Get the table body where the rows should be added
-                let tableBody = document.querySelector('#companyContacts table tbody');
+                let tableBody = document.querySelector('#companyContactsTable tbody');
                 if (tableBody) {
                     // Get the index for the new row based on current row count
                     let newIndex = tableBody.querySelectorAll('tr').length;
@@ -405,7 +710,7 @@
                 <td><input type="text" name="companyContactPhone[${newIndex}]" class="form-control" placeholder="Phone" /></td>
                 <td><input type="text" name="companyContactCell[${newIndex}]" class="form-control" placeholder="Cell" /></td>
                 <td class="text-center">
-                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default" id="removeItem">
+                    <a href="#" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-danger btn-pc-default js-remove-contact-row">
                         <i class="ti ti-trash text-xl leading-none"></i>
                     </a>
                 </td>
@@ -416,6 +721,52 @@
                 }
             }
         });
+
+        (function () {
+            const searchInput = document.getElementById('companyDriversSearch');
+            const table = document.getElementById('companyDriversTable');
+            const emptyMessage = document.getElementById('companyDriversEmptyFilter');
+            if (!searchInput || !table) return;
+
+            searchInput.addEventListener('input', function () {
+                const query = (searchInput.value || '').trim().toLowerCase();
+                let visible = 0;
+
+                table.querySelectorAll('tbody tr[data-driver-search]').forEach(function (row) {
+                    const blob = row.getAttribute('data-driver-search') || '';
+                    const match = !query || blob.indexOf(query) !== -1;
+                    row.style.display = match ? '' : 'none';
+                    if (match) visible += 1;
+                });
+
+                if (emptyMessage) {
+                    emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-driver-search]').length === 0);
+                }
+            });
+        })();
+
+        (function () {
+            const searchInput = document.getElementById('companyTicketsSearch');
+            const table = document.getElementById('companyTicketsTable');
+            const emptyMessage = document.getElementById('companyTicketsEmptyFilter');
+            if (!searchInput || !table) return;
+
+            searchInput.addEventListener('input', function () {
+                const query = (searchInput.value || '').trim().toLowerCase();
+                let visible = 0;
+
+                table.querySelectorAll('tbody tr[data-ticket-search]').forEach(function (row) {
+                    const blob = row.getAttribute('data-ticket-search') || '';
+                    const match = !query || blob.indexOf(query) !== -1;
+                    row.style.display = match ? '' : 'none';
+                    if (match) visible += 1;
+                });
+
+                if (emptyMessage) {
+                    emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-ticket-search]').length === 0);
+                }
+            });
+        })();
     </script>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('css'); ?>

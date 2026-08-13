@@ -76,10 +76,10 @@
                 <li class="pc-item <?php echo e(request()->routeIs('messaging.*') ? 'active' : ''); ?>">
                     <a href="<?php echo e(route('messaging.index')); ?>" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-messages"></i></span>
-                        <span class="pc-mtext">Messaging</span>
+                        <span class="pc-mtext">Messages</span>
                         <?php $unReadMessagesCount = auth()->user()->unReadMessages()->count(); ?>
-                        <?php if($unReadMessagesCount): ?>
-                            <span class="pc-badge ms-auto"><?php echo e($unReadMessagesCount); ?></span>
+                        <?php if($unReadMessagesCount > 0): ?>
+                            <span class="pc-badge ms-auto"><?php echo e($unReadMessagesCount > 99 ? '99+' : $unReadMessagesCount); ?></span>
                         <?php endif; ?>
                     </a>
                 </li>
@@ -115,7 +115,17 @@
                     <a href="<?php echo e(route($portal.'.tickets.pending')); ?>" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-clock"></i></span>
                         <span class="pc-mtext">Pending Tickets</span>
-                        <span class="pc-badge ms-auto">12</span>
+                        <?php
+                            $pendingTicketsCount = \App\Models\Ticket::query()
+                                ->where(function ($query) {
+                                    $query->where('indicator', \App\Models\Ticket::INDICATOR_PENDING)
+                                        ->orWhereNull('indicator');
+                                })
+                                ->count();
+                        ?>
+                        <?php if($pendingTicketsCount > 0): ?>
+                            <span class="pc-badge ms-auto"><?php echo e($pendingTicketsCount > 99 ? '99+' : $pendingTicketsCount); ?></span>
+                        <?php endif; ?>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -216,6 +226,13 @@
                     </a>
                 </li>
 
+                <li class="pc-item <?php echo e(request()->routeIs($portal.'.support.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route($portal.'.support.settings')); ?>" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-mail-forward"></i></span>
+                        <span class="pc-mtext">Support Settings</span>
+                    </a>
+                </li>
+
                 <?php if (\Illuminate\Support\Facades\Blade::check('hasanyrole', 'super_admin|staff_admin')): ?>
                 <li class="pc-item <?php echo e(request()->routeIs($portal.'.notifications.*') ? 'active' : ''); ?>">
                     <a href="<?php echo e(route($portal.'.notifications.settings')); ?>" class="pc-link">
@@ -235,7 +252,6 @@
                     <a href="<?php echo e(route('support.index')); ?>" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-headset"></i></span>
                         <span class="pc-mtext">Support</span>
-                        <span class="pc-badge ms-auto">24</span>
                     </a>
                 </li>
 

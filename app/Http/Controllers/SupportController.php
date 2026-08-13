@@ -7,7 +7,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\supportRequested;
-use App\Models\User;
+use App\Models\SupportSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -25,9 +25,16 @@ class SupportController extends Controller
            'subject' => 'required|string',
            'description' => 'required|string|min:10'
         ]);
-        $adminEmails = User::role(User::internalAdminRoles())->get();
 
-        Mail::to($adminEmails)->send(new supportRequested($request->subject, $request->description, auth()->user()->name));
+        $recipients = SupportSetting::current()->recipientEmailList();
+
+        if ($recipients !== []) {
+            Mail::to($recipients)->send(new supportRequested(
+                $request->subject,
+                $request->description,
+                auth()->user()->name
+            ));
+        }
 
         return redirect()->route('support.index')->with(['success' => 'Received support request successfully.']);
     }

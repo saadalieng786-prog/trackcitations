@@ -48,7 +48,16 @@
                             </td>
                             <td><?php echo e($ticket->date_issued ?? '—'); ?></td>
                             <td><?php echo e($ticket->state ?? '—'); ?></td>
-                            <td><?php echo e($ticket->company?->name ?? '—'); ?></td>
+                            <td>
+                                <?php if($ticket->company): ?>
+                                    <a href="<?php echo e(route($portal.'.companies.show', $ticket->company->id)); ?>" class="font-semibold text-primary hover:underline">
+                                        <?php echo e($ticket->company->name); ?>
+
+                                    </a>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <span class="tc-badge-soft-purple"><?php echo e($ticket->indicator ?? 'Archived'); ?></span>
                             </td>

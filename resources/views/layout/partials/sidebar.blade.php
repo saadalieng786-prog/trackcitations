@@ -73,10 +73,10 @@
                 <li class="pc-item {{ request()->routeIs('messaging.*') ? 'active' : '' }}">
                     <a href="{{ route('messaging.index') }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-messages"></i></span>
-                        <span class="pc-mtext">Messaging</span>
+                        <span class="pc-mtext">Messages</span>
                         @php $unReadMessagesCount = auth()->user()->unReadMessages()->count(); @endphp
-                        @if ($unReadMessagesCount)
-                            <span class="pc-badge ms-auto">{{ $unReadMessagesCount }}</span>
+                        @if ($unReadMessagesCount > 0)
+                            <span class="pc-badge ms-auto">{{ $unReadMessagesCount > 99 ? '99+' : $unReadMessagesCount }}</span>
                         @endif
                     </a>
                 </li>
@@ -220,6 +220,13 @@
                     <a href="{{ route($portal.'.storage.index') }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-cloud"></i></span>
                         <span class="pc-mtext">Storage Settings</span>
+                    </a>
+                </li>
+
+                <li class="pc-item {{ request()->routeIs($portal.'.support.*') ? 'active' : '' }}">
+                    <a href="{{ route($portal.'.support.settings') }}" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-mail-forward"></i></span>
+                        <span class="pc-mtext">Support Settings</span>
                     </a>
                 </li>
 

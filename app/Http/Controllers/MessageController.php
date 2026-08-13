@@ -11,8 +11,10 @@ use App\Events\NewMessage;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageAttachment;
+use App\Notifications\NewMessageNotification;
 use Illuminate\Http\Request;
 use App\Support\AttachmentStorage;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -100,7 +102,20 @@ class MessageController extends Controller
             report($e);
         }
 
-        $message->load(['sender', 'attachments']);
+        $message->load(['sender', 'attachments', 'conversation']);
+
+        try {
+            $recipients = $currentConversation->users()
+                ->where('users.id', '!=', auth()->id())
+                ->whereNotNull('email')
+                ->get();
+
+            if ($recipients->isNotEmpty()) {
+                Notification::send($recipients, new NewMessageNotification($message));
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json([
             'status' => 'success',

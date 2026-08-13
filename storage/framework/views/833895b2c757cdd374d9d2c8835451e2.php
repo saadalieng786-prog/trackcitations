@@ -25,6 +25,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
+                                <th>Company</th>
                                 <th>Role</th>
                                 <th>Email</th>
                                 <th>State</th>
@@ -58,6 +59,7 @@
                     columns: [
                         {data: 'id', name: 'id'},
                         {data: 'name', name: 'name'},
+                        {data: 'company_name', name: 'company_name', orderable: false},
                         {data: 'role_label', name: 'role_label', orderable: false},
                         {data: 'email', name: 'email'},
                         {data: 'state', name: 'state'},

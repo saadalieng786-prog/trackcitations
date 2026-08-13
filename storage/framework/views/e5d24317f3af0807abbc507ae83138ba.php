@@ -12,7 +12,7 @@
         <div class="col-span-6">
             <div class="card">
                 <div class="card-body">
-                    <!--<h5 class="mb-4">Upcoming court dates</h5>-->
+                    <!--<h5 class="mb-4">Upcoming Court Dates</h5>-->
                     <?php $__empty_1 = true; $__currentLoopData = $chunk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $upComingCourtDate): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <?php
                             $date = \Carbon\Carbon::parse($upComingCourtDate->court_date);

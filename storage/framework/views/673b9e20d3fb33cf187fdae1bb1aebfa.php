@@ -130,7 +130,7 @@
                     {data: 'date_issued', name: 'date_issued', defaultContent: '—'},
                     {data: 'state', name: 'state', defaultContent: '—'},
                     {
-                        data: 'company.name',
+                        data: 'company_html',
                         name: 'company.name',
                         defaultContent: '—',
                         orderable: false,
