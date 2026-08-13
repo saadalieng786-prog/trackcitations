@@ -82,18 +82,23 @@ class ManagerController extends Controller
                         ->orWhere('name', 'like', "%{$search}%")
                         ->orWhere('city', 'like', "%{$search}%")
                         ->orWhere('state', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhereHasMorph('roleable', [\App\Models\Manager::class], function ($q) use ($search) {
+                            $q->whereHas('companies', function ($companyQuery) use ($search) {
+                                $companyQuery->where('companies.name', 'like', "%{$search}%");
+                            });
+                        });
                 });
             }
 
             // Handle ordering
             if (request()->has('order')) {
-                $columns = ['id', 'name', 'email', 'state', 'city', 'last_login_at']; // Adjust to match your table columns
+                $columns = ['id', 'name', 'company_name', 'role_label', 'email', 'state', 'city', 'last_login_at'];
                 $order = request('order', 'id');
                 $columnIndex = $order[0]['column'];
                 $direction = $order[0]['dir'];
                 // Ensure column exists in your defined columns array
-                if (isset($columns[$columnIndex])) {
+                if (isset($columns[$columnIndex]) && ! in_array($columns[$columnIndex], ['company_name', 'role_label'], true)) {
                     $data = $data->orderBy($columns[$columnIndex], $direction);
                 }
             }
@@ -103,14 +108,17 @@ class ManagerController extends Controller
             $start = request('start', 0);
             $page = ($start / $length) + 1;
 
-            $data = $data->paginate($length, ['*'], 'page', $page);
+            $data = $data->with(['roleable.companies'])->paginate($length, ['*'], 'page', $page);
 
             // Add action column
             $data->getCollection()->transform(function ($item) {
                 $item->role_label = User::companyAdminRoleOptions()[$item->getRoleNames()->first()] ?? 'Company Admin';
+                $item->company_name = $item->roleable && method_exists($item->roleable, 'companies')
+                    ? ($item->roleable->companies->pluck('name')->filter()->unique()->values()->implode(', ') ?: '—')
+                    : '—';
                 $item->last_login_at = $item->last_login_at ? \Carbon\Carbon::parse($item->last_login_at)->diffForHumans() : 'Never';
                 $item->action  = '';
-                if (auth()->user()->isInternalAdmin() || collect($item->roleable->companies)->pluck('id')->contains(fn ($id) => auth()->user()->canWriteCompany((int) $id))) {
+                if (auth()->user()->isInternalAdmin() || collect($item->roleable?->companies)->pluck('id')->contains(fn ($id) => auth()->user()->canWriteCompany((int) $id))) {
                     $item->action .= '<a href="'.route(auth()->user()->portalRoutePrefix().'.managers.edit', $item->roleable->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
                                         <i class="ti ti-edit text-xl leading-none"></i>
                                     </a>';

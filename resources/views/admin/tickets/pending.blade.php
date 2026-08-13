@@ -53,7 +53,15 @@
                             </td>
                             <td>{{ $ticket->date_issued ?? '—' }}</td>
                             <td>{{ $ticket->state ?? '—' }}</td>
-                            <td>{{ $ticket->company?->name ?? '—' }}</td>
+                            <td>
+                                @if($ticket->company)
+                                    <a href="{{ route($portal.'.companies.show', $ticket->company->id) }}" class="font-semibold text-primary hover:underline">
+                                        {{ $ticket->company->name }}
+                                    </a>
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td>
                                 <span class="tc-badge-soft-orange">{{ $ticket->indicator ?? 'Pending' }}</span>
                             </td>

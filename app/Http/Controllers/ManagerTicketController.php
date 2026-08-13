@@ -69,6 +69,10 @@ class ManagerTicketController extends TicketController
                 $item->final_points_value = $item->final_points_value !== null ? number_format($item->final_points_value, 2, '.', '') : '';
                 $item->points_saved = number_format($item->points_saved, 2, '.', '');
 
+                $companyName = $item->company?->name;
+                $item->company_html = ($item->company && $companyName)
+                    ? '<a href="'.route($portal.'.companies.show', $item->company->id).'" class="font-semibold text-primary hover:underline">'.e($companyName).'</a>'
+                    : '—';
 
                 $item->action = '<a href="'. route($portal.'.tickets.show', $item->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
                                         <i class="ti ti-eye text-xl leading-none"></i>
