@@ -3,6 +3,14 @@
 <!-- [Head] start -->
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JNKGXLGH1E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-JNKGXLGH1E');
+    </script>
     <title>{{ env('APP_NAME') }} | Citation Tracking System</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
