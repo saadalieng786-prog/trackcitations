@@ -46,7 +46,7 @@
                 <a class="pc-head-link dropdown-toggle" data-pc-toggle="dropdown" href="#" role="button" title="Filter by Company">
                     <svg class="pc-icon w-5 h-5"><use xlink:href="#custom-layer"></use></svg>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end tc-company-filter-menu p-4 w-[340px] rounded-xl shadow-lg border border-slate-200">
+                <div class="dropdown-menu dropdown-menu-end tc-company-filter-menu p-4 rounded-xl shadow-lg border border-slate-200">
                     <div class="mb-3">
                         <h6 class="font-bold text-slate-800 text-sm mb-1">Filter by Company</h6>
                         <p class="text-xs text-slate-400 mb-0">Select companies to restrict dashboard view</p>

@@ -6,11 +6,11 @@
 
     
     <nav class="hp-nav">
-        <a href="<?php echo e(url('/')); ?>" class="flex items-center gap-3 no-underline">
+        <a href="<?php echo e(url('/')); ?>" class="hp-nav-brand flex items-center gap-3 no-underline">
             <img src="<?php echo e(asset('images/logo-dark.png')); ?>" class="front-logo h-14 md:h-16 w-auto object-contain py-1" alt="CDL CONSULTANT Logo">
         </a>
 
-        <div class="flex items-center gap-3">
+        <div class="hp-nav-actions">
             <a href="#" data-ticket-modal-open class="btn btn-outline-secondary btn-sm bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm transition-all">
                 <i class="ti ti-plus me-1 text-indigo-500"></i> Submit Ticket
             </a>
@@ -36,7 +36,7 @@
             <p class="hp-hero-sub">
                 Fast, secure ticket submission for drivers and fleet companies. Our team reviews every case and works to minimize your violations.
             </p>
-            <div class="flex flex-wrap gap-4 mt-8">
+            <div class="hp-hero-actions flex flex-wrap gap-3 sm:gap-4 mt-8">
                 <a href="#" data-ticket-modal-open class="btn btn-primary px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-base font-semibold rounded-xl">
                     <i class="ti ti-send me-2 text-lg"></i> Submit a Ticket
                 </a>

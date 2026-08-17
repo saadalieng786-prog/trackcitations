@@ -65,15 +65,20 @@ class AttorneyController extends Controller
             $portal = auth()->user()->portalRoutePrefix();
             $data->getCollection()->transform(function ($item) use ($portal) {
                 $item->last_login_at = $item->last_login_at ? \Carbon\Carbon::parse($item->last_login_at)->diffForHumans() : 'Never';
-                $item->action = '<a href="'.route($portal.'.attorneys.edit', $item->roleable->id).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                $attorneyId = $item->roleable instanceof Attorney ? $item->roleable->id : null;
+                $editUrl = $attorneyId
+                    ? route($portal.'.attorneys.edit', $attorneyId)
+                    : route($portal.'.attorneys.edit', $item->id);
+                $item->action = '<a href="'.$editUrl.'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
                                         <i class="ti ti-edit text-xl leading-none"></i>
                                     </a>
-                                    <form action="'.route($portal.'.attorneys.destroy', $item->roleable->id).'" method="POST" class="inline delete-attorney-form">
+                                    <form action="'.route($portal.'.attorneys.destroy', $item->id).'" method="POST" class="inline delete-attorney-form">
                                         <input type="hidden" name="_method" value="DELETE">
                                         '. csrf_field() .'
-                                        <button href="#" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary">
+                                        <button type="button" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary js-delete-attorney" title="Delete attorney">
                                             <i class="ti ti-trash text-xl leading-none"></i>
-                                        </button>';
+                                        </button>
+                                    </form>';
                 return $item;
             });
 
@@ -159,7 +164,7 @@ class AttorneyController extends Controller
      */
     public function show(Attorney $attorney)
     {
-        //
+        return redirect()->route(auth()->user()->portalRoutePrefix().'.attorneys.edit', $attorney->id);
     }
 
     /**
@@ -239,15 +244,47 @@ class AttorneyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Attorney $attorney)
+    public function destroy(Request $request, $attorney)
     {
-        //
-        if (!auth()->user()->isInternalAdmin()) {
-            abort(403);
-        }
-        $attorney->user()->delete();
+        abort_unless(auth()->user()->isInternalAdmin(), 403);
 
-        $attorney->delete();
-        return redirect()->route(auth()->user()->portalRoutePrefix().'.attorneys.index')->with('success', 'Attorney deleted successfully.');
+        $id = (int) $attorney;
+
+        $attorneyModel = Attorney::query()->find($id);
+        $user = User::query()->with('roleable')->find($id);
+
+        if ($attorneyModel && ! $user) {
+            $user = $attorneyModel->user;
+        }
+
+        if ($user && ! $attorneyModel && $user->roleable instanceof Attorney) {
+            $attorneyModel = $user->roleable;
+        }
+
+        if ($user && ! $attorneyModel && $user->roleable_id) {
+            $attorneyModel = Attorney::query()->find($user->roleable_id);
+        }
+
+        $isAttorney = $attorneyModel
+            || ($user && $user->hasRole('attorney'))
+            || ($user && $user->roleable instanceof Attorney);
+
+        if (! $isAttorney) {
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.attorneys.index')
+                ->with('error', 'Attorney could not be found.');
+        }
+
+        if ($user) {
+            $user->delete();
+        }
+
+        if ($attorneyModel) {
+            $attorneyModel->delete();
+        }
+
+        return redirect()
+            ->route(auth()->user()->portalRoutePrefix().'.attorneys.index')
+            ->with('success', 'Attorney deleted successfully.');
     }
 }

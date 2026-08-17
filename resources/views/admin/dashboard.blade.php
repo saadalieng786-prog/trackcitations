@@ -19,7 +19,7 @@
                     Showing activity for <span class="font-semibold text-slate-700">{{ $dateRangeLabel }}</span>.
                 </p>
             </div>
-            <div class="relative" id="dashboardDateFilter">
+            <div class="relative w-full sm:w-auto max-w-full" id="dashboardDateFilter">
                 <button type="button" id="dashboardDateFilterBtn" class="tc-date-filter-btn" aria-expanded="false" aria-haspopup="true">
                     <i class="ti ti-calendar text-slate-400 text-sm"></i>
                     <span id="dashboardDateLabel">{{ $dateRangeLabel }}</span>
@@ -336,9 +336,9 @@
         {{-- Chart Column (~8 cols) --}}
         <div class="col-span-12 lg:col-span-8">
             <div class="card h-full">
-                <div class="card-header flex items-center justify-between">
+                <div class="card-header flex flex-wrap items-center justify-between gap-3">
                     <h5 class="tc-card-title m-0">Tickets Overview</h5>
-                    <div class="flex items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-3">
                         <div class="flex items-center gap-3 text-xs">
                             <span class="flex items-center gap-1 text-slate-600 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Open</span>
                             <span class="flex items-center gap-1 text-slate-600 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block"></span> Pending</span>
@@ -574,6 +574,8 @@
                     altInput: false,
                     allowInput: false,
                     positionElement: button,
+                    static: false,
+                    disableMobile: true,
                     onClose: function (selectedDates) {
                         if (selectedDates.length !== 2) {
                             return;

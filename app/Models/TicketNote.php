@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketNote extends Model
 {
-    protected $fillable = ['note', 'user_id', 'is_public'];
+    protected $fillable = ['ticket_id', 'note', 'user_id', 'is_public'];
     //
     public function ticket() {
         return $this->belongsTo(Ticket::class);

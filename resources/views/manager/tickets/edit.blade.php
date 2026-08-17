@@ -893,7 +893,7 @@
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === XMLHttpRequest.DONE) {
-                        if (xhr.status === 201) {
+                        if (xhr.status === 200 || xhr.status === 201) {
                             // Request succeeded, handle response here
                             let data = JSON.parse(xhr.responseText);
                             document.getElementById('notesList').innerHTML += ('<div class="col-span-12 md:col-span-6">'+

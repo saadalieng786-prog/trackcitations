@@ -412,7 +412,7 @@ body {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  z-index: 40;
+  z-index: 1080;
   min-width: 180px;
   padding: 6px;
   background: #ffffff;
@@ -452,6 +452,84 @@ body {
 .tc-date-filter-option.active {
   background: var(--tc-indigo-soft);
   color: var(--tc-indigo);
+}
+
+#dashboardDateFilter .tc-date-filter-btn {
+  max-width: 100%;
+}
+
+#dashboardDateFilter #dashboardDateLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  #dashboardDateFilter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #dashboardDateFilter .tc-date-filter-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tc-date-filter-menu {
+    left: 0;
+    right: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    z-index: 1080;
+  }
+
+  #ticketOverviewFilter .tc-date-filter-menu {
+    left: auto;
+    right: 0;
+    width: min(200px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+  }
+
+  .flatpickr-calendar {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    max-width: calc(100vw - 16px);
+  }
+}
+
+/* Toggle switches: keep the knob left (off) / right (on), never centered */
+.form-check.form-switch .form-check-input {
+  width: 2.5em !important;
+  height: 1.35em !important;
+  min-width: 2.5em;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+  cursor: pointer;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-color: #cbd5e1 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9999px !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.35em 1.35em !important;
+  background-position: left center !important;
+  transition: background-position 0.15s ease, background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.form-check.form-switch .form-check-input:checked {
+  background-color: rgb(var(--colors-primary-500)) !important;
+  border-color: rgb(var(--colors-primary-500)) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  background-position: right center !important;
+}
+
+.form-check.form-switch .form-check-input:focus {
+  box-shadow: 0 0 0 3px var(--tc-indigo-soft) !important;
 }
 
 .tc-stat-icon-v2 {
@@ -1004,7 +1082,73 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   transition: all 0.3s ease;
+}
+
+.hp-nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hp-nav-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .hp-nav {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .hp-nav-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hp-nav .front-logo {
+    width: 112px !important;
+    max-width: 40vw;
+    height: auto !important;
+  }
+
+  .hp-nav-actions {
+    width: 100%;
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  .hp-nav-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 8px 10px;
+  }
+
+  .hp-hero {
+    padding: 4.5rem 1rem 3.5rem;
+  }
+
+  .hp-hero-actions {
+    width: 100%;
+  }
+
+  .hp-hero-actions .btn {
+    flex: 1 1 100%;
+    width: 100%;
+    justify-content: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 .hp-hero {
@@ -1461,6 +1605,33 @@ html.dark .card-header {
 /* ─── Header "Filter by Company" multi-select ─── */
 .tc-company-filter-menu {
   overflow: visible !important;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+}
+
+@media (max-width: 768px) {
+  .pc-header .dropdown.drp-show .tc-company-filter-menu,
+  .dropdown.drp-show .tc-company-filter-menu {
+    position: fixed !important;
+    top: 74px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    transform: none !important;
+    margin: 0 !important;
+    z-index: 1100 !important;
+  }
+
+  .tc-company-filter-field .choices__list--dropdown,
+  .tc-company-filter-field .choices__list[aria-expanded] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(220px, 40vh) !important;
+  }
 }
 
 .tc-company-filter-field {

@@ -937,8 +937,7 @@
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === XMLHttpRequest.DONE) {
-                        if (xhr.status === 201) {
-                            // Request succeeded, handle response here
+                        if (xhr.status === 200 || xhr.status === 201) {
                             let data = JSON.parse(xhr.responseText);
                             let newNoteString = '<div class="col-span-12 md:col-span-6">'+
                             '<div class="card">'+
@@ -964,9 +963,14 @@
                                 title: 'Note added successfully'
                             });
                         } else {
+                            let errorTitle = 'Something went wrong!';
+                            try {
+                                const err = JSON.parse(xhr.responseText);
+                                errorTitle = err.message || (err.errors && err.errors.note && err.errors.note[0]) || errorTitle;
+                            } catch (e) {}
                             Toast.fire({
                                 icon: 'error',
-                                title: 'Something went wrong!'
+                                title: errorTitle
                             });
                         }
                     }

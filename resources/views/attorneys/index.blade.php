@@ -60,27 +60,32 @@
                     order: [[0, 'desc']], // Default sort by the first column (id) in descending order
                 });
 
-                document.addEventListener('submit', function (e) {
-                    const deleteForm = e.target.closest('.delete-attorney-form');
-                    if (deleteForm) {
-                        e.preventDefault(); // Prevent form submission
-
-                        // Show SweetAlert confirmation
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: "This action cannot be undone!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, delete it!',
-                            cancelButtonText: 'Cancel'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                deleteForm.submit(); // Submit the form if confirmed
-                            }
-                        });
+                document.addEventListener('click', function (e) {
+                    const deleteBtn = e.target.closest('.js-delete-attorney');
+                    if (!deleteBtn) {
+                        return;
                     }
+
+                    e.preventDefault();
+                    const deleteForm = deleteBtn.closest('.delete-attorney-form');
+                    if (!deleteForm) {
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            deleteForm.submit();
+                        }
+                    });
                 });
             </script>
 @endsection
