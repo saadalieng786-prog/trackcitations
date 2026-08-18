@@ -36,21 +36,32 @@ class SalesforceSyncService
     {
     }
 
+    protected function line(string $message): void
+    {
+        if (PHP_SAPI === 'cli') {
+            $this->output->writeln($message);
+
+            return;
+        }
+
+        SalesforceSyncLogger::info(trim(strip_tags($message)));
+    }
+
     public function sync(array $records): void
     {
-        $this->output->writeln('<info>[SalesforceSync] Starting sync of ' . count($records) . ' records. </info>');
+        $this->line('<info>[SalesforceSync] Starting sync of ' . count($records) . ' records. </info>');
 
         $this->prepareIds($records);
         $this->loadExistingFromDb();
 
         foreach ($records as $index => $record) {
-            $this->output->writeln("<info>[SalesforceSync] Processing record " . ($index + 1) . "/" . count($records) . "</info>");
+            $this->line("<info>[SalesforceSync] Processing record " . ($index + 1) . "/" . count($records) . "</info>");
             $this->syncSingleRecord($record);
         }
 
         $this->syncCompanyHierarchy();
 
-        $this->output->writeln('<info>[SalesforceSync] Sync completed.</info>');
+        $this->line('<info>[SalesforceSync] Sync completed.</info>');
     }
 
     protected function prepareIds(array $records): void
@@ -159,7 +170,7 @@ class SalesforceSyncService
                 'account_id' => $record['Account']['Id'] ?? null,
             ]);
 
-            $this->output->writeln('<error>'.$message.'</error>');
+            $this->line('<error>'.$message.'</error>');
         }
     }
 
@@ -480,7 +491,7 @@ class SalesforceSyncService
 
     public function syncAttachments(array $attachments, array $ticketIds, SalesforceService $sf): void
     {
-        $this->output->writeln("<info>Starting attachments sync...</info>");
+        $this->line("<info>Starting attachments sync...</info>");
         $disk = AttachmentStorage::ticketDisk();
 
         $sfIds = array_column($attachments, 'Id', 'Id');
@@ -504,7 +515,7 @@ class SalesforceSyncService
                 continue;
             }
 
-            $this->output->writeln("<info>Processing attachment: {$file['Name']}...</info>");
+            $this->line("<info>Processing attachment: {$file['Name']}...</info>");
 
             // Skip Excel
             if (str_ends_with($file['Name'], '.xls') || str_ends_with($file['Name'], '.xlsx')) {
@@ -539,7 +550,7 @@ class SalesforceSyncService
 
 
                 if (Storage::disk($disk)->exists($relativePath)) {
-                    $this->output->writeln("<comment>Skipping : {$file['Name']} Already Exists</comment>");
+                    $this->line("<comment>Skipping : {$file['Name']} Already Exists</comment>");
                     $unModified++;
                     continue;
                 }
@@ -576,22 +587,22 @@ class SalesforceSyncService
                     );
 
                     $downloaded++;
-                    $this->output->writeln("<info>Saved attachment: $relativePath</info>");
+                    $this->line("<info>Saved attachment: $relativePath</info>");
                 } else {
-                    $this->output->writeln("<error>Failed to download file content for {$file['Body']}</error>");
+                    $this->line("<error>Failed to download file content for {$file['Body']}</error>");
                 }
             } catch (\Exception $e) {
                 $message = "<error>Error: {$e->getMessage()}";
                 SalesForce::first()->update(['status' => SalesForce::STATUS_FAILED, 'reason' => $message]);
 
-                $this->output->writeln($message);
+                $this->line($message);
             }
         }
 
-        $this->output->writeln("<info>Skipped XLS: $skippedXls</info>");
-        $this->output->writeln("<info>Unmodified: $unModified</info>");
-        $this->output->writeln("<info>Downloaded: $downloaded</info>");
-        $this->output->writeln("<info>Attachment sync complete.</info>");
+        $this->line("<info>Skipped XLS: $skippedXls</info>");
+        $this->line("<info>Unmodified: $unModified</info>");
+        $this->line("<info>Downloaded: $downloaded</info>");
+        $this->line("<info>Attachment sync complete.</info>");
     }
 
     protected function parseSfDate(?string $date): ?string

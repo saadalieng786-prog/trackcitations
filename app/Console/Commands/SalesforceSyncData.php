@@ -159,7 +159,7 @@ class SalesforceSyncData extends Command
             ]);
 
             return self::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $salesForce->update(['status' => SalesForce::STATUS_FAILED, 'reason' => $e->getMessage()]);
             SalesforceSyncLogger::error('Salesforce sync failed', [
                 'message' => $e->getMessage(),

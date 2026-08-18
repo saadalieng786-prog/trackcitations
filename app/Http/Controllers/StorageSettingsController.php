@@ -19,17 +19,30 @@ class StorageSettingsController extends Controller
     public function index()
     {
         $this->ensureSystemSettingsManager();
+        $fromEnv = EnvironmentWriter::readMany(base_path('.env'), [
+            'FILESYSTEM_DISK',
+            'ATTACHMENTS_DISK',
+            'MESSAGE_ATTACHMENTS_DISK',
+            'AWS_ACCESS_KEY_ID',
+            'AWS_SECRET_ACCESS_KEY',
+            'AWS_DEFAULT_REGION',
+            'AWS_BUCKET',
+            'AWS_URL',
+            'AWS_ENDPOINT',
+            'AWS_USE_PATH_STYLE_ENDPOINT',
+        ]);
+
         $settings = [
-            'filesystem_disk' => env('FILESYSTEM_DISK', config('filesystems.default')),
-            'attachments_disk' => env('ATTACHMENTS_DISK', config('filesystems.ticket_attachments_disk')),
-            'message_attachments_disk' => env('MESSAGE_ATTACHMENTS_DISK', config('filesystems.message_attachments_disk')),
-            'aws_access_key_id' => env('AWS_ACCESS_KEY_ID', ''),
-            'aws_secret_access_key' => env('AWS_SECRET_ACCESS_KEY', ''),
-            'aws_default_region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'aws_bucket' => env('AWS_BUCKET', ''),
-            'aws_url' => env('AWS_URL', ''),
-            'aws_endpoint' => env('AWS_ENDPOINT', ''),
-            'aws_use_path_style_endpoint' => filter_var(env('AWS_USE_PATH_STYLE_ENDPOINT', false), FILTER_VALIDATE_BOOL),
+            'filesystem_disk' => $fromEnv['FILESYSTEM_DISK'] ?: config('filesystems.default'),
+            'attachments_disk' => $fromEnv['ATTACHMENTS_DISK'] ?: config('filesystems.ticket_attachments_disk'),
+            'message_attachments_disk' => $fromEnv['MESSAGE_ATTACHMENTS_DISK'] ?: config('filesystems.message_attachments_disk'),
+            'aws_access_key_id' => $fromEnv['AWS_ACCESS_KEY_ID'],
+            'aws_secret_access_key' => $fromEnv['AWS_SECRET_ACCESS_KEY'],
+            'aws_default_region' => $fromEnv['AWS_DEFAULT_REGION'] ?: 'us-east-1',
+            'aws_bucket' => $fromEnv['AWS_BUCKET'],
+            'aws_url' => $fromEnv['AWS_URL'],
+            'aws_endpoint' => $fromEnv['AWS_ENDPOINT'],
+            'aws_use_path_style_endpoint' => filter_var($fromEnv['AWS_USE_PATH_STYLE_ENDPOINT'] ?: false, FILTER_VALIDATE_BOOL),
         ];
 
         $status = [

@@ -261,12 +261,25 @@ class SalesForceController extends Controller
     public function sync()
     {
         $this->ensureSuperAdmin();
-        Artisan::call('salesforce:sync');
-        $output = trim(Artisan::output());
 
-        return redirect()
-            ->route(auth()->user()->portalRoutePrefix().'.salesforce.sync-log')
-            ->with('success', 'Salesforce sync finished. Review the log below.'.($output ? ' '.$output : ''));
+        @set_time_limit(180);
+        @ini_set('max_execution_time', '180');
+        @ini_set('memory_limit', '512M');
+
+        try {
+            Artisan::call('salesforce:sync');
+            $output = trim(Artisan::output());
+
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.salesforce.sync-log')
+                ->with('success', 'Salesforce sync finished. Review the log below.'.($output ? ' '.$output : ''));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route(auth()->user()->portalRoutePrefix().'.salesforce.index')
+                ->with('error', 'Salesforce sync failed on this server: '.$e->getMessage());
+        }
     }
 
     public function syncLog()

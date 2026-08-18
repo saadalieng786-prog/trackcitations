@@ -19,9 +19,20 @@ class SalesforceService
         $this->accessToken = $accessToken;
     }
 
+    protected function line(string $message): void
+    {
+        if (PHP_SAPI === 'cli') {
+            $this->output->writeln($message);
+
+            return;
+        }
+
+        SalesforceSyncLogger::info(trim(strip_tags($message)));
+    }
+
     public function apiCall(string $endpoint, array $query = [], $tries = 0): array
     {
-        $this->output->writeln('<info>[Salesforce] Starting API call to: ' . $endpoint . '</info>');
+        $this->line('<info>[Salesforce] Starting API call to: ' . $endpoint . '</info>');
 
         $url = rtrim($this->instanceUrl, '/') . '/' . ltrim($endpoint, '/');
 
@@ -30,12 +41,12 @@ class SalesforceService
                 ->get($url, $query);
 
             if ($response->successful()) {
-                $this->output->writeln('<info>[Salesforce] API call success.</info>');
+                $this->line('<info>[Salesforce] API call success.</info>');
                 return $response->json();
             } else {
 
                 if ($response->status() === 401) {
-                    $this->output->writeln('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
+                    $this->line('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
 
                     if ($tries < config('services.salesforce.timeout_max_tries')) {
                         $this->client->connect();
@@ -48,7 +59,7 @@ class SalesforceService
                 $message = '<error>[Salesforce] API error: ' . $response->status() . ' ' . $response->body() . '</error>';
                 SalesForce::first()->update(['status' => SalesForce::STATUS_FAILED, 'reason' => $message]);
 
-                $this->output->writeln($message);
+                $this->line($message);
                 return [
                     'error' => true,
                     'status' => $response->status(),
@@ -56,8 +67,8 @@ class SalesforceService
                 ];
             }
         } catch (\Exception $e) {
-            $this->output->writeln('<error>[Salesforce] Exception</error>');
-            $this->output->writeln('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
+            $this->line('<error>[Salesforce] Exception</error>');
+            $this->line('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
 
             if ($tries < config('services.salesforce.timeout_max_tries')) {
                 $this->client->connect();
@@ -395,13 +406,13 @@ class SalesforceService
             $response = $request->get($fullUrl);
 
             if ($response->successful()) {
-                $this->output->writeln('<info>[Salesforce] Fetch Attachment.</info>');
+                $this->line('<info>[Salesforce] Fetch Attachment.</info>');
                 return $response;
             }
         } catch (\Exception $e) {
-            $this->output->writeln('<error>[Salesforce] Exception: ' . $e->getMessage() . '</error>');
+            $this->line('<error>[Salesforce] Exception: ' . $e->getMessage() . '</error>');
 
-            $this->output->writeln('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
+            $this->line('<info>[Salesforce] Getting New Token ( ' . $tries . ' )</info>');
 
             if ($tries < config('services.salesforce.timeout_max_tries')) {
                 $this->client->connect();

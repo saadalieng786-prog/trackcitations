@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\Schema::defaultStringLength(191);
 
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         Gate::guessPolicyNamesUsing(function (string $modelClass) {
             // Return the name of the policy class for the given model...
             if ($modelClass === \App\Models\Ticket::class) {
