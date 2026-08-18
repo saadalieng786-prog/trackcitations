@@ -79,8 +79,13 @@
                 </div>
 
                 <div class="ticket-modal-body p-6 md:p-8 bg-slate-50">
-                    <form action="<?php echo e(route('submit.ticket')); ?>" method="POST" enctype="multipart/form-data">
+                    <form id="ticketSubmitForm" action="<?php echo e(route('submit.ticket')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
+                        <div class="hidden" aria-hidden="true">
+                            <label for="website">Website</label>
+                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                        </div>
+                        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" value="">
 
                         <?php if($errors->any()): ?>
                             <div class="mb-8 p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4 shadow-sm">
@@ -137,6 +142,25 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="user_email" value="<?php echo e(old('user_email')); ?>" placeholder="driver@example.com">
                                     <?php $__errorArgs = ['user_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                </div>
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="phone">Phone <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="phone" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="phone" value="<?php echo e(old('phone')); ?>" placeholder="e.g. (555) 123-4567">
+                                    <?php $__errorArgs = ['phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -340,7 +364,7 @@ unset($__errorArgs, $__bag); ?>
                             <div class="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
                                 <div class="text-center mb-6">
                                     <p class="text-sm text-slate-600 font-medium m-0">Upload images or PDF documents of the citation</p>
-                                    <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 5MB per file</p>
+                                    <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 10MB per file</p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
@@ -354,6 +378,29 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="math_answer">
+                                Quick check: what is <?php echo e($mathQuestion); ?>? <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="math_answer" id="math_answer" inputmode="numeric" class="form-control w-full max-w-xs px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 <?php $__errorArgs = ['math_answer'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('math_answer')); ?>" placeholder="Enter the total">
+                            <?php $__errorArgs = ['math_answer'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="invalid-feedback text-xs mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            <p class="text-xs text-slate-400 mt-2 mb-0">This helps keep spam submissions out.</p>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-center justify-end pt-2">
@@ -854,7 +901,28 @@ unset($__errorArgs, $__bag); ?>
         <?php if($errors->any()): ?>
             openTicketModal();
         <?php endif; ?>
+
+        <?php if(!empty($recaptchaSiteKey)): ?>
+        const recaptchaSiteKey = <?php echo json_encode($recaptchaSiteKey, 15, 512) ?>;
+        const ticketForm = document.getElementById('ticketSubmitForm');
+        if (ticketForm) {
+            ticketForm.addEventListener('submit', function (event) {
+                if (ticketForm.dataset.recaptchaReady === '1') return;
+                event.preventDefault();
+                grecaptcha.ready(function () {
+                    grecaptcha.execute(recaptchaSiteKey, { action: 'submit_ticket' }).then(function (token) {
+                        document.getElementById('g-recaptcha-response').value = token;
+                        ticketForm.dataset.recaptchaReady = '1';
+                        ticketForm.submit();
+                    });
+                });
+            });
+        }
+        <?php endif; ?>
     </script>
+    <?php if(!empty($recaptchaSiteKey)): ?>
+        <script src="https://www.google.com/recaptcha/api.js?render=<?php echo e($recaptchaSiteKey); ?>"></script>
+    <?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layout.partials.body', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\MAMP\htdocs\trackcitations\resources\views/homepage.blade.php ENDPATH**/ ?>

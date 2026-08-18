@@ -38,6 +38,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'recaptcha' => [
+        'site_key' => env('RECAPTCHA_SITE_KEY'),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY'),
+        'min_score' => env('RECAPTCHA_MIN_SCORE', 0.5),
+    ],
+
     'salesforce' => [
         'timeout_max_tries' => env('SF_TIMEOUT_MAX_TRIES', 5),
         'consumer_key' => env('SF_CONSUMER_KEY'),

@@ -107,6 +107,12 @@
                                     </div>
                                     <div class="col-span-12 sm:col-span-6">
                                         <div class="mb-3">
+                                            <label class="form-label text-primary text-[18px] font-bold">Driver Phone</label>
+                                            <input type="text" class="form-control-plaintext" value="{{ $ticket->phone }}" readonly="readonly"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-span-12 sm:col-span-6">
+                                        <div class="mb-3">
                                             <label class="form-label text-primary text-[18px] font-bold">Company</label>
                                             <input type="text" class="form-control-plaintext" value="{{ $ticket->company?->name }}" readonly="readonly"/>
                                         </div>

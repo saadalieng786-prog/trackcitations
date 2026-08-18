@@ -81,8 +81,13 @@
                 </div>
 
                 <div class="ticket-modal-body p-6 md:p-8 bg-slate-50">
-                    <form action="{{ route('submit.ticket') }}" method="POST" enctype="multipart/form-data">
+                    <form id="ticketSubmitForm" action="{{ route('submit.ticket') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <div class="hidden" aria-hidden="true">
+                            <label for="website">Website</label>
+                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                        </div>
+                        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" value="">
 
                         @if ($errors->any())
                             <div class="mb-8 p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4 shadow-sm">
@@ -119,10 +124,15 @@
                                     <input type="email" name="user_email" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('user_email') is-invalid border-red-500 @enderror" id="user_email" value="{{ old('user_email') }}" placeholder="driver@example.com">
                                     @error('user_email')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="md:col-span-2">
+                                <div>
                                     <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="company_name">Company name</label>
                                     <input type="text" name="company_name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('company_name') is-invalid border-red-500 @enderror" id="company_name" value="{{ old('company_name') }}" placeholder="Optional — company or fleet name">
                                     @error('company_name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="phone">Phone <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="phone" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('phone') is-invalid border-red-500 @enderror" id="phone" value="{{ old('phone') }}" placeholder="e.g. (555) 123-4567">
+                                    @error('phone')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                         </div>
@@ -201,7 +211,7 @@
                             <div class="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
                                 <div class="text-center mb-6">
                                     <p class="text-sm text-slate-600 font-medium m-0">Upload images or PDF documents of the citation</p>
-                                    <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 5MB per file</p>
+                                    <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 10MB per file</p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
@@ -215,6 +225,15 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="math_answer">
+                                Quick check: what is {{ $mathQuestion }}? <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="math_answer" id="math_answer" inputmode="numeric" class="form-control w-full max-w-xs px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('math_answer') is-invalid border-red-500 @enderror" value="{{ old('math_answer') }}" placeholder="Enter the total">
+                            @error('math_answer')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                            <p class="text-xs text-slate-400 mt-2 mb-0">This helps keep spam submissions out.</p>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-center justify-end pt-2">
@@ -715,5 +734,26 @@
         @if ($errors->any())
             openTicketModal();
         @endif
+
+        @if (!empty($recaptchaSiteKey))
+        const recaptchaSiteKey = @json($recaptchaSiteKey);
+        const ticketForm = document.getElementById('ticketSubmitForm');
+        if (ticketForm) {
+            ticketForm.addEventListener('submit', function (event) {
+                if (ticketForm.dataset.recaptchaReady === '1') return;
+                event.preventDefault();
+                grecaptcha.ready(function () {
+                    grecaptcha.execute(recaptchaSiteKey, { action: 'submit_ticket' }).then(function (token) {
+                        document.getElementById('g-recaptcha-response').value = token;
+                        ticketForm.dataset.recaptchaReady = '1';
+                        ticketForm.submit();
+                    });
+                });
+            });
+        }
+        @endif
     </script>
+    @if (!empty($recaptchaSiteKey))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ $recaptchaSiteKey }}"></script>
+    @endif
 @endsection

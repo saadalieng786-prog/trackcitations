@@ -109,6 +109,17 @@
                                         </div>
                                         <div class="col-span-12 sm:col-span-6">
                                             <div class="mb-3">
+                                                <label class="form-label text-primary text-[18px] font-bold">Driver Phone</label>
+                                                <input type="text" name="phone" class="form-control" id="driverPhone" value="{{ old('phone') }}" />
+                                                @if ($errors->has('phone'))
+                                                    <span class="invalid-feedback text-danger">
+                                                        <strong>{{ $errors->first('phone') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-span-12 sm:col-span-6">
+                                            <div class="mb-3">
                                                 <label class="form-label text-primary text-[18px] font-bold">Company</label>
                                                 <select
                                                     class="form-control"

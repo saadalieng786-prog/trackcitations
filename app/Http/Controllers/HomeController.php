@@ -9,6 +9,7 @@ use App\Notifications\TicketNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use App\Support\AttachmentStorage;
+use App\Support\TicketSpamGuard;
 use function Symfony\Component\String\s;
 
 class HomeController extends Controller
@@ -17,7 +18,12 @@ class HomeController extends Controller
     public function homepage()
     {
         $violations = \App\Models\Violation::all();
-        return view('homepage', compact('violations'));
+        $mathQuestion = TicketSpamGuard::mathQuestion();
+        $recaptchaSiteKey = TicketSpamGuard::recaptchaEnabled()
+            ? config('services.recaptcha.site_key')
+            : null;
+
+        return view('homepage', compact('violations', 'mathQuestion', 'recaptchaSiteKey'));
     }
 
     public function submit(Request $request)
@@ -25,6 +31,7 @@ class HomeController extends Controller
         //
         $request->validate([
             'user_email' => 'required|email',
+            'phone' => 'required|string|max:30',
             'name' => 'required',
             'company_name' => '',
             'city' => 'required',
@@ -33,9 +40,12 @@ class HomeController extends Controller
             'vehicle_lic_no' => 'required',
             'violation_id' => 'required|exists:violations,id',
             'citation_no' => '',
+            'math_answer' => 'required|integer',
             'attachments'   => 'nullable|array',
-            'attachments.*' => 'file|mimes:doc,docx,pdf,png,jpg,heic'
+            'attachments.*' => 'file|max:10240|mimes:doc,docx,pdf,png,jpg,heic'
         ]);
+
+        TicketSpamGuard::verify($request);
 
         $request->merge([
             'indicator' => Ticket::INDICATOR_PENDING
@@ -50,6 +60,7 @@ class HomeController extends Controller
         // Create a new Ticket record with the validated data
         $ticket = Ticket::create($request->only([
             'user_email',
+            'phone',
             'name',
             'citation_no',
             'violation_id',

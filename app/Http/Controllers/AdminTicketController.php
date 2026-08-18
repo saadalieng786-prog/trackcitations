@@ -156,6 +156,7 @@ class AdminTicketController extends TicketController
         //
         $request->validate([
             'user_email' => 'required|email',
+            'phone' => 'nullable|string|max:30',
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
             'city' => 'required',
@@ -183,6 +184,7 @@ class AdminTicketController extends TicketController
         // Create a new Ticket record with the validated data
         $ticket = Ticket::create($request->only([
             'user_email',
+            'phone',
             'name',
             'company_id',
             'city',
@@ -270,6 +272,7 @@ class AdminTicketController extends TicketController
         ]);
         $request->validate([
             'user_email' => 'required|email',
+            'phone' => 'nullable|string|max:30',
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
             'city' => 'required',
@@ -297,6 +300,7 @@ class AdminTicketController extends TicketController
         // Store the original fields before update
         // Manually set the ticket attributes using $ticket->attribute = 'value'
         $ticket->user_email = $request->input('user_email');
+        $ticket->phone = $request->input('phone');
         $ticket->name = $request->input('name');
         $ticket->company_id = $request->input('company_id');
         $ticket->city = $request->input('city');

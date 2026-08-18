@@ -119,6 +119,7 @@ class ManagerTicketController extends TicketController
         //
         $request->validate([
             'user_email' => 'required|email',
+            'phone' => 'nullable|string|max:30',
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
             'city' => 'required',
@@ -146,6 +147,7 @@ class ManagerTicketController extends TicketController
         // Create a new Ticket record with the validated data
         $ticket = Ticket::create($request->only([
             'user_email',
+            'phone',
             'name',
             'company_id',
             'city',
@@ -207,6 +209,7 @@ class ManagerTicketController extends TicketController
         ]);
         $request->validate([
             'user_email' => 'required|email',
+            'phone' => 'nullable|string|max:30',
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
             'city' => 'required',
@@ -234,6 +237,7 @@ class ManagerTicketController extends TicketController
         // Create a new Ticket record with the validated data
         $ticket->update($request->only([
             'user_email',
+            'phone',
             'name',
             'company_id',
             'city',
