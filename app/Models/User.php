@@ -143,6 +143,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->whereRaw('1 = 0'); // This ensures no records are returned
     }
 
+    public static function systemSettingsManagerRoles(): array
+    {
+        return [
+            self::ROLE_SUPER_ADMIN,
+        ];
+    }
+
+    public function canManageSystemSettings(): bool
+    {
+        return $this->hasAnyRole(self::systemSettingsManagerRoles());
+    }
+
     public function isInternalAdmin(): bool
     {
         return $this->hasAnyRole(self::internalAdminRoles());

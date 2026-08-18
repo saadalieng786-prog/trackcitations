@@ -145,7 +145,7 @@
                     <h2 class="tc-company-section-title">Quick Relationships</h2>
                     <div class="tc-company-quick-list">
                         <div class="tc-company-quick-item">
-                            <span>Child companies</span>
+                            <span>Companies Managed</span>
                             <strong>{{ $company->childCompanies->count() }}</strong>
                         </div>
                         <div class="tc-company-quick-item">
@@ -157,7 +157,7 @@
                             <strong>{{ $contacts->count() }}</strong>
                         </div>
                         <div class="tc-company-quick-item">
-                            <span>Drivers incl. children</span>
+                            <span>Driver Total</span>
                             <strong>{{ $company->driversCountIncludingChildren() }}</strong>
                         </div>
                     </div>

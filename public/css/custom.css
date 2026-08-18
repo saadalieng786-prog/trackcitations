@@ -2378,7 +2378,7 @@ html.dark .btn-link-secondary:hover {
   appearance: none;
   border: 0;
   background: transparent;
-  color: var(--tc-text-muted);
+  color: var(--tc-blue);
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.75rem 0.9rem;
@@ -2389,12 +2389,12 @@ html.dark .btn-link-secondary:hover {
 }
 
 .tc-company-tab:hover {
-  color: var(--tc-indigo);
+  color: #2563eb;
 }
 
 .tc-company-tab.active {
-  color: var(--tc-indigo);
-  border-bottom-color: var(--tc-indigo);
+  color: #1d4ed8;
+  border-bottom-color: var(--tc-blue);
 }
 
 .tc-company-panel {

@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class NotificationSettingsController extends Controller
 {
+    protected function ensureSystemSettingsManager(): void
+    {
+        abort_unless(auth()->check() && auth()->user()->canManageSystemSettings(), 403);
+    }
+
     public function index()
     {
-        abort_unless(auth()->user()->hasAnyRole(['super_admin', 'staff_admin']), 403);
+        $this->ensureSystemSettingsManager();
 
         $settings = NotificationRoleSetting::allMapped();
         $labels = NotificationRoleSetting::roleLabels();
@@ -19,7 +24,7 @@ class NotificationSettingsController extends Controller
 
     public function update(Request $request)
     {
-        abort_unless(auth()->user()->hasAnyRole(['super_admin', 'staff_admin']), 403);
+        $this->ensureSystemSettingsManager();
 
         $roles = array_keys(NotificationRoleSetting::defaults());
 

@@ -11,8 +11,14 @@ use App\Support\AttachmentStorage;
 
 class StorageSettingsController extends Controller
 {
+    protected function ensureSystemSettingsManager(): void
+    {
+        abort_unless(auth()->check() && auth()->user()->canManageSystemSettings(), 403);
+    }
+
     public function index()
     {
+        $this->ensureSystemSettingsManager();
         $settings = [
             'filesystem_disk' => env('FILESYSTEM_DISK', config('filesystems.default')),
             'attachments_disk' => env('ATTACHMENTS_DISK', config('filesystems.ticket_attachments_disk')),
@@ -55,6 +61,7 @@ class StorageSettingsController extends Controller
 
     public function update(Request $request)
     {
+        $this->ensureSystemSettingsManager();
         $validated = $request->validate([
             'filesystem_disk' => 'required|in:local,public,s3',
             'attachments_disk' => 'required|in:public,s3',
@@ -97,6 +104,7 @@ class StorageSettingsController extends Controller
 
     public function test(Request $request)
     {
+        $this->ensureSystemSettingsManager();
         $request->validate([
             'disk' => 'required|in:public,s3',
         ]);

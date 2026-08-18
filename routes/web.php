@@ -128,22 +128,24 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('logs', [LogController::class, 'index'])->name('logs.index');
             Route::get('outgoing-logs', [LogController::class, 'outgoing'])->name('outgoinglogs.index');
-            Route::get('salesforce/settings', [SalesForceController::class, 'index'])->name('salesforce.index');
-            Route::put('salesforce/settings', [SalesForceController::class, 'update'])->name('salesforce.update');
-            Route::post('salesforce/import', [SalesForceController::class, 'import'])->name('salesforce.import');
-            Route::post('salesforce/sync', [SalesForceController::class, 'sync'])->name('salesforce.sync');
-            Route::get('salesforce/sync-log', [SalesForceController::class, 'syncLog'])->name('salesforce.sync-log');
-            Route::get('salesforce/import', function () use ($portal) {
-                return redirect()->route($portal . '.salesforce.index');
-            });
-            Route::get('storage/settings', [StorageSettingsController::class, 'index'])->name('storage.index');
-            Route::put('storage/settings', [StorageSettingsController::class, 'update'])->name('storage.update');
-            Route::post('storage/settings/test', [StorageSettingsController::class, 'test'])->name('storage.test');
 
-            Route::get('support/settings', [SupportSettingsController::class, 'index'])->name('support.settings');
-            Route::put('support/settings', [SupportSettingsController::class, 'update'])->name('support.settings.update');
+            if ($portal === 'super_admin') {
+                Route::get('salesforce/settings', [SalesForceController::class, 'index'])->name('salesforce.index');
+                Route::put('salesforce/settings', [SalesForceController::class, 'update'])->name('salesforce.update');
+                Route::post('salesforce/import', [SalesForceController::class, 'import'])->name('salesforce.import');
+                Route::post('salesforce/sync', [SalesForceController::class, 'sync'])->name('salesforce.sync');
+                Route::get('salesforce/sync-log', [SalesForceController::class, 'syncLog'])->name('salesforce.sync-log');
+                Route::get('salesforce/import', function () use ($portal) {
+                    return redirect()->route($portal . '.salesforce.index');
+                });
 
-            if (in_array($portal, ['super_admin', 'staff_admin'], true)) {
+                Route::get('storage/settings', [StorageSettingsController::class, 'index'])->name('storage.index');
+                Route::put('storage/settings', [StorageSettingsController::class, 'update'])->name('storage.update');
+                Route::post('storage/settings/test', [StorageSettingsController::class, 'test'])->name('storage.test');
+
+                Route::get('support/settings', [SupportSettingsController::class, 'index'])->name('support.settings');
+                Route::put('support/settings', [SupportSettingsController::class, 'update'])->name('support.settings.update');
+
                 Route::get('notifications/settings', [NotificationSettingsController::class, 'index'])->name('notifications.settings');
                 Route::put('notifications/settings', [NotificationSettingsController::class, 'update'])->name('notifications.update');
             }
@@ -207,10 +209,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'api', 'as' => 'api.'], functi
 });
 
 
-// Salesforce Integrations
-Route::group(['prefix' => 'salesforce', 'as' => 'salesforce.'], function () {
-    Route::get('oauth', [SalesforceController::class, 'oauth'])->name('oauth');
-    Route::get('callback', [SalesforceController::class, 'callback'])->name('callback');
+// Salesforce Integrations (Super Admin only)
+Route::group(['prefix' => 'salesforce', 'as' => 'salesforce.', 'middleware' => ['auth']], function () {
+    Route::get('oauth', [SalesForceController::class, 'oauth'])->name('oauth');
+    Route::get('callback', [SalesForceController::class, 'callback'])->name('callback');
 });
 
 Route::middleware('auth')->group(function () {

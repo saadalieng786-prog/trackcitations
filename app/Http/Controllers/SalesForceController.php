@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\SalesForce;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
+use App\Models\User;
 use Carbon\Carbon;
 use App\Services\SalesforceService;
 use Illuminate\Http\Request;
@@ -20,8 +21,17 @@ class SalesForceController extends Controller
     {
     }
 
+    protected function ensureSuperAdmin(): void
+    {
+        abort_unless(
+            auth()->check() && auth()->user()->hasRole(User::ROLE_SUPER_ADMIN),
+            403
+        );
+    }
+
     public function index()
     {
+        $this->ensureSuperAdmin();
         $salesforce = $this->settings();
 
         $syncStats = [
@@ -109,6 +119,7 @@ class SalesForceController extends Controller
 
     public function oauth()
     {
+        $this->ensureSuperAdmin();
         $salesforce = $this->settings();
 
         $auth_url = rtrim($salesforce->login_uri ?: config('services.salesforce.login_url'), '/') .
@@ -120,6 +131,7 @@ class SalesForceController extends Controller
     }
     public function callback(Request $request)
     {
+        $this->ensureSuperAdmin();
         $request->validate([
             'code' => 'required|string',
         ]);
@@ -168,6 +180,7 @@ class SalesForceController extends Controller
 
     public function update(Request $request)
     {
+        $this->ensureSuperAdmin();
         $request->validate([
             'client_id' => 'nullable|string',
             'client_secret' => 'nullable|string',
@@ -189,6 +202,7 @@ class SalesForceController extends Controller
 
     public function import(Request $request)
     {
+        $this->ensureSuperAdmin();
         $request->validate([
             'Email' => 'required|email',
         ]);
@@ -246,6 +260,7 @@ class SalesForceController extends Controller
 
     public function sync()
     {
+        $this->ensureSuperAdmin();
         Artisan::call('salesforce:sync');
         $output = trim(Artisan::output());
 
@@ -256,6 +271,7 @@ class SalesForceController extends Controller
 
     public function syncLog()
     {
+        $this->ensureSuperAdmin();
         $log = SalesforceSyncLogger::read();
         $portal = auth()->user()->portalRoutePrefix();
 

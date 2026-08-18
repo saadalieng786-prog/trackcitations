@@ -8,9 +8,14 @@ use Illuminate\Validation\ValidationException;
 
 class SupportSettingsController extends Controller
 {
+    protected function ensureSystemSettingsManager(): void
+    {
+        abort_unless(auth()->check() && auth()->user()->canManageSystemSettings(), 403);
+    }
+
     public function index()
     {
-        abort_unless(auth()->user()->hasAnyRole(['super_admin', 'staff_admin', 'admin']), 403);
+        $this->ensureSystemSettingsManager();
 
         $setting = SupportSetting::current();
 
@@ -19,7 +24,7 @@ class SupportSettingsController extends Controller
 
     public function update(Request $request)
     {
-        abort_unless(auth()->user()->hasAnyRole(['super_admin', 'staff_admin', 'admin']), 403);
+        $this->ensureSystemSettingsManager();
 
         $validated = $request->validate([
             'recipient_emails' => 'nullable|string|max:2000',
