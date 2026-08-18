@@ -4,402 +4,643 @@
     @php
         $dashboardUrl = route('dashboard');
         $violationOptions = $violations->take(250);
+        $hour = (int) now()->format('G');
+        $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
     @endphp
 
-    {{-- ═══════════════════════════════════════════════
-         PUBLIC TOP NAVIGATION
-    ══════════════════════════════════════════════════ --}}
-    <nav class="hp-nav">
-        <a href="{{ url('/') }}" class="hp-nav-brand flex items-center gap-3 no-underline">
-            <img src="{{ asset('images/logo-dark.png') }}" class="front-logo h-14 md:h-16 w-auto object-contain py-1" alt="CDL CONSULTANT Logo">
-        </a>
+    <div class="hpx">
+        <div class="hpx-mesh" aria-hidden="true"></div>
 
-        <div class="hp-nav-actions">
-            <a href="#" data-ticket-modal-open class="btn btn-outline-secondary btn-sm bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm transition-all">
-                <i class="ti ti-plus me-1 text-indigo-500"></i> Submit Ticket
+        <header class="hpx-top">
+            <a href="{{ url('/') }}" class="hpx-logo">
+                <img src="{{ asset('images/logo-dark.png') }}" alt="CDL CONSULTANT Logo">
             </a>
-            <a href="{{ $dashboardUrl }}" class="btn btn-primary btn-sm bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
-                <i class="ti ti-dashboard me-1"></i>
-                {{ auth()->check() ? 'Dashboard' : 'Client Login' }}
-            </a>
-        </div>
-    </nav>
+            <div class="hpx-top-right">
+                <span class="hpx-date">{{ now()->format('D, M j') }}</span>
+                <a href="#" data-ticket-modal-open class="hpx-ghost">Submit ticket</a>
+                <a href="{{ $dashboardUrl }}" class="hpx-chip">{{ auth()->check() ? 'Dashboard' : 'Client login' }}</a>
+            </div>
+        </header>
 
-    {{-- ═══════════════════════════════════════════════
-         HERO SECTION
-    ══════════════════════════════════════════════════ --}}
-    <div class="hp-hero">
-        <div class="max-w-[1140px] mx-auto">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold mb-4">
-                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                Secure Ticket Intake Portal
-            </div>
-            <h1 class="hp-hero-title">
-                Submit & Track Your<br>
-                <em>Citation Cases</em>
-            </h1>
-            <p class="hp-hero-sub">
-                Fast, secure ticket submission for drivers and fleet companies. Our team reviews every case and works to minimize your violations.
-            </p>
-            <div class="hp-hero-actions flex flex-wrap gap-3 sm:gap-4 mt-8">
-                <a href="#" data-ticket-modal-open class="btn btn-primary px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-base font-semibold rounded-xl">
-                    <i class="ti ti-send me-2 text-lg"></i> Submit a Ticket
-                </a>
-                <a href="{{ $dashboardUrl }}" class="btn btn-outline-secondary px-8 py-3.5 bg-white/5 text-white border-white/20 hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all text-base font-semibold rounded-xl">
-                    <i class="ti ti-login me-2 text-lg"></i>
-                    {{ auth()->check() ? 'Open Dashboard' : 'Client Login' }}
-                </a>
-            </div>
-        </div>
+        <main class="hpx-main">
+            @if (session('success'))
+                <div class="hpx-alert">{{ session('success') }}</div>
+            @endif
+
+            <section class="hpx-stage">
+                <div class="hpx-hero">
+                    <div>
+                        <span class="hpx-pill">Client portal</span>
+                        <h5 class="hpx-hello">Submit & Track Your Citation Cases</h5>
+                        <p class="hpx-sub">Fast, secure ticket submission for drivers and fleet companies. Our team reviews every case and works to minimize your violations.</p>
+                    </div>
+                    <div class="hpx-preview">
+                        <div class="hpx-preview-card">
+                            <div class="hpx-preview-dots"><span></span><span></span><span></span></div>
+                            <p class="hpx-preview-kicker">Live portal</p>
+                            <p class="hpx-preview-type">
+                                <span id="hpxTypeText"></span><span class="hpx-caret"></span>
+                            </p>
+                        </div>
+                        <div class="hpx-preview-card back"></div>
+                    </div>
+                </div>
+
+                <div class="hpx-bento">
+                    <a href="{{ $dashboardUrl }}" class="hpx-card hpx-card-main">
+                        <span class="hpx-icon"><i class="ti ti-login"></i></span>
+                        <span class="hpx-go"><i class="ti ti-arrow-right"></i></span>
+                        <span class="hpx-card-label">Account</span>
+                        <strong>{{ auth()->check() ? 'Open dashboard' : 'Client login' }}</strong>
+                        <em>{{ auth()->check() ? 'Continue to your workspace' : 'Access your company account' }}</em>
+                    </a>
+                    <a href="#" data-ticket-modal-open class="hpx-card">
+                        <span class="hpx-icon"><i class="ti ti-file-plus"></i></span>
+                        <span class="hpx-go"><i class="ti ti-arrow-right"></i></span>
+                        <span class="hpx-card-label">Intake</span>
+                        <strong>Submit ticket</strong>
+                        <em>Send citation details for review</em>
+                    </a>
+                </div>
+            </section>
+
+            <p class="hpx-foot">&copy; {{ date('Y') }} {{ config('app.name') }}</p>
+        </main>
     </div>
 
-    {{-- ═══════════════════════════════════════════════
-         MAIN CONTENT AREA
-    ══════════════════════════════════════════════════ --}}
-    <div class="hp-main p-0">
-
-        @if (session('success'))
-            <div class="max-w-[1140px] mx-auto mt-6 px-4">
-                <div class="alert alert-success p-4 rounded-xl text-sm flex gap-3 align-items-center shadow-sm">
-                    <i class="ti ti-circle-check text-lg"></i>
-                    {{ session('success') }}
-                </div>
-            </div>
-        @endif
-
-        {{-- Trust Bar --}}
-        <div class="bg-white border-b border-slate-200 relative z-20 shadow-sm">
-            <div class="max-w-[1140px] mx-auto px-6 py-10 flex flex-wrap md:flex-nowrap justify-between gap-8 text-center items-center">
-                <div class="flex-1">
-                    <div class="text-4xl md:text-5xl font-black text-indigo-600 mb-2">99%</div>
-                    <div class="text-sm font-bold text-slate-800 uppercase tracking-wide">Success Tracking</div>
-                    <div class="text-[13px] text-slate-500 mt-1">Citations processed accurately</div>
-                </div>
-                <div class="hidden md:block w-px h-16 bg-slate-200"></div>
-                <div class="flex-1">
-                    <div class="text-4xl md:text-5xl font-black text-indigo-600 mb-2">24/7</div>
-                    <div class="text-sm font-bold text-slate-800 uppercase tracking-wide">Secure Portal</div>
-                    <div class="text-[13px] text-slate-500 mt-1">Bank-level SSL encryption</div>
-                </div>
-                <div class="hidden md:block w-px h-16 bg-slate-200"></div>
-                <div class="flex-1">
-                    <div class="text-4xl md:text-5xl font-black text-indigo-600 mb-2">10k+</div>
-                    <div class="text-sm font-bold text-slate-800 uppercase tracking-wide">Tickets Managed</div>
-                    <div class="text-[13px] text-slate-500 mt-1">Trusted by top fleets</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Features Section --}}
-        <div class="py-24 px-6 max-w-[1140px] mx-auto">
-            <div class="text-center mb-16">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-widest mb-4">
-                    Core Functionality
-                </span>
-                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Everything you need to manage citations</h2>
-                <p class="text-slate-500 max-w-[600px] mx-auto text-lg leading-relaxed">A unified system designed specifically for drivers, fleet managers, and attorneys to handle traffic citations seamlessly.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {{-- Feature 1 --}}
-                <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
-                    <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="ti ti-steering-wheel"></i>
+    <div class="ticket-modal" id="ticketSubmissionModal" hidden aria-labelledby="ticketSubmissionModalLabel" aria-modal="true" role="dialog">
+        <div class="ticket-modal-backdrop" data-ticket-modal-close></div>
+        <div class="ticket-modal-dialog">
+            <div class="modal-content border-0 overflow-hidden shadow-2xl rounded-2xl">
+                <div class="p-6 md:p-8 bg-slate-900 text-white flex items-center justify-between border-b border-white/10">
+                    <div>
+                        <h2 class="text-xl font-bold text-white m-0 tracking-tight" id="ticketSubmissionModalLabel">Submit ticket</h2>
+                        <p class="text-sm text-slate-300 m-0 mt-1.5">Enter the citation details below.</p>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">For Drivers</h3>
-                    <p class="text-slate-500 leading-relaxed mb-0 text-sm">
-                        Submit a ticket in seconds directly from your phone. Upload photos of citations instantly and track status updates through our secure portal without any hassle.
-                    </p>
-                </div>
-                {{-- Feature 2 --}}
-                <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
-                    <div class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="ti ti-briefcase"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">For Fleet Managers</h3>
-                    <p class="text-slate-500 leading-relaxed mb-0 text-sm">
-                        Maintain a centralized dashboard of all company vehicles. Track citations across your entire fleet, monitor court dates, and stay compliant effortlessly.
-                    </p>
-                </div>
-                {{-- Feature 3 --}}
-                <div class="card p-8 border-0 shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl group bg-white">
-                    <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="ti ti-file-certificate"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">For Attorneys</h3>
-                    <p class="text-slate-500 leading-relaxed mb-0 text-sm">
-                        Direct access to case files, supporting attachments, and historical data. Streamline communications with clients and organize upcoming court appearances.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        {{-- How It Works --}}
-        <div class="py-24 px-6 bg-slate-50 border-y border-slate-200">
-            <div class="max-w-[1140px] mx-auto">
-                <div class="text-center mb-20">
-                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">How it works</h2>
-                    <p class="text-slate-500 max-w-[500px] mx-auto text-lg leading-relaxed">Our streamlined process ensures your citations are handled quickly and professionally.</p>
+                    <button type="button" class="btn-close btn-close-white opacity-100 hover:opacity-80 transition-opacity" data-ticket-modal-close aria-label="Close"></button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                    <div class="hidden md:block absolute top-12 left-[15%] right-[15%] h-1 bg-indigo-100 rounded-full"></div>
-                    
-                    <div class="relative text-center z-10 group">
-                        <div class="w-24 h-24 mx-auto bg-white border-4 border-indigo-50 shadow-xl rounded-full flex items-center justify-center text-3xl text-indigo-600 mb-6 font-black transition-transform group-hover:scale-110 group-hover:border-indigo-100">1</div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-3">Submit Ticket</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed">Fill out our secure intake form with the citation details and upload any supporting documents directly from your device.</p>
-                    </div>
-                    <div class="relative text-center z-10 group">
-                        <div class="w-24 h-24 mx-auto bg-white border-4 border-indigo-50 shadow-xl rounded-full flex items-center justify-center text-3xl text-indigo-600 mb-6 font-black transition-transform group-hover:scale-110 group-hover:border-indigo-100">2</div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-3">Expert Review</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed">Our team and network of specialized attorneys immediately review the case file and determine the best course of action.</p>
-                    </div>
-                    <div class="relative text-center z-10 group">
-                        <div class="w-24 h-24 mx-auto bg-white border-4 border-indigo-50 shadow-xl rounded-full flex items-center justify-center text-3xl text-indigo-600 mb-6 font-black transition-transform group-hover:scale-110 group-hover:border-indigo-100">3</div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-3">Resolution</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed">Track progress through your dashboard as we work relentlessly to minimize points, fines, and keep you on the road safely.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <div class="ticket-modal-body p-6 md:p-8 bg-slate-50">
+                    <form action="{{ route('submit.ticket') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
 
-        {{-- CTA Section --}}
-        <div class="py-24 px-6 relative overflow-hidden bg-slate-900">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/80 to-violet-900/80 mix-blend-multiply"></div>
-            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
-            
-            <div class="max-w-[800px] mx-auto text-center relative z-10">
-                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-tight">Ready to handle your citation?</h2>
-                <p class="text-lg md:text-xl text-indigo-100 mb-10 max-w-[600px] mx-auto font-medium">
-                    Don't let a ticket slow down your fleet or your career. Submit your citation now and let our professionals take it from here.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="#" data-ticket-modal-open class="btn btn-primary px-8 py-4 bg-gradient-to-r from-indigo-500 to-violet-500 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 transition-all text-lg font-bold rounded-xl w-full sm:w-auto">
-                        <i class="ti ti-send me-2"></i> Submit Citation Now
-                    </a>
-                    <a href="{{ $dashboardUrl }}" class="btn btn-outline-light px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white border-slate-700 hover:border-slate-600 transition-all text-lg font-bold rounded-xl w-full sm:w-auto">
-                        Client Login
-                    </a>
-                </div>
-            </div>
-        </div>
+                        @if ($errors->any())
+                            <div class="mb-8 p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4 shadow-sm">
+                                <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 shadow-sm">
+                                    <i class="ti ti-alert-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-red-800 font-bold text-[13px] uppercase tracking-wide mb-2 mt-0.5">Please fix the following errors:</h4>
+                                    <ul class="list-disc ps-5 mb-0 text-sm text-red-700 space-y-1">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
 
-        {{-- Footer --}}
-        <footer class="bg-white py-12 px-6 border-t border-slate-200">
-            <div class="max-w-[1140px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo-dark.png') }}" class="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" alt="CDL CONSULTANT Logo">
-                </div>
-                <div class="text-sm text-slate-500 font-medium">
-                    &copy; {{ date('Y') }} Track Citations. All rights reserved.
-                </div>
-                <div class="flex gap-4">
-                    <span class="text-xs text-slate-500 font-bold tracking-wider flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
-                        <i class="ti ti-lock text-emerald-500 text-base"></i> SECURE & ENCRYPTED
-                    </span>
-                </div>
-            </div>
-        </footer>
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <i class="ti ti-user text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-800 m-0">Driver information</h3>
+                            </div>
 
-        {{-- ─── FORM MODAL (Hidden by default) ──────────────── --}}
-        <div class="ticket-modal" id="ticketSubmissionModal" hidden aria-labelledby="ticketSubmissionModalLabel" aria-modal="true" role="dialog">
-            <div class="ticket-modal-backdrop" data-ticket-modal-close></div>
-            <div class="ticket-modal-dialog">
-                <div class="modal-content border-0 overflow-hidden shadow-2xl rounded-2xl">
-                    <div class="p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between border-b border-white/10 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
-                        <div class="relative z-10">
-                            <h2 class="text-xl font-extrabold text-white m-0 tracking-tight" id="ticketSubmissionModalLabel">New Ticket Submission</h2>
-                            <p class="text-sm text-indigo-200/80 m-0 mt-1.5 font-medium">Enter the citation details below to open a new case</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="name">Driver name <span class="text-red-500">*</span></label>
+                                    <input type="text" name="name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('name') is-invalid border-red-500 @enderror" id="name" value="{{ old('name') }}" placeholder="Full name of driver">
+                                    @error('name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="user_email">Driver email <span class="text-red-500">*</span></label>
+                                    <input type="email" name="user_email" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('user_email') is-invalid border-red-500 @enderror" id="user_email" value="{{ old('user_email') }}" placeholder="driver@example.com">
+                                    @error('user_email')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="company_name">Company name</label>
+                                    <input type="text" name="company_name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('company_name') is-invalid border-red-500 @enderror" id="company_name" value="{{ old('company_name') }}" placeholder="Optional — company or fleet name">
+                                    @error('company_name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
                         </div>
-                        <div class="relative z-10 flex items-center gap-3">
-                            <span class="hidden sm:flex px-3 py-1 rounded-md bg-white/10 text-xs font-semibold text-white items-center gap-1.5 border border-white/20">
-                                <i class="ti ti-lock text-xs"></i> Secure Intake
-                            </span>
-                            <button type="button" class="btn-close btn-close-white opacity-100 hover:opacity-80 transition-opacity" data-ticket-modal-close aria-label="Close"></button>
+
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
+                                <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                                    <i class="ti ti-file-description text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-800 m-0">Citation details</h3>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="citation_no">Citation number <span class="text-red-500">*</span></label>
+                                    <input type="text" name="citation_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('citation_no') is-invalid border-red-500 @enderror" id="citation_no" value="{{ old('citation_no') }}" placeholder="e.g. TC-2024-00123">
+                                    @error('citation_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="date_issued">Date received <span class="text-red-500">*</span></label>
+                                    <input type="text" name="date_issued" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 bg-white @error('date_issued') is-invalid border-red-500 @enderror" id="date_issued" value="{{ old('date_issued') }}" placeholder="Select date received">
+                                    @error('date_issued')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="violation_id">Violation type <span class="text-red-500">*</span></label>
+                                    <select name="violation_id" class="form-select w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('violation_id') is-invalid border-red-500 @enderror" id="violation_id">
+                                        <option value="">— Select a violation —</option>
+                                        @foreach ($violationOptions as $violation)
+                                            <option value="{{ $violation->id }}" {{ (string) old('violation_id') === (string) $violation->id ? 'selected' : '' }}>
+                                                {{ $violation->violation }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('violation_id')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="description">Ticket details</label>
+                                    <textarea name="description" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('description') is-invalid border-red-500 @enderror" id="description" rows="3" placeholder="Notes or special instructions">{{ old('description') }}</textarea>
+                                    @error('description')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="p-6 md:p-8 bg-slate-50/50">
-                        <form action="{{ route('submit.ticket') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-
-                            @if ($errors->any())
-                                <div class="mb-8 p-5 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-4 shadow-sm">
-                                    <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 shadow-sm">
-                                        <i class="ti ti-alert-circle text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-red-800 font-bold text-[13px] uppercase tracking-wide mb-2 mt-0.5">Please fix the following errors:</h4>
-                                        <ul class="list-disc ps-5 mb-0 text-sm text-red-700 space-y-1">
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <i class="ti ti-car text-lg"></i>
                                 </div>
-                            @endif
-
-                            {{-- Driver Info --}}
-                            <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
-                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                        <i class="ti ti-user text-lg"></i>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-slate-800 m-0">Driver Information</h3>
+                                <h3 class="text-lg font-bold text-slate-800 m-0">Vehicle and location</h3>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="state">License state</label>
+                                    <input type="text" name="state" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('state') is-invalid border-red-500 @enderror" id="state" value="{{ old('state', 'MD') }}" placeholder="e.g. MD">
+                                    @error('state')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
                                 </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="city">License city</label>
+                                    <input type="text" name="city" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('city') is-invalid border-red-500 @enderror" id="city" value="{{ old('city') }}" placeholder="City">
+                                    @error('city')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                                <div>
+                                    <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="vehicle_lic_no">Vehicle plate <span class="text-red-500">*</span></label>
+                                    <input type="text" name="vehicle_lic_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('vehicle_lic_no') is-invalid border-red-500 @enderror" id="vehicle_lic_no" value="{{ old('vehicle_lic_no') }}" placeholder="Plate number">
+                                    @error('vehicle_lic_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <i class="ti ti-paperclip text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-800 m-0">Attachments</h3>
+                            </div>
+                            <div class="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
+                                <div class="text-center mb-6">
+                                    <p class="text-sm text-slate-600 font-medium m-0">Upload images or PDF documents of the citation</p>
+                                    <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 5MB per file</p>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="name">Driver Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('name') is-invalid border-red-500 @enderror" id="name" value="{{ old('name') }}" placeholder="Full name of driver">
-                                        @error('name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
                                     </div>
                                     <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="user_email">Driver Email <span class="text-red-500">*</span></label>
-                                        <input type="email" name="user_email" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('user_email') is-invalid border-red-500 @enderror" id="user_email" value="{{ old('user_email') }}" placeholder="driver@example.com">
-                                        @error('user_email')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                        <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
                                     </div>
-                                    <div class="md:col-span-2">
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="company_name">Company Name</label>
-                                        <input type="text" name="company_name" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('company_name') is-invalid border-red-500 @enderror" id="company_name" value="{{ old('company_name') }}" placeholder="Optional — company or fleet name">
-                                        @error('company_name')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
+                                    <div>
+                                        <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {{-- Citation Info --}}
-                            <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
-                                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                                        <i class="ti ti-file-description text-lg"></i>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-slate-800 m-0">Citation Details</h3>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="citation_no">Citation Number <span class="text-red-500">*</span></label>
-                                        <input type="text" name="citation_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('citation_no') is-invalid border-red-500 @enderror" id="citation_no" value="{{ old('citation_no') }}" placeholder="e.g. TC-2024-00123">
-                                        @error('citation_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="date_issued">Date Received <span class="text-red-500">*</span></label>
-                                        <input type="text" name="date_issued" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 bg-white @error('date_issued') is-invalid border-red-500 @enderror" id="date_issued" value="{{ old('date_issued') }}" placeholder="Select date received">
-                                        @error('date_issued')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="violation_id">Violation Type <span class="text-red-500">*</span></label>
-                                        <select name="violation_id" class="form-select w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('violation_id') is-invalid border-red-500 @enderror" id="violation_id">
-                                            <option value="">— Select a violation —</option>
-                                            @foreach ($violationOptions as $violation)
-                                                <option value="{{ $violation->id }}" {{ (string) old('violation_id') === (string) $violation->id ? 'selected' : '' }}>
-                                                    {{ $violation->violation }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('violation_id')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="description">Ticket Details</label>
-                                        <textarea name="description" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('description') is-invalid border-red-500 @enderror" id="description" rows="3" placeholder="Describe the situation or special instructions...">{{ old('description') }}</textarea>
-                                        @error('description')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Vehicle Info --}}
-                            <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
-                                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                        <i class="ti ti-car text-lg"></i>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-slate-800 m-0">Vehicle & Location</h3>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="state">License State</label>
-                                        <input type="text" name="state" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('state') is-invalid border-red-500 @enderror" id="state" value="{{ old('state', 'MD') }}" placeholder="e.g. MD">
-                                        @error('state')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="city">License City</label>
-                                        <input type="text" name="city" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('city') is-invalid border-red-500 @enderror" id="city" value="{{ old('city') }}" placeholder="City">
-                                        @error('city')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2" for="vehicle_lic_no">Vehicle Plate <span class="text-red-500">*</span></label>
-                                        <input type="text" name="vehicle_lic_no" class="form-control w-full px-4 py-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-sm shadow-sm hover:border-slate-300 @error('vehicle_lic_no') is-invalid border-red-500 @enderror" id="vehicle_lic_no" value="{{ old('vehicle_lic_no') }}" placeholder="Plate number">
-                                        @error('vehicle_lic_no')<div class="invalid-feedback text-xs mt-1">{{ $message }}</div>@enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Attachments --}}
-                            <div class="mb-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-50">
-                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                        <i class="ti ti-paperclip text-lg"></i>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-slate-800 m-0">Attachments</h3>
-                                </div>
-                                <div class="p-8 border-2 border-dashed border-indigo-100 hover:border-indigo-300 transition-colors rounded-2xl bg-indigo-50/30">
-                                    <div class="text-center mb-6">
-                                        <i class="ti ti-cloud-upload text-4xl text-indigo-300 mb-3"></i>
-                                        <p class="text-sm text-slate-600 font-medium m-0">Upload images or PDF documents of the citation</p>
-                                        <p class="text-[11px] text-slate-400 mt-1">Maximum file size: 5MB per file</p>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
-                                        </div>
-                                        <div>
-                                            <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
-                                        </div>
-                                        <div>
-                                            <input type="file" name="attachments[]" class="form-control w-full text-xs py-2.5 bg-white rounded-xl border-slate-200 cursor-pointer shadow-sm hover:border-slate-300" accept="image/*,.pdf,.doc,.docx">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Submit Footer --}}
-                            <div class="flex flex-col sm:flex-row items-center justify-between pt-2">
-                                <p class="text-xs text-slate-500 m-0 font-medium flex items-center gap-2 mb-6 sm:mb-0">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                                        <i class="ti ti-shield-check text-sm"></i>
-                                    </span>
-                                    256-bit SSL Encrypted Submit
-                                </p>
-                                <button type="submit" class="btn btn-primary px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 border-0 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 transition-all rounded-xl font-bold text-base w-full sm:w-auto">
-                                    <i class="ti ti-send me-2"></i> Submit Citation For Review
-                                </button>
-                            </div>
-
-                        </form>
-                    </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-end pt-2">
+                            <button type="submit" class="btn btn-primary px-10 py-3.5 border-0 rounded-xl font-semibold text-base w-full sm:w-auto">
+                                Submit ticket
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/plugins/flatpickr.min.css') }}" />
     <style>
+        :root {
+            --hpx-bg: #f8fafc;
+            --hpx-ink: #0f172a;
+            --hpx-muted: #64748b;
+            --hpx-line: #e2e8f0;
+            --hpx-indigo: #4f46e5;
+        }
+        body { background: #f8fafc !important; color: #0f172a !important; }
+        .hpx {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--hpx-ink);
+            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        }
+        .hpx-mesh {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(42% 36% at 8% 0%, rgba(79, 70, 229, 0.16), transparent 58%),
+                radial-gradient(38% 32% at 96% 8%, rgba(59, 130, 246, 0.14), transparent 56%),
+                radial-gradient(30% 28% at 70% 100%, rgba(99, 102, 241, 0.10), transparent 60%),
+                #f8fafc;
+        }
+        .hpx-top, .hpx-main { position: relative; z-index: 1; }
+        .hpx-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(255,255,255,.82);
+            border-bottom: 1px solid #e2e8f0;
+            backdrop-filter: blur(16px);
+        }
+        .hpx-logo {
+            display: inline-flex;
+            align-items: center;
+        }
+        .hpx-logo img {
+            height: 56px;
+            width: auto;
+            display: block;
+        }
+        .hpx-top-right { display: flex; align-items: center; gap: 10px; }
+        .hpx-date {
+            color: var(--hpx-muted);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .hpx-chip {
+            display: inline-flex;
+            align-items: center;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 999px;
+            background: var(--hpx-indigo);
+            border: 0;
+            color: #fff;
+            text-decoration: none !important;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .hpx-chip:hover { background: #4338ca; color: #fff; }
+        .hpx-ghost {
+            display: inline-flex;
+            align-items: center;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #0f172a;
+            text-decoration: none !important;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .hpx-ghost:hover { border-color: #c7d2fe; color: #4f46e5; }
+        .hpx-main {
+            width: min(1080px, calc(100% - 40px));
+            margin: 40px auto 0;
+        }
+        .hpx-stage {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 28px;
+            padding: 36px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+        }
+        .hpx-hero {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 32px;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .hpx-pill {
+            display: inline-flex;
+            margin-bottom: 14px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+        .hpx-preview {
+            position: relative;
+            height: 180px;
+        }
+        .hpx-preview-card {
+            position: absolute;
+            inset: 10px 10px 0 30px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, #eef2ff, #fff);
+            border: 1px solid #c7d2fe;
+            box-shadow: 0 18px 40px rgba(79, 70, 229, 0.12);
+            padding: 18px;
+        }
+        .hpx-preview-card.back {
+            inset: 0 0 18px 8px;
+            background: #4f46e5;
+            border: 0;
+            transform: rotate(-6deg);
+            z-index: 0;
+        }
+        .hpx-preview-card:not(.back) { z-index: 1; }
+        .hpx-preview-dots { margin-bottom: 18px; }
+        .hpx-preview-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: #c7d2fe;
+        }
+        .hpx-preview-kicker {
+            margin: 0 0 8px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: #6366f1;
+        }
+        .hpx-preview-type {
+            margin: 0;
+            min-height: 64px;
+            font-size: 22px;
+            line-height: 1.3;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #312e81;
+        }
+        .hpx-caret {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            margin-left: 2px;
+            background: #4f46e5;
+            vertical-align: -2px;
+            animation: hpx-blink .8s steps(1) infinite;
+        }
+        @keyframes hpx-blink {
+            50% { opacity: 0; }
+        }
+        .hpx-alert {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: #f0fdf4;
+            color: #047857;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .hpx-eyebrow {
+            margin: 0 0 10px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--hpx-indigo);
+        }
+        .hpx-hello {
+            margin: 0;
+            font-size: clamp(29px, 6vw, 32px);
+            line-height: 0.94;
+            letter-spacing: -0.06em;
+            font-weight: 800;
+        }
+        .hpx-sub {
+            margin: 14px 0 0;
+            color: var(--hpx-muted);
+            font-weight: 500;
+            max-width: 440px;
+        }
+        .hpx-bento {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 16px;
+        }
+        .hpx-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 210px;
+            padding: 26px;
+            border-radius: 22px;
+            text-decoration: none !important;
+            color: #0f172a;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .hpx-card:hover {
+            transform: translateY(-3px);
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.08);
+            color: #0f172a;
+        }
+        .hpx-card-main {
+            background: linear-gradient(145deg, #6366f1 0%, #4f46e5 48%, #4338ca 100%);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 16px 40px rgba(79, 70, 229, 0.28);
+        }
+        .hpx-card-main:hover {
+            color: #fff;
+            box-shadow: 0 20px 46px rgba(79, 70, 229, 0.34);
+        }
+        .hpx-go {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            color: #4f46e5;
+        }
+        .hpx-card-main .hpx-go {
+            background: rgba(255,255,255,.16);
+            color: #fff;
+        }
+        .hpx-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 20px;
+            margin-bottom: auto;
+        }
+        .hpx-card-main .hpx-icon {
+            background: rgba(255,255,255,.16);
+            color: #fff;
+        }
+        .hpx-card-label {
+            margin-top: 28px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: .55;
+        }
+        .hpx-card strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 28px;
+            letter-spacing: -0.04em;
+            font-weight: 800;
+        }
+        .hpx-card em {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 15px;
+            opacity: .72;
+        }
+        .hpx-foot {
+            margin: 22px 4px 36px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        html[data-pc-theme="dark"] body,
+        html.dark body {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+        }
+        html[data-pc-theme="dark"] .hpx,
+        html.dark .hpx {
+            color: #f8fafc;
+        }
+        html[data-pc-theme="dark"] .hpx-mesh,
+        html.dark .hpx-mesh {
+            background:
+                radial-gradient(42% 36% at 8% 0%, rgba(79, 70, 229, 0.28), transparent 58%),
+                radial-gradient(38% 32% at 96% 8%, rgba(59, 130, 246, 0.18), transparent 56%),
+                #0f172a;
+        }
+        html[data-pc-theme="dark"] .hpx-top,
+        html.dark .hpx-top {
+            background: rgba(15, 23, 42, .88);
+            border-bottom-color: #334155;
+        }
+        html[data-pc-theme="dark"] .hpx-logo,
+        html.dark .hpx-logo {
+            background: #fff;
+            border-radius: 12px;
+            padding: 4px 8px;
+        }
+        html[data-pc-theme="dark"] .hpx-date,
+        html.dark .hpx-date,
+        html[data-pc-theme="dark"] .hpx-sub,
+        html.dark .hpx-sub,
+        html[data-pc-theme="dark"] .hpx-foot,
+        html.dark .hpx-foot {
+            color: #94a3b8;
+        }
+        html[data-pc-theme="dark"] .hpx-ghost,
+        html.dark .hpx-ghost {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f8fafc;
+        }
+        html[data-pc-theme="dark"] .hpx-ghost:hover,
+        html.dark .hpx-ghost:hover {
+            border-color: #6366f1;
+            color: #c7d2fe;
+        }
+        html[data-pc-theme="dark"] .hpx-stage,
+        html.dark .hpx-stage,
+        html[data-pc-theme="dark"] .hpx-card,
+        html.dark .hpx-card {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f8fafc;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+        html[data-pc-theme="dark"] .hpx-card:hover,
+        html.dark .hpx-card:hover {
+            border-color: #6366f1;
+            color: #f8fafc;
+        }
+        html[data-pc-theme="dark"] .hpx-card-main,
+        html.dark .hpx-card-main,
+        html[data-pc-theme="dark"] .hpx-card-main:hover,
+        html.dark .hpx-card-main:hover {
+            background: linear-gradient(145deg, #6366f1 0%, #4f46e5 48%, #4338ca 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+        html[data-pc-theme="dark"] .hpx-icon,
+        html.dark .hpx-icon,
+        html[data-pc-theme="dark"] .hpx-go,
+        html.dark .hpx-go {
+            background: #312e81;
+            color: #c7d2fe;
+        }
+        html[data-pc-theme="dark"] .hpx-preview-card,
+        html.dark .hpx-preview-card {
+            background: linear-gradient(180deg, #312e81, #1e293b);
+            border-color: #4338ca;
+        }
+        html[data-pc-theme="dark"] .hpx-preview-kicker,
+        html.dark .hpx-preview-kicker {
+            color: #a5b4fc;
+        }
+        html[data-pc-theme="dark"] .hpx-preview-type,
+        html.dark .hpx-preview-type {
+            color: #eef2ff;
+        }
+        html[data-pc-theme="dark"] .hpx-hello,
+        html.dark .hpx-hello {
+            color: #f8fafc;
+        }
+
         .ticket-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .ticket-modal[hidden] { display: none !important; }
-        .ticket-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .72); backdrop-filter: blur(4px); }
+        .ticket-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .55); backdrop-filter: blur(10px); }
         .ticket-modal-dialog { position: relative; z-index: 1; width: min(1100px, 100%); max-height: calc(100vh - 40px); }
-        .ticket-modal .modal-content { display: flex; flex-direction: column; max-height: calc(100vh - 40px); background: #fff; border-radius: 16px; }
-        .ticket-modal .modal-content > .p-6 { overflow-y: auto; overscroll-behavior: contain; }
+        .ticket-modal .modal-content { display: flex; flex-direction: column; max-height: calc(100vh - 40px); background: #fff; border-radius: 24px; overflow: hidden; }
+        .ticket-modal-body { overflow-y: auto; overscroll-behavior: contain; }
         body.ticket-modal-open { overflow: hidden; }
-        @media (max-width: 640px) {
+        @media (max-width: 760px) {
+            .hpx-top { padding: 16px; }
+            .hpx-logo img { height: 48px; }
+            .hpx-date { display: none; }
+            .hpx-main { margin-top: 4vh; }
+            .hpx-ghost { display: none; }
+            .hpx-stage { padding: 22px 18px; border-radius: 22px; }
+            .hpx-hero { grid-template-columns: 1fr; gap: 12px; }
+            .hpx-preview { display: none; }
+            .hpx-hello { font-size: 18px; }
+            .hpx-sub { font-size: 10px; }
+            .hpx-bento { grid-template-columns: 1fr; }
+            .hpx-card { min-height: 180px; border-radius: 24px; }
             .ticket-modal { padding: 8px; }
             .ticket-modal-dialog, .ticket-modal .modal-content { max-height: calc(100vh - 16px); }
-            .ticket-modal .modal-content > .p-6 { padding: 18px !important; }
-            .ticket-modal .p-8 { padding: 20px !important; }
         }
     </style>
 @endsection
@@ -412,13 +653,48 @@
             allowInput: true
         });
 
+        (function () {
+            const el = document.getElementById('hpxTypeText');
+            if (!el) return;
+            const lines = ['Client login', 'Submit a ticket', 'Track your cases'];
+            let line = 0;
+            let i = 0;
+            let deleting = false;
+
+            const tick = () => {
+                const text = lines[line];
+                el.textContent = text.slice(0, i);
+                if (!deleting && i < text.length) {
+                    i += 1;
+                    setTimeout(tick, 70);
+                    return;
+                }
+                if (!deleting && i === text.length) {
+                    deleting = true;
+                    setTimeout(tick, 1400);
+                    return;
+                }
+                if (deleting && i > 0) {
+                    i -= 1;
+                    setTimeout(tick, 40);
+                    return;
+                }
+                deleting = false;
+                line = (line + 1) % lines.length;
+                setTimeout(tick, 280);
+            };
+            tick();
+        })();
+
         const ticketModal = document.getElementById('ticketSubmissionModal');
         const openTicketModal = () => {
+            if (!ticketModal) return;
             ticketModal.hidden = false;
             document.body.classList.add('ticket-modal-open');
             ticketModal.querySelector('input, select, textarea, button')?.focus();
         };
         const closeTicketModal = () => {
+            if (!ticketModal) return;
             ticketModal.hidden = true;
             document.body.classList.remove('ticket-modal-open');
         };
@@ -429,11 +705,11 @@
                 openTicketModal();
             });
         });
-        ticketModal.querySelectorAll('[data-ticket-modal-close]').forEach((button) => {
+        ticketModal?.querySelectorAll('[data-ticket-modal-close]').forEach((button) => {
             button.addEventListener('click', closeTicketModal);
         });
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !ticketModal.hidden) closeTicketModal();
+            if (event.key === 'Escape' && ticketModal && !ticketModal.hidden) closeTicketModal();
         });
 
         @if ($errors->any())

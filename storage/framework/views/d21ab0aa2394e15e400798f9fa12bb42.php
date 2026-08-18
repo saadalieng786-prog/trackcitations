@@ -212,6 +212,7 @@
                     </a>
                 </li>
 
+                <?php if (\Illuminate\Support\Facades\Blade::check('hasrole', 'super_admin')): ?>
                 <li class="pc-item <?php echo e(request()->routeIs($portal.'.salesforce.*') ? 'active' : ''); ?>">
                     <a href="<?php echo e(route($portal.'.salesforce.index')); ?>" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-refresh"></i></span>
@@ -233,7 +234,6 @@
                     </a>
                 </li>
 
-                <?php if (\Illuminate\Support\Facades\Blade::check('hasanyrole', 'super_admin|staff_admin')): ?>
                 <li class="pc-item <?php echo e(request()->routeIs($portal.'.notifications.*') ? 'active' : ''); ?>">
                     <a href="<?php echo e(route($portal.'.notifications.settings')); ?>" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-bell"></i></span>
