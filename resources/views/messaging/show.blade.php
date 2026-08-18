@@ -318,11 +318,17 @@
             scrollToChatBottom();
 
             const newChatPanel = document.getElementById('newChatCollapse');
+            const chatShell = document.querySelector('.tc-chat-app-shell');
+            const setCreating = function (open) {
+                chatShell?.classList.toggle('is-creating', open);
+                newChatPanel?.classList.toggle('tc-is-hidden', !open);
+            };
             document.getElementById('openNewChatBtn')?.addEventListener('click', function() {
-                newChatPanel?.classList.toggle('tc-is-hidden');
+                const open = newChatPanel?.classList.contains('tc-is-hidden');
+                setCreating(open);
             });
             document.getElementById('closeNewChatBtn')?.addEventListener('click', function() {
-                newChatPanel?.classList.add('tc-is-hidden');
+                setCreating(false);
             });
 
             const fileInput = document.getElementById('messageAttachment');

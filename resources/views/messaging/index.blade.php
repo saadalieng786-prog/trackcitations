@@ -6,6 +6,7 @@
         /* ── Messaging Layout ── */
         .msg-layout {
             display: flex;
+            position: relative;
             width: 100%;
             max-width: 100%;
             min-width: 0;
@@ -247,11 +248,22 @@
                 border-right: none;
                 border-bottom: 1px solid #e9edf3;
             }
-            .msg-new-conv-panel {
+            .msg-new-conv-panel.is-open {
+                position: absolute;
+                inset: 0;
                 width: 100% !important;
                 min-width: 0 !important;
+                z-index: 30;
+                display: flex !important;
+                flex-direction: column;
+                overflow: auto;
                 border-left: none;
-                border-top: 1px solid #e9edf3;
+                border-top: none;
+            }
+
+            .msg-new-conv-panel .choices__list--dropdown,
+            .msg-new-conv-panel .choices__list[aria-expanded] {
+                z-index: 40;
             }
         }
 
@@ -283,6 +295,11 @@
         .msg-new-conv-body {
             padding: 20px;
             flex: 1;
+            overflow: visible;
+        }
+
+        .msg-form-group .choices.is-open {
+            overflow: visible;
         }
 
         .msg-form-label {
@@ -476,16 +493,31 @@
             trigger.addEventListener('click', function(e) {
                 e.preventDefault();
                 var panel = document.getElementById('chat-new_chat');
+                var layout = document.querySelector('.msg-layout');
                 if (!panel) return;
-                if (panel.style.display === 'none' || panel.style.width === '0px' || panel.style.width === '') {
+                var isOpen = panel.classList.contains('is-open');
+                if (!isOpen) {
+                    panel.classList.add('is-open');
+                    layout && layout.classList.add('is-creating');
                     panel.style.display = 'flex';
                     panel.style.flexDirection = 'column';
-                    panel.style.width = '280px';
-                    panel.style.minWidth = '280px';
+                    if (window.matchMedia('(max-width: 768px)').matches) {
+                        panel.style.width = '100%';
+                        panel.style.minWidth = '0';
+                    } else {
+                        panel.style.width = '280px';
+                        panel.style.minWidth = '280px';
+                    }
                 } else {
+                    panel.classList.remove('is-open');
+                    layout && layout.classList.remove('is-creating');
                     panel.style.width = '0px';
                     panel.style.minWidth = '0px';
-                    setTimeout(function() { panel.style.display = 'none'; }, 300);
+                    setTimeout(function() {
+                        if (!panel.classList.contains('is-open')) {
+                            panel.style.display = 'none';
+                        }
+                    }, 300);
                 }
             });
         });

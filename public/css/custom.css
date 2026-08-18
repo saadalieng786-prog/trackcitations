@@ -780,8 +780,34 @@ body {
   overflow: hidden;
 }
 
-.tc-chat-pane-left:has(.msg-create-panel:not(.hidden)) {
+.tc-chat-pane-left:has(.msg-create-panel:not(.tc-is-hidden)) {
   overflow: visible;
+}
+
+@media (max-width: 992px) {
+  .tc-chat-app-shell.is-creating {
+    grid-template-columns: 1fr;
+  }
+
+  .tc-chat-app-shell.is-creating .tc-chat-pane-left {
+    max-height: none;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .tc-chat-app-shell.is-creating .tc-chat-pane-right {
+    display: none;
+  }
+
+  .tc-chat-app-shell.is-creating .tc-chat-conversations-list {
+    display: none;
+  }
+
+  .tc-chat-app-shell.is-creating .msg-create-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
 }
 
 .tc-chat-sidebar-header {
@@ -1948,6 +1974,11 @@ html.dark .card-header {
 .tc-chat-pane-left .msg-create-panel .choices__list[aria-expanded] {
   z-index: 2000 !important;
   position: absolute !important;
+  max-height: 220px !important;
+}
+
+.tc-chat-app-shell.is-creating {
+  overflow: visible;
 }
 
 [data-pc-theme="dark"] .text-slate-600,
