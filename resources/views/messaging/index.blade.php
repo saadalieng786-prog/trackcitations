@@ -6,7 +6,11 @@
         /* ── Messaging Layout ── */
         .msg-layout {
             display: flex;
-            height: calc(100vh - 90px);
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            height: calc(100dvh - 168px);
+            max-height: calc(100dvh - 168px);
             gap: 0;
             background: #f8fafc;
             border-radius: 16px;
@@ -18,7 +22,9 @@
         /* ── Sidebar ── */
         .msg-sidebar {
             width: 300px;
-            min-width: 300px;
+            min-width: 0;
+            max-width: 300px;
+            flex: 0 0 300px;
             background: #fff;
             border-right: 1px solid #e9edf3;
             display: flex;
@@ -45,8 +51,11 @@
         }
 
         .msg-conversations {
-            flex: 1;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
             overflow-y: auto;
+            scrollbar-width: thin;
         }
 
         .msg-conv-item {
@@ -225,13 +234,16 @@
         @media (max-width: 768px) {
             .msg-layout {
                 flex-direction: column;
-                height: auto;
-                min-height: calc(100vh - 110px);
+                height: calc(100dvh - 130px);
+                max-height: calc(100dvh - 130px);
+                min-height: 0;
             }
             .msg-sidebar {
                 width: 100%;
                 min-width: 0;
-                max-height: 42vh;
+                max-width: none;
+                flex: 0 0 auto;
+                max-height: 32vh;
                 border-right: none;
                 border-bottom: 1px solid #e9edf3;
             }

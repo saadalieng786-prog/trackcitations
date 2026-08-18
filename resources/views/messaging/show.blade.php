@@ -1,7 +1,7 @@
 @extends('layout.master')
 
 @section('content')
-    <div class="col-span-12">
+    <div class="col-span-12 min-w-0 overflow-hidden">
         <div class="tc-chat-app-shell">
 
             {{-- ── 1. LEFT PANE: CONVERSATIONS LIST ───────────────────── --}}
