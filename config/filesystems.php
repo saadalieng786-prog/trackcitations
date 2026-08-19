@@ -19,7 +19,7 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
-    'ticket_attachments_disk' => env('ATTACHMENTS_DISK', 'public'),
+    'ticket_attachments_disk' => env('ATTACHMENTS_DISK', env('MESSAGE_ATTACHMENTS_DISK', 'public')),
 
     'message_attachments_disk' => env('MESSAGE_ATTACHMENTS_DISK', env('ATTACHMENTS_DISK', 'public')),
 

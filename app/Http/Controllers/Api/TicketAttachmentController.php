@@ -36,9 +36,9 @@ class TicketAttachmentController extends Controller
             : $admins; // Combine admins with the driver if it exists
         Notification::send($usersToNotify, new TicketNotification($ticket, 'document_uploaded'));
 
-        return $ticket->attachments()->create([
+        return response()->json($ticket->attachments()->create([
             'filename' => $file->getClientOriginalName(),
-            'path' => $stored['url'],
-        ]);
+            'path' => $stored['path'],
+        ]));
     }
 }

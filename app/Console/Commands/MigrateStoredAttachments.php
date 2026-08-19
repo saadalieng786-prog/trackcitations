@@ -96,6 +96,14 @@ class MigrateStoredAttachments extends Command
                 }
 
                 if (! Storage::disk($fromDisk)->exists($relativePath)) {
+                    if (Storage::disk($toDisk)->exists($relativePath)) {
+                        if (! $dryRun) {
+                            $attachment->update(['path' => $relativePath]);
+                        }
+                        $totals['updated']++;
+                        continue;
+                    }
+
                     $this->warn("Missing ticket attachment on {$fromDisk}: {$relativePath}");
                     $totals['missing']++;
                     continue;
@@ -103,7 +111,7 @@ class MigrateStoredAttachments extends Command
 
                 try {
                     if (! $dryRun && ! Storage::disk($toDisk)->exists($relativePath)) {
-                        Storage::disk($toDisk)->put($relativePath, Storage::disk($fromDisk)->get($relativePath));
+                        $this->copyToDisk($fromDisk, $toDisk, $relativePath);
                         $totals['copied']++;
                     } elseif ($dryRun) {
                         $totals['copied']++;
@@ -111,7 +119,7 @@ class MigrateStoredAttachments extends Command
 
                     if (! $dryRun) {
                         $attachment->update([
-                            'path' => Storage::disk($toDisk)->url($relativePath),
+                            'path' => $relativePath,
                         ]);
                     }
 
@@ -140,6 +148,14 @@ class MigrateStoredAttachments extends Command
                 }
 
                 if (! Storage::disk($fromDisk)->exists($relativePath)) {
+                    if (Storage::disk($toDisk)->exists($relativePath)) {
+                        if (! $dryRun) {
+                            $attachment->update(['file_path' => $relativePath]);
+                        }
+                        $totals['updated']++;
+                        continue;
+                    }
+
                     $this->warn("Missing message attachment on {$fromDisk}: {$relativePath}");
                     $totals['missing']++;
                     continue;
@@ -147,7 +163,7 @@ class MigrateStoredAttachments extends Command
 
                 try {
                     if (! $dryRun && ! Storage::disk($toDisk)->exists($relativePath)) {
-                        Storage::disk($toDisk)->put($relativePath, Storage::disk($fromDisk)->get($relativePath));
+                        $this->copyToDisk($fromDisk, $toDisk, $relativePath);
                         $totals['copied']++;
                     } elseif ($dryRun) {
                         $totals['copied']++;
@@ -155,7 +171,7 @@ class MigrateStoredAttachments extends Command
 
                     if (! $dryRun) {
                         $attachment->update([
-                            'file_path' => Storage::disk($toDisk)->url($relativePath),
+                            'file_path' => $relativePath,
                         ]);
                     }
 
@@ -166,5 +182,27 @@ class MigrateStoredAttachments extends Command
                 }
             }
         });
+    }
+
+    protected function copyToDisk(string $fromDisk, string $toDisk, string $relativePath): void
+    {
+        $stream = Storage::disk($fromDisk)->readStream($relativePath);
+        if ($stream === false) {
+            throw new \RuntimeException('Unable to read '.$relativePath.' from '.$fromDisk);
+        }
+
+        try {
+            $wrote = Storage::disk($toDisk)->put($relativePath, $stream, [
+                'visibility' => $toDisk === 's3' ? 'private' : 'public',
+            ]);
+        } finally {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+
+        if (! $wrote) {
+            throw new \RuntimeException('Unable to write '.$relativePath.' to '.$toDisk);
+        }
     }
 }

@@ -19,6 +19,7 @@ use App\Http\Controllers\SalesForceController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\StorageSettingsController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\SupportSettingsController;
 use App\Http\Controllers\TicketExportController;
 use App\Http\Controllers\ViolationController;
@@ -63,6 +64,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('messaging/conversations', [ConversationController::class, 'store'])->name('messaging.conversations.store');
     Route::post('messaging/{conversation}/messages', [MessageController::class, 'store'])->name('messaging.messages.store');
     Route::get('messaging/attachments/{attachment}/download', [MessageController::class, 'downloadAttachment'])->name('messaging.attachments.download');
+    Route::get('ticket-attachments/{ticketAttachment}/preview', [TicketAttachmentController::class, 'preview'])->name('ticket-attachments.preview');
+    Route::get('ticket-attachments/{ticketAttachment}/download', [TicketAttachmentController::class, 'download'])->name('ticket-attachments.download');
 
     // Chunked Background Ticket Export API
     Route::post('tickets/export/start', [TicketExportController::class, 'start'])->name('tickets.export.start');

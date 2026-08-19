@@ -7,10 +7,86 @@
 namespace App\Http\Controllers;
 
 use App\Models\TicketAttachment;
-use Illuminate\Http\Request;
+use App\Support\AttachmentStorage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 
 class TicketAttachmentController extends Controller
 {
+    use AuthorizesRequests;
+
+    public function preview(TicketAttachment $ticketAttachment)
+    {
+        [$disk, $relativePath, $filename] = $this->resolveAttachmentFile($ticketAttachment);
+
+        return Storage::disk($disk)->response(
+            $relativePath,
+            $filename,
+            [],
+            'inline'
+        );
+    }
+
+    public function download(TicketAttachment $ticketAttachment)
+    {
+        [$disk, $relativePath, $filename] = $this->resolveAttachmentFile($ticketAttachment);
+
+        if (config("filesystems.disks.{$disk}.driver") === 's3') {
+            return redirect()->away(
+                Storage::disk($disk)->temporaryUrl($relativePath, now()->addMinutes(30))
+            );
+        }
+
+        return Storage::disk($disk)->response(
+            $relativePath,
+            $filename,
+            [],
+            'attachment'
+        );
+    }
+
+    protected function resolveAttachmentFile(TicketAttachment $ticketAttachment): array
+    {
+        $ticketAttachment->loadMissing('ticket');
+        abort_unless($ticketAttachment->ticket, 404);
+        $this->authorize('view', $ticketAttachment->ticket);
+
+        $relativePath = AttachmentStorage::relativePathFromStoredPath($ticketAttachment->path);
+        if (blank($relativePath)) {
+            abort(404, 'Attachment path is missing.');
+        }
+
+        $filename = $ticketAttachment->filename ?: basename($relativePath);
+
+        $disksToTry = array_values(array_unique(array_filter([
+            AttachmentStorage::ticketDisk(),
+            AttachmentStorage::messageDisk(),
+            's3',
+            'public',
+            'local',
+        ])));
+
+        foreach ($disksToTry as $tryDisk) {
+            try {
+                if (! config("filesystems.disks.{$tryDisk}")) {
+                    continue;
+                }
+
+                if (Storage::disk($tryDisk)->exists($relativePath)) {
+                    return [$tryDisk, $relativePath, $filename];
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        if (filter_var($ticketAttachment->path, FILTER_VALIDATE_URL)) {
+            abort(404, 'Attachment file was not found in storage.');
+        }
+
+        abort(404, 'Attachment file was not found in storage.');
+    }
+
     /**
      * Display a listing of the resource.
      */

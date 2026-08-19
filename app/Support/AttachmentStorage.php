@@ -37,7 +37,38 @@ class AttachmentStorage
     public static function storeSalesforceContents(string $relativePath, string $contents): array
     {
         $disk = self::ticketDisk();
-        Storage::disk($disk)->put($relativePath, $contents);
+        Storage::disk($disk)->put($relativePath, $contents, [
+            'visibility' => self::isLocalDisk($disk) ? 'public' : 'private',
+        ]);
+
+        return [
+            'disk' => $disk,
+            'path' => $relativePath,
+            'url' => Storage::disk($disk)->url($relativePath),
+        ];
+    }
+
+    public static function storeSalesforceFromLocalFile(string $relativePath, string $localFilePath): array
+    {
+        $disk = self::ticketDisk();
+        $stream = fopen($localFilePath, 'r');
+        if ($stream === false) {
+            throw new \RuntimeException('Unable to read downloaded Salesforce file at '.$localFilePath);
+        }
+
+        try {
+            $wrote = Storage::disk($disk)->put($relativePath, $stream, [
+                'visibility' => self::isLocalDisk($disk) ? 'public' : 'private',
+            ]);
+        } finally {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+
+        if (! $wrote) {
+            throw new \RuntimeException('Failed to store Salesforce attachment on disk ['.$disk.'] path ['.$relativePath.'].');
+        }
 
         return [
             'disk' => $disk,

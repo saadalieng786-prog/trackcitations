@@ -585,7 +585,7 @@
                                             </td>
                                             <td class="text-right">
                                                 <!-- Link to trigger the preview -->
-                                                <a href="#" data-file="{{ $attachment->url }}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
+                                                <a href="#" data-file="{{ $attachment->preview_url }}" data-filename="{{ $attachment->filename }}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
                                                     <i class="ti ti-eye text-warning text-lg leading-none"></i>
                                                 </a>
                                                 <a href="{{ $attachment->url }}"
@@ -795,10 +795,10 @@
                         </div>
                     </td>
                     <td class="text-right">
-                        <a href="#" data-file="${attachmentResponse.path}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
+                        <a href="#" data-file="${attachmentResponse.preview_url || attachmentResponse.url}" data-filename="${file.name}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
                             <i class="ti ti-eye text-warning text-lg leading-none"></i>
                         </a>
-                        <a href="${attachmentResponse.path}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary" download>
+                        <a href="${attachmentResponse.url || attachmentResponse.path}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary" download>
                             <i class="ti ti-download text-primary text-lg leading-none"></i>
                         </a>
                     </td>
@@ -1002,7 +1002,8 @@
             if (previewBtn) {
                 e.preventDefault();
                 const filePath = previewBtn.getAttribute('data-file');
-                const fileType = filePath.split('.').pop().toLowerCase();
+                const fileName = previewBtn.getAttribute('data-filename') || filePath;
+                const fileType = fileName.split('.').pop().toLowerCase();
 
                 // Clear previous content
                 modalBody.innerHTML = '';

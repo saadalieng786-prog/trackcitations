@@ -83,7 +83,7 @@ class HomeController extends Controller
             $stored = AttachmentStorage::storeTicketUpload($attachment);
             $ticket->attachments()->create([
                 'filename' => $attachment->getClientOriginalName(),
-                'path' => $stored['url'],
+                'path' => $stored['path'],
             ]);
         }
 

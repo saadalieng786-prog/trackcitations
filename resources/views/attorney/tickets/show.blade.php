@@ -486,7 +486,7 @@
                                         </div>
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ $attachment->path }}"
+                                        <a href="{{ $attachment->url }}"
                                            class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary">
                                             <i class="ti ti-download text-lg leading-none"></i>
                                         </a>

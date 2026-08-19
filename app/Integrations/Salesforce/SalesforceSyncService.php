@@ -702,41 +702,49 @@ class SalesforceSyncService
                     continue;
                 }
 
-                $sinkPath = AttachmentStorage::isLocalDisk($disk)
-                    ? Storage::disk($disk)->path($relativePath)
-                    : null;
-                $response = $sf->getFile($file['Body'], 0, $sinkPath);
-
-                if (is_array($response)) {
-                    Log::critical("Stored on error" . json_encode($response));
-                    $this->client->connect();
-                    $response = $sf->getFile($file['Body'], 0, $sinkPath);
-                    if (is_array($response)) {continue;}
+                $tempPath = tempnam(sys_get_temp_dir(), 'sfatt_');
+                if ($tempPath === false) {
+                    throw new \RuntimeException('Unable to create a temporary file for Salesforce download.');
                 }
-                if ($response->ok()) {
-                    if (! AttachmentStorage::isLocalDisk($disk)) {
-                        AttachmentStorage::storeSalesforceContents($relativePath, $response->body());
+
+                try {
+                    $response = $sf->getFile($file['Body'], 0, $tempPath);
+
+                    if (is_array($response)) {
+                        Log::critical("Stored on error" . json_encode($response));
+                        $this->client->connect();
+                        $response = $sf->getFile($file['Body'], 0, $tempPath);
+                        if (is_array($response)) {
+                            continue;
+                        }
                     }
 
+                    if (! $response->ok()) {
+                        $this->line("<error>Failed to download file content for {$file['Body']}</error>");
+                        continue;
+                    }
+
+                    $stored = AttachmentStorage::storeSalesforceFromLocalFile($relativePath, $tempPath);
                     $ticket = Ticket::findOrFail($ticketId);
 
-                    $attachmentData = [
-                        'filename' => $fileName,
-                        'path' => Storage::disk($disk)->url($relativePath),
-                        'sf_id' => $sfId,
-                        'description' => $file['Description'] ?? '',
-                        'sf_last_modified_date' => Carbon::parse($lastModified),
-                        'last_modified_date' => Carbon::parse($lastModified),
-                    ];
                     $ticket->attachments()->updateOrCreate(
                         ['sf_id' => $sfId],
-                        $attachmentData
+                        [
+                            'filename' => $fileName,
+                            'path' => $stored['path'],
+                            'sf_id' => $sfId,
+                            'description' => $file['Description'] ?? '',
+                            'sf_last_modified_date' => Carbon::parse($lastModified),
+                            'last_modified_date' => Carbon::parse($lastModified),
+                        ]
                     );
 
                     $downloaded++;
                     $this->line("<info>Saved attachment: $relativePath</info>");
-                } else {
-                    $this->line("<error>Failed to download file content for {$file['Body']}</error>");
+                } finally {
+                    if (is_file($tempPath)) {
+                        @unlink($tempPath);
+                    }
                 }
             } catch (\Exception $e) {
                 $message = "<error>Error: {$e->getMessage()}";
