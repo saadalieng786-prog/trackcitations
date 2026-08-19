@@ -256,9 +256,9 @@ class SalesforceSyncService
     protected function syncDriver(array $record, int $companyId): ?int
     {
         $sfId = $record['Id'] ?? null;
-        $email = $record['Email'] ?? null;
+        $email = strtolower(trim((string) ($record['Email'] ?? '')));
 
-        if (! $sfId || ! $email) {
+        if (! $sfId || $email === '') {
             return null;
         }
 
@@ -277,21 +277,24 @@ class SalesforceSyncService
             'zip' => $record['MailingPostalCode'] ?: ($record['Driver_Zip_Code__c'] ?? null),
             'phone' => $record['MobilePhone'] ?: ($record['Phone'] ?? null),
         ];
+        $userUpdates = array_filter($userData, fn ($value) => $value !== null && $value !== '');
 
-        $driverId = $this->driverInfo[$sfId] ?? null;
-        $driver = $driverId ? Driver::find($driverId) : null;
+        $driver = null;
+        $cachedId = $this->driverInfo[$sfId] ?? null;
+        if ($cachedId) {
+            $driver = Driver::withoutGlobalScopes()->find($cachedId);
+        }
 
-        if (! $driver) {
-            $driverUser = User::role(User::ROLE_DRIVER)->where('email', $email)->first();
-            if ($driverUser && $driverUser->roleable instanceof Driver) {
-                $driver = $driverUser->roleable;
-            }
+        $existingUser = User::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->first();
+
+        if (! $driver && $existingUser) {
+            $driver = $this->driverFromUser($existingUser);
         }
 
         if (! $driver) {
-            // Avoid unique email collisions if this email already belongs to another user role.
-            $existingUser = User::where('email', $email)->first();
-            if ($existingUser && ! ($existingUser->roleable instanceof Driver)) {
+            if ($existingUser) {
                 SalesforceSyncLogger::info('Skipping driver create; email already used by another role', [
                     'email' => $email,
                     'existing_roleable' => $existingUser->roleable_type,
@@ -306,24 +309,26 @@ class SalesforceSyncService
                 'sf_id' => $sfId,
             ]);
 
-            $driverUser = $driver->user()->create($userData + [
-                'password' => Hash::make($email),
-            ]);
-            $driverUser->assignRole(User::ROLE_DRIVER);
+            $this->createDriverUser($driver, $userData, $email);
         } else {
             $driver->update([
                 'company_id' => $companyId,
                 'sf_id' => $sfId,
             ]);
 
-            if ($driver->user) {
-                $driver->user->update(array_filter($userData, fn ($value) => $value !== null && $value !== ''));
-                if (! $driver->user->hasRole(User::ROLE_DRIVER)) {
-                    $driver->user->assignRole(User::ROLE_DRIVER);
+            $driverUser = $driver->user;
+            if ($driverUser) {
+                $driverUser->update($userUpdates);
+                if (! $driverUser->hasRole(User::ROLE_DRIVER)) {
+                    $driverUser->assignRole(User::ROLE_DRIVER);
                 }
-            } else {
-                $existingUser = User::where('email', $email)->first();
-                if ($existingUser && ! ($existingUser->roleable instanceof Driver)) {
+            } elseif ($existingUser) {
+                if ($this->driverFromUser($existingUser)) {
+                    $existingUser->update($userUpdates);
+                    if (! $existingUser->hasRole(User::ROLE_DRIVER)) {
+                        $existingUser->assignRole(User::ROLE_DRIVER);
+                    }
+                } else {
                     SalesforceSyncLogger::info('Skipping orphan driver user attach; email already used by another role', [
                         'email' => $email,
                         'existing_roleable' => $existingUser->roleable_type,
@@ -333,17 +338,61 @@ class SalesforceSyncService
 
                     return null;
                 }
-
-                $driverUser = $driver->user()->create($userData + [
-                    'password' => Hash::make($email),
-                ]);
-                $driverUser->assignRole(User::ROLE_DRIVER);
+            } else {
+                $this->createDriverUser($driver, $userData, $email);
             }
         }
 
         $this->driverInfo[$sfId] = $driver->id;
 
         return $driver->id;
+    }
+
+    protected function createDriverUser(Driver $driver, array $userData, string $email): ?User
+    {
+        $existing = User::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        try {
+            $driverUser = $driver->user()->create($userData + [
+                'password' => Hash::make($email),
+            ]);
+            $driverUser->assignRole(User::ROLE_DRIVER);
+
+            return $driverUser;
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ((string) $e->getCode() !== '23000') {
+                throw $e;
+            }
+
+            SalesforceSyncLogger::info('Driver user already exists; skipped duplicate insert', [
+                'email' => $email,
+                'driver_id' => $driver->id,
+            ]);
+
+            return User::query()
+                ->whereRaw('LOWER(email) = ?', [$email])
+                ->first();
+        }
+    }
+
+    protected function driverFromUser(User $user): ?Driver
+    {
+        if (! $user->roleable_id) {
+            return null;
+        }
+
+        $type = ltrim((string) $user->roleable_type, '\\');
+        if ($type !== Driver::class && $type !== 'App\\Models\\Driver') {
+            return null;
+        }
+
+        return Driver::withoutGlobalScopes()->find($user->roleable_id);
     }
 
     protected function syncAttorney(array $record): ?int
