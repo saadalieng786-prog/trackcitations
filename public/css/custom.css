@@ -362,6 +362,21 @@ body {
   margin-bottom: 20px;
 }
 
+/* Indicator radios use text-white when selected, but .card forces a white
+   background, which hides labels like "Received". Keep those labels dark. */
+.card.p-3:has(.form-check-input) {
+  color: #0f172a !important;
+}
+.card.p-3:has(.form-check-input) label,
+.card.p-3:has(.form-check-input) .text-\[12px\] {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+.card.p-3:has(.form-check-input:checked) {
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
 .card-header {
   background: #ffffff !important;
   border-bottom: 1px solid var(--tc-border-subtle) !important;
