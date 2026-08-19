@@ -101,10 +101,13 @@ class SalesforceSyncService
         // Companies
         $companies = DB::table('companies')
             ->whereIn('sf_id', array_keys($this->companyIds))
+            ->orderBy('id')
             ->get(['id', 'sf_id']);
 
         foreach ($companies as $company) {
-            $this->companyIds[$company->sf_id] = $company->id;
+            if (($this->companyIds[$company->sf_id] ?? null) === null) {
+                $this->companyIds[$company->sf_id] = $company->id;
+            }
         }
 
         // Attorneys
@@ -212,46 +215,97 @@ class SalesforceSyncService
             'sf_id' => $accountId,
         ];
 
-        if (($this->companyIds[$accountId] ?? null) === null) {
-            $company = Company::create($companyData);
-
-            if (filled($managerEmail)) {
-                $managerUser = User::where('email', $managerEmail)->first();
-                if ($managerUser && $managerUser->roleable instanceof Manager) {
-                    $manager = $managerUser->roleable;
-                } elseif (! $managerUser) {
-                    $manager = Manager::create([]);
-                    $user = $manager->user()->create($managerData);
-                    $user->assignRole(User::ROLE_COMPANY_ADMIN);
-                } else {
-                    SalesforceSyncLogger::info('Skipping manager create; email already used by another role', [
-                        'email' => $managerEmail,
-                        'existing_roleable' => $managerUser->roleable_type,
-                        'account_id' => $accountId,
-                    ]);
-                    $manager = null;
-                }
-
-                if ($manager) {
-                    $manager->companies()->syncWithoutDetaching([
-                        $company->id => ['is_write_access' => true],
-                    ]);
-                }
-            } else {
-                SalesforceSyncLogger::info('Company synced without manager user (no Account email fields)', [
-                    'account_id' => $accountId,
-                    'company_id' => $company->id,
-                ]);
-            }
-
-            $this->companyIds[$accountId] = $company->id;
-        } else {
-            DB::table('companies')
-                ->where('id', $this->companyIds[$accountId])
-                ->update($companyData);
+        $existingId = $this->companyIds[$accountId] ?? null;
+        if (! $existingId) {
+            $existingId = $this->findExistingCompanyId($accountId, $companyData);
         }
 
-        return $this->companyIds[$accountId];
+        if (! $existingId) {
+            $company = Company::create($companyData);
+            $existingId = $company->id;
+            $this->attachCompanyManager($existingId, $managerEmail, $managerData, $accountId);
+        } else {
+            DB::table('companies')->where('id', $existingId)->update($companyData);
+        }
+
+        $this->companyIds[$accountId] = $existingId;
+
+        return $existingId;
+    }
+
+    protected function findExistingCompanyId(string $accountId, array $companyData): ?int
+    {
+        $bySfId = DB::table('companies')
+            ->where('sf_id', $accountId)
+            ->orderBy('id')
+            ->value('id');
+        if ($bySfId) {
+            return (int) $bySfId;
+        }
+
+        $dot = trim((string) ($companyData['dot'] ?? ''));
+        if ($dot !== '') {
+            $byDot = DB::table('companies')
+                ->where('dot', $dot)
+                ->where(function ($query) {
+                    $query->whereNull('sf_id')->orWhere('sf_id', '');
+                })
+                ->orderBy('id')
+                ->value('id');
+            if ($byDot) {
+                return (int) $byDot;
+            }
+        }
+
+        $name = trim((string) ($companyData['name'] ?? ''));
+        if ($name !== '') {
+            $byName = DB::table('companies')
+                ->whereRaw('LOWER(name) = ?', [strtolower($name)])
+                ->where(function ($query) {
+                    $query->whereNull('sf_id')->orWhere('sf_id', '');
+                })
+                ->orderBy('id')
+                ->value('id');
+            if ($byName) {
+                return (int) $byName;
+            }
+        }
+
+        return null;
+    }
+
+    protected function attachCompanyManager(int $companyId, ?string $managerEmail, array $managerData, string $accountId): void
+    {
+        if (! filled($managerEmail)) {
+            SalesforceSyncLogger::info('Company synced without manager user (no Account email fields)', [
+                'account_id' => $accountId,
+                'company_id' => $companyId,
+            ]);
+
+            return;
+        }
+
+        $managerUser = User::where('email', $managerEmail)->first();
+        if ($managerUser && $managerUser->roleable instanceof Manager) {
+            $manager = $managerUser->roleable;
+        } elseif (! $managerUser) {
+            $manager = Manager::create([]);
+            $user = $manager->user()->create($managerData);
+            $user->assignRole(User::ROLE_COMPANY_ADMIN);
+        } else {
+            SalesforceSyncLogger::info('Skipping manager create; email already used by another role', [
+                'email' => $managerEmail,
+                'existing_roleable' => $managerUser->roleable_type,
+                'account_id' => $accountId,
+            ]);
+            $manager = null;
+        }
+
+        if ($manager) {
+            $manager->companies()->syncWithoutDetaching([
+                $companyId => ['is_write_access' => true],
+            ]);
+        }
     }
 
     protected function syncDriver(array $record, int $companyId): ?int
@@ -577,6 +631,7 @@ class SalesforceSyncService
 
         return Company::query()
             ->where('sf_id', $parentSfId)
+            ->orderBy('id')
             ->value('id');
     }
 
