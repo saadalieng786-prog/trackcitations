@@ -116,8 +116,9 @@ class SalesforceSyncService
             $this->attorneyInfo[$lawyer->email] = $lawyer->id;
         }
 
-        // Tickets
-        $tickets = Ticket::whereIn('sf_id', array_keys($this->ticketIds))
+        // Tickets — ignore company session scope so re-sync cannot create duplicates
+        $tickets = Ticket::withoutGlobalScopes()
+            ->whereIn('sf_id', array_keys($this->ticketIds))
             ->get(['id', 'sf_id']);
 
         foreach ($tickets as $ticket) {
@@ -476,22 +477,64 @@ class SalesforceSyncService
             'attorney_response' => $record['Attorney_response__c'],
             'road_side_inspection_results' => $record['Dispo_Results_From_Attorney__c'],
             'is_approved' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
             'updated_by' => 'admin',
             'status' => 1,
             'violation_id' => 208,
         ];
 
-        if ($this->ticketIds[$sfId] === null) {
-            $ticket = Ticket::create($ticketMapped);
+        $existingId = $this->ticketIds[$sfId] ?? null;
+        if (! $existingId) {
+            $existingId = $this->findExistingTicketId($ticketMapped, $sfId, $companyId);
+        }
+
+        if (! $existingId) {
+            $ticket = Ticket::withoutGlobalScopes()->create($ticketMapped);
             $this->ticketIds[$sfId] = $ticket->id;
         } else {
-            Ticket::where('id', $this->ticketIds[$sfId])
+            Ticket::withoutGlobalScopes()
+                ->where('id', $existingId)
                 ->update($ticketMapped);
+            $this->ticketIds[$sfId] = $existingId;
         }
 
         return $this->ticketIds[$sfId];
+    }
+
+    protected function findExistingTicketId(array $ticketMapped, string $sfId, int $companyId): ?int
+    {
+        $bySfId = Ticket::withoutGlobalScopes()
+            ->where('sf_id', $sfId)
+            ->value('id');
+        if ($bySfId) {
+            return (int) $bySfId;
+        }
+
+        $ticketNumber = trim((string) ($ticketMapped['ticket_number'] ?? ''));
+        if ($ticketNumber !== '') {
+            $byNumber = Ticket::withoutGlobalScopes()
+                ->where('ticket_number', $ticketNumber)
+                ->when($companyId, fn ($query) => $query->where('company_id', $companyId))
+                ->value('id');
+            if ($byNumber) {
+                return (int) $byNumber;
+            }
+        }
+
+        $email = strtolower(trim((string) ($ticketMapped['user_email'] ?? '')));
+        $issued = $ticketMapped['date_issued'] ?? null;
+        if ($email !== '' && $issued) {
+            $byEmailDate = Ticket::withoutGlobalScopes()
+                ->whereRaw('LOWER(user_email) = ?', [$email])
+                ->whereDate('date_issued', $issued)
+                ->when($companyId, fn ($query) => $query->where('company_id', $companyId))
+                ->when($ticketNumber !== '', fn ($query) => $query->where('ticket_number', $ticketNumber))
+                ->value('id');
+            if ($byEmailDate) {
+                return (int) $byEmailDate;
+            }
+        }
+
+        return null;
     }
 
     protected function syncCompanyHierarchy(): void
