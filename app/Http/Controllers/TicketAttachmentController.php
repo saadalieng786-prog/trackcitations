@@ -72,7 +72,7 @@ class TicketAttachmentController extends Controller
                     continue;
                 }
 
-                if (Storage::disk($tryDisk)->exists($relativePath)) {
+                if ($this->diskHasFile($tryDisk, $relativePath)) {
                     return [$tryDisk, $relativePath, $filename];
                 }
             } catch (\Throwable $e) {
@@ -80,11 +80,24 @@ class TicketAttachmentController extends Controller
             }
         }
 
-        if (filter_var($ticketAttachment->path, FILTER_VALIDATE_URL)) {
-            abort(404, 'Attachment file was not found in storage.');
+        abort(404, 'Attachment file was not found in storage.');
+    }
+
+    protected function diskHasFile(string $disk, string $relativePath): bool
+    {
+        if (Storage::disk($disk)->exists($relativePath)) {
+            return true;
         }
 
-        abort(404, 'Attachment file was not found in storage.');
+        if (config("filesystems.disks.{$disk}.driver") !== 's3') {
+            return false;
+        }
+
+        try {
+            return Storage::disk($disk)->size($relativePath) > 0;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
