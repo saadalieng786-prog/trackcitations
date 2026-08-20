@@ -585,7 +585,12 @@
                                             </td>
                                             <td class="text-right">
                                                 <!-- Link to trigger the preview -->
-                                                <a href="#" data-file="{{ $attachment->preview_url }}" data-filename="{{ $attachment->filename }}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
+                                                <a href="#"
+                                                   data-file="{{ url('/ticket-attachments/'.$attachment->id.'/preview') }}"
+                                                   data-attachment-id="{{ $attachment->id }}"
+                                                   data-filename="{{ $attachment->filename }}"
+                                                   data-filetype="{{ $attachment->preview_type }}"
+                                                   class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
                                                     <i class="ti ti-eye text-warning text-lg leading-none"></i>
                                                 </a>
                                                 <a href="{{ $attachment->url }}"
@@ -730,21 +735,21 @@
     </div>
     <!-- Modal Structure (Using Your Modal from the Template) -->
     <div id="exampleModalLive" class="modal fade hidden">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
+        <div class="modal-dialog modal-fullscreen tc-preview-dialog">
+            <div class="modal-content tc-preview-content">
                 <!-- Modal Header -->
-                <div class="modal-header">
+                <div class="modal-header shrink-0">
                     <h5 class="modal-title">File Preview</h5>
                     <button data-pc-modal-dismiss="#exampleModalLive" class="text-lg flex items-center justify-center rounded w-7 h-7 text-secondary-500 hover:bg-danger-500/10 hover:text-danger-500">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
                 <!-- Modal Body -->
-                <div id="modalBody" class="modal-body p-4">
+                <div id="modalBody" class="modal-body tc-preview-body p-2 sm:p-4">
                     <!-- Preview content will be loaded here -->
                 </div>
                 <!-- Modal Footer -->
-                <div class="modal-footer p-4 border-t">
+                <div class="modal-footer p-3 sm:p-4 border-t shrink-0">
                     <button type="button" class="btn btn-secondary px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600" data-pc-modal-dismiss="#exampleModalLive">Close</button>
                 </div>
             </div>
@@ -795,7 +800,7 @@
                         </div>
                     </td>
                     <td class="text-right">
-                        <a href="#" data-file="${attachmentResponse.preview_url || attachmentResponse.url}" data-filename="${file.name}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
+                        <a href="#" data-file="${attachmentResponse.preview_url || ('/ticket-attachments/' + attachmentResponse.id + '/preview')}" data-attachment-id="${attachmentResponse.id}" data-filename="${file.name}" data-filetype="${(file.name.split('.').pop() || 'unknown').toLowerCase()}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary preview-link">
                             <i class="ti ti-eye text-warning text-lg leading-none"></i>
                         </a>
                         <a href="${attachmentResponse.url || attachmentResponse.path}" class="w-9 h-9 rounded-xl inline-flex items-center justify-center btn-link-secondary" download>
@@ -1001,28 +1006,19 @@
             const modalBody = document.getElementById('modalBody');
             if (previewBtn) {
                 e.preventDefault();
-                const filePath = previewBtn.getAttribute('data-file');
+                const attachmentId = previewBtn.getAttribute('data-attachment-id');
+                const filePath = attachmentId
+                    ? ('/ticket-attachments/' + attachmentId + '/preview')
+                    : (previewBtn.getAttribute('data-file') || '').replace('/download', '/preview');
                 const fileName = previewBtn.getAttribute('data-filename') || filePath;
-                const fileType = fileName.split('.').pop().toLowerCase();
+                const declaredType = (previewBtn.getAttribute('data-filetype') || '').toLowerCase();
 
-                // Clear previous content
-                modalBody.innerHTML = '';
-
-                if (fileType === 'pdf') {
-                    // Use PDF.js to render the PDF
-                    renderPdf(filePath, modalBody);
-                } else if (fileType.match(/(jpg|jpeg|png|gif)$/)) {
-                    modalBody.innerHTML = `<img src="${filePath}" alt="Preview" class="max-w-full h-auto mx-auto">`;
-                } else if (fileType.match(/(doc|docx)$/)) {
-                    modalBody.innerHTML = `<iframe src="https://docs.google.com/gview?url=${filePath}&embedded=true" class="w-full h-full border-none mx-auto"></iframe>`;
-                } else {
-                    modalBody.innerHTML = `<p class="text-gray-700">Preview not available for this file type.</p>`;
-                }
-
-                // Show the modal
+                modalBody.innerHTML = '<p class="text-gray-500 text-center py-8">Loading preview...</p>';
                 modal.classList.add('animate');
                 modal.classList.remove('hidden');
                 modal.classList.add('show');
+
+                openAttachmentPreview(filePath, fileName, declaredType, modalBody);
             }
 
             let closePreviewBtn = e.target.closest('[data-pc-modal-dismiss="#exampleModalLive"]');
@@ -1036,32 +1032,83 @@
                 modal.classList.add('hidden');
             }
         })
-        function renderPdf(url, container) {
-            // Initialize PDF.js
-            pdfjsLib.getDocument(url).promise.then(pdf => {
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    pdf.getPage(pageNum).then(page => {
-                        const canvas = document.createElement('canvas');
-                        canvas.classList.add('mx-auto');
-                        const context = canvas.getContext('2d');
-                        container.appendChild(canvas);
 
-                        const viewport = page.getViewport({ scale: 1.5 });
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
+        function extensionFromName(name) {
+            const clean = (name || '').split('?')[0];
+            const ext = clean.includes('.') ? clean.split('.').pop().toLowerCase() : '';
+            if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'doc', 'docx'].includes(ext)) {
+                return ext === 'jpeg' ? 'jpg' : ext;
+            }
+            return '';
+        }
 
-                        const renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                        };
+        function sniffBytes(bytes) {
+            if (!bytes || bytes.length < 4) return '';
+            if (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) return 'pdf';
+            if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return 'jpg';
+            if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return 'png';
+            if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) return 'gif';
+            if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return 'webp';
+            return '';
+        }
 
-                        page.render(renderContext);
-                    });
+        function mimeForType(type) {
+            if (type === 'pdf') return 'application/pdf';
+            if (type === 'jpg' || type === 'jpeg') return 'image/jpeg';
+            if (type === 'png') return 'image/png';
+            if (type === 'gif') return 'image/gif';
+            if (type === 'webp') return 'image/webp';
+            return 'application/octet-stream';
+        }
+
+        async function openAttachmentPreview(url, fileName, declaredType, container) {
+            if (!url || url.includes('digitaloceanspaces.com') || url.includes('amazonaws.com')) {
+                container.innerHTML = `<p class="text-red-500 text-center py-8">Preview URL is invalid. Please download the file instead.</p>`;
+                return;
+            }
+            url = url.replace('/download', '/preview');
+
+            try {
+                const res = await fetch(url, { credentials: 'same-origin', redirect: 'manual' });
+                if (!res.ok || res.type === 'opaqueredirect') {
+                    throw new Error('Preview stream unavailable');
                 }
-            }).catch(error => {
-                console.error('Error loading PDF:', error);
-                container.innerHTML = `<p class="text-red-500">Failed to load PDF. Please download the file instead.</p>`;
-            });
+
+                const buffer = await res.arrayBuffer();
+                const header = new Uint8Array(buffer.slice(0, 16));
+                let fileType = sniffBytes(header)
+                    || extensionFromName(fileName)
+                    || (declaredType === 'jpeg' ? 'jpg' : (declaredType || ''))
+                    || 'unknown';
+
+                const mime = mimeForType(fileType);
+                const objectUrl = URL.createObjectURL(new Blob([buffer], { type: mime }));
+
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
+                    container.innerHTML = `<div class="tc-preview-wrap"><img src="${objectUrl}" alt="Preview" class="tc-preview-image"></div>`;
+                    return;
+                }
+
+                if (fileType === 'pdf') {
+                    container.innerHTML = `<iframe src="${objectUrl}#toolbar=1&navpanes=0&zoom=page-width" class="tc-preview-frame" title="PDF preview"></iframe>`;
+                    return;
+                }
+
+                if (['doc', 'docx'].includes(fileType)) {
+                    URL.revokeObjectURL(objectUrl);
+                    container.innerHTML = `<p class="text-gray-700 text-center py-8">Word documents cannot be previewed securely. Please download the file instead.</p>`;
+                    return;
+                }
+
+                const imageUrl = URL.createObjectURL(new Blob([buffer], { type: 'image/jpeg' }));
+                container.innerHTML = `<div class="tc-preview-wrap">
+                    <img src="${imageUrl}" alt="Preview" class="tc-preview-image"
+                         onerror="this.parentElement.innerHTML='<iframe src=\\'${objectUrl}#zoom=page-width\\' class=\\'tc-preview-frame\\' title=\\'File preview\\'></iframe>';">
+                </div>`;
+            } catch (err) {
+                console.error('Preview failed:', err);
+                container.innerHTML = `<iframe src="${url}" class="tc-preview-frame" title="File preview"></iframe>`;
+            }
         }
     </script>
 @endsection
@@ -1076,9 +1123,75 @@
         .marker {
             width: 24px;
             height: 24px;
-            background-image: url('https://cdn-icons-png.flaticon.com/512/684/684908.png'); /* Example icon */
+            background-image: url('https://cdn-icons-png.flaticon.com/512/684/684908.png');
             background-size: cover;
-            transform: translate(-50%, -100%); /* Offset to place the point at the tip of the icon */
+            transform: translate(-50%, -100%);
+        }
+
+        #exampleModalLive.modal,
+        #exampleModalLive .tc-preview-dialog {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+        }
+
+        #exampleModalLive .tc-preview-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+        }
+
+        #exampleModalLive .tc-preview-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            background: #f1f5f9;
+        }
+
+        #exampleModalLive .tc-preview-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: calc(100dvh - 9rem);
+            padding: 0.75rem;
+        }
+
+        #exampleModalLive .tc-preview-image {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: calc(100dvh - 10rem);
+            object-fit: contain;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+        }
+
+        #exampleModalLive .tc-preview-frame {
+            display: block;
+            width: 100%;
+            height: calc(100dvh - 9rem);
+            min-height: 60vh;
+            border: 0;
+            background: #fff;
+        }
+
+        @media (max-width: 640px) {
+            #exampleModalLive .tc-preview-wrap {
+                min-height: calc(100dvh - 8rem);
+                padding: 0.5rem;
+            }
+            #exampleModalLive .tc-preview-image {
+                max-height: calc(100dvh - 8.5rem);
+            }
+            #exampleModalLive .tc-preview-frame {
+                height: calc(100dvh - 8rem);
+            }
         }
     </style>
 @endsection

@@ -1,8 +1,4 @@
 <?php
-/*
- * Copyright © 2024 Mohamed A. Shehata (elza3ym@icloud.com)
- * All rights reserved.
- */
 
 namespace App\Http\Controllers;
 
@@ -18,11 +14,31 @@ class TicketAttachmentController extends Controller
     public function preview(TicketAttachment $ticketAttachment)
     {
         [$disk, $relativePath, $filename] = $this->resolveAttachmentFile($ticketAttachment);
+        $mime = $this->guessMimeType($disk, $relativePath, $filename, $ticketAttachment);
+
+        // Keep a usable download/preview name when Salesforce Title has no extension.
+        $downloadName = $filename;
+        if (! pathinfo($downloadName, PATHINFO_EXTENSION)) {
+            $ext = match (true) {
+                str_contains($mime, 'pdf') => 'pdf',
+                str_contains($mime, 'jpeg') => 'jpg',
+                str_contains($mime, 'png') => 'png',
+                str_contains($mime, 'gif') => 'gif',
+                str_contains($mime, 'webp') => 'webp',
+                default => null,
+            };
+            if ($ext) {
+                $downloadName .= '.'.$ext;
+            }
+        }
 
         return Storage::disk($disk)->response(
             $relativePath,
-            $filename,
-            [],
+            $downloadName,
+            [
+                'Content-Type' => $mime,
+                'Content-Disposition' => 'inline; filename="'.$downloadName.'"',
+            ],
             'inline'
         );
     }
@@ -98,6 +114,57 @@ class TicketAttachmentController extends Controller
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    protected function guessMimeType(string $disk, string $relativePath, string $filename, TicketAttachment $attachment): string
+    {
+        $type = $attachment->preview_type;
+        $map = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+        if (isset($map[$type])) {
+            return $map[$type];
+        }
+
+        try {
+            $mime = Storage::disk($disk)->mimeType($relativePath);
+            if (is_string($mime) && $mime !== '' && $mime !== 'application/octet-stream' && $mime !== 'binary/octet-stream') {
+                return $mime;
+            }
+        } catch (\Throwable) {
+        }
+
+        try {
+            $stream = Storage::disk($disk)->readStream($relativePath);
+            if (is_resource($stream)) {
+                $header = fread($stream, 16) ?: '';
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+                if (str_starts_with($header, '%PDF')) {
+                    return 'application/pdf';
+                }
+                if (str_starts_with($header, "\xFF\xD8\xFF")) {
+                    return 'image/jpeg';
+                }
+                if (str_starts_with($header, "\x89PNG")) {
+                    return 'image/png';
+                }
+                if (str_starts_with($header, 'GIF8')) {
+                    return 'image/gif';
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        return 'application/octet-stream';
     }
 
     /**
