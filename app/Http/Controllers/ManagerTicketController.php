@@ -235,7 +235,7 @@ class ManagerTicketController extends TicketController
             'processor_notes_to_attorney' => '',
         ]);
         // Create a new Ticket record with the validated data
-        $ticket->update($request->only([
+        $ticket->update(array_merge($request->only([
             'user_email',
             'phone',
             'name',
@@ -261,6 +261,8 @@ class ManagerTicketController extends TicketController
             'processor_email',
             'processor_ph_number',
             'processor_notes_to_attorney',
+        ]), [
+            'ticket_number' => $request->input('citation_no'),
         ]));
 
         return redirect()->route(auth()->user()->portalRoutePrefix().'.tickets.edit', $ticket->id)->with('success', 'Ticket updated successfully.');

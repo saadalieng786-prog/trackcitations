@@ -314,6 +314,7 @@ class AdminTicketController extends TicketController
         $ticket->vehicle_lic_no = $request->input('vehicle_lic_no');
         $ticket->violation_id = $request->input('violation_id');
         $ticket->citation_no = $request->input('citation_no');
+        $ticket->ticket_number = $request->input('citation_no');
         $ticket->ticket_type = $request->input('ticket_type');
         $ticket->court_name = $request->input('court_name');
         $ticket->court_date = $request->input('court_date');

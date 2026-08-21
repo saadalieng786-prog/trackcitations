@@ -1,8 +1,4 @@
 <?php
-/*
- * Copyright © 2024 Mohamed A. Shehata (elza3ym@icloud.com)
- * All rights reserved.
- */
 
 namespace App\Models;
 
@@ -155,6 +151,50 @@ class Ticket extends Model
     {
         return $this->hasMany(TicketAttachment::class);
     }
+
+    /**
+     * Unique attachments for UI (same filename from Attachment + Files sync = one row).
+     * Keeps the newest record for each normalized filename.
+     */
+    public function displayAttachments(): Collection
+    {
+        $attachments = $this->relationLoaded('attachments')
+            ? $this->attachments
+            : $this->attachments()->get();
+
+        return $attachments
+            ->sortByDesc(fn (TicketAttachment $attachment) => [
+                optional($attachment->sf_last_modified_date)->timestamp ?? 0,
+                (int) $attachment->id,
+            ])
+            ->unique(function (TicketAttachment $attachment) {
+                $name = strtolower(trim((string) $attachment->filename));
+
+                return $name !== '' ? $name : 'id:'.$attachment->id;
+            })
+            ->sortBy(fn (TicketAttachment $attachment) => strtolower((string) $attachment->filename))
+            ->values();
+    }
+
+    /**
+     * Citation Number in UI/sync display.
+     * Prefer Salesforce Ticket_Number__c (ticket_number); fall back to stored citation_no.
+     */
+    protected function citationNo(): Attribute
+    {
+        return Attribute::make(
+            get: function (?string $value) {
+                $ticketNumber = trim((string) ($this->attributes['ticket_number'] ?? ''));
+                if ($ticketNumber !== '') {
+                    return $ticketNumber;
+                }
+
+                return $value;
+            },
+            set: fn (?string $value) => ['citation_no' => $value],
+        );
+    }
+
     public function notes()
     {
         if (auth()->check() && auth()->user()->isInternalAdmin()) {

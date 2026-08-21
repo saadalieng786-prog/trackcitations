@@ -1,8 +1,4 @@
 <?php
-/*
- * Copyright © 2024 Mohamed A. Shehata (elza3ym@icloud.com)
- * All rights reserved.
- */
 
 namespace App\Http\Controllers;
 
@@ -214,6 +210,238 @@ class CompanyController extends Controller
     }
 
     /**
+     * Server-side drivers table for company show/edit (handles large fleets).
+     */
+    public function driversData(Request $request, Company $company)
+    {
+        $this->authorize('view', $company);
+
+        $portal = $request->user()->portalRoutePrefix();
+        $driverType = Driver::class;
+        $length = max(1, min(50, (int) $request->input('length', 25)));
+        $start = max(0, (int) $request->input('start', 0));
+        $search = trim((string) data_get($request->input('search'), 'value', ''));
+        $orderDir = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $base = Driver::withoutGlobalScopes()
+            ->from('drivers')
+            ->join('users', function ($join) use ($driverType) {
+                $join->on('users.roleable_id', '=', 'drivers.id')
+                    ->where('users.roleable_type', '=', $driverType);
+            })
+            ->where('drivers.company_id', $company->id);
+
+        $recordsTotal = (int) (clone $base)->toBase()->distinct()->count('drivers.id');
+
+        $query = (clone $base)->select([
+            'drivers.id',
+            'users.name as user_name',
+            'users.email as user_email',
+            'users.city as user_city',
+            'users.state as user_state',
+            'users.last_login_at as user_last_login_at',
+        ]);
+
+        if ($search !== '') {
+            $like = "%{$search}%";
+            $query->where(function ($inner) use ($like) {
+                $inner->where('users.name', 'like', $like)
+                    ->orWhere('users.email', 'like', $like)
+                    ->orWhere('users.city', 'like', $like)
+                    ->orWhere('users.state', 'like', $like);
+            });
+            $recordsFiltered = (int) (clone $query)->toBase()->distinct()->count('drivers.id');
+        } else {
+            $recordsFiltered = $recordsTotal;
+        }
+
+        $drivers = $query
+            ->orderBy('drivers.id', $orderDir)
+            ->offset($start)
+            ->limit($length)
+            ->get();
+
+        $emails = $drivers
+            ->pluck('user_email')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $driverTicketStats = collect();
+        if ($emails->isNotEmpty()) {
+            // Fast counts only (no REGEXP / points SQL) for the current page emails.
+            $driverTicketStats = Ticket::withoutGlobalScopes()
+                ->where('company_id', $company->id)
+                ->whereIn('user_email', $emails->all())
+                ->select([
+                    'user_email',
+                    DB::raw('SUM(CASE WHEN status IS NULL OR status NOT IN ('.Ticket::TICKET_STATUS_ARCHIVED.','.Ticket::TICKET_STATUS_CLOSED.') THEN 1 ELSE 0 END) as open_count'),
+                    DB::raw('SUM(CASE WHEN status = '.Ticket::TICKET_STATUS_CLOSED.' THEN 1 ELSE 0 END) as closed_count'),
+                    DB::raw('COALESCE(SUM(GREATEST(0, COALESCE(CAST(NULLIF(total_dver_points__c, \'\') AS DECIMAL(10,2)), 0) - COALESCE(CAST(NULLIF(total_dver_points_removed__c, \'\') AS DECIMAL(10,2)), 0))), 0) as points_saved'),
+                ])
+                ->groupBy('user_email')
+                ->get()
+                ->keyBy(fn ($row) => (string) $row->user_email);
+        }
+
+        $rows = $drivers->values()->map(function ($driver, int $index) use ($start, $portal, $driverTicketStats) {
+            $email = (string) ($driver->user_email ?? '');
+            $stats = $driverTicketStats->get($email);
+            $name = $driver->user_name ?: 'Unnamed driver';
+            $editUrl = route($portal.'.drivers.edit', $driver->id);
+
+            return [
+                'row_number' => $start + $index + 1,
+                'name_html' => '<a href="'.e($editUrl).'" class="font-semibold text-indigo-600 hover:underline">'.e($name).'</a>'
+                    .'<div class="text-xs text-slate-400">'.e($email).'</div>',
+                'driver_name' => '<a href="'.e($editUrl).'" class="font-medium text-primary">'.e($name).'</a>',
+                'email' => e($email !== '' ? $email : '—'),
+                'state' => e((string) ($driver->user_state ?: '—')),
+                'city' => e((string) ($driver->user_city ?: '—')),
+                'open_tickets' => (int) ($stats->open_count ?? 0),
+                'closed_tickets' => (int) ($stats->closed_count ?? 0),
+                'points_saved' => number_format((float) ($stats->points_saved ?? 0), 1),
+                'last_access' => $driver->user_last_login_at
+                    ? e(\Carbon\Carbon::parse($driver->user_last_login_at)->format('M j, Y g:i A'))
+                    : '—',
+                'status_html' => $email !== ''
+                    ? '<span class="badge bg-success-50 text-success">Portal Access</span>'
+                    : '<span class="badge bg-warning-50 text-warning">No Login</span>',
+                'action' => '<a href="'.e($editUrl).'" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit driver"><i class="ti ti-pencil text-xl leading-none"></i></a>',
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->input('draw'),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $rows,
+        ]);
+    }
+
+    /**
+     * Server-side tickets table for company show/edit (handles large fleets).
+     */
+    public function ticketsData(Request $request, Company $company)
+    {
+        $this->authorize('view', $company);
+
+        $portal = $request->user()->portalRoutePrefix();
+        $driverType = Driver::class;
+        $length = max(1, min(50, (int) $request->input('length', 25)));
+        $start = max(0, (int) $request->input('start', 0));
+        $search = trim((string) data_get($request->input('search'), 'value', ''));
+        $orderDir = strtolower((string) data_get($request->input('order'), '0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $base = Ticket::withoutGlobalScopes()
+            ->where('company_id', $company->id);
+
+        $recordsTotal = (int) (clone $base)->count();
+
+        $query = (clone $base)->select([
+            'id',
+            'ticket_number',
+            'name',
+            'user_email',
+            'date_issued',
+            'state',
+            'status',
+            'indicator',
+            'total_dver_points__c',
+            'total_dver_points_removed__c',
+        ]);
+
+        if ($search !== '') {
+            $like = "%{$search}%";
+            $query->where(function ($inner) use ($like, $search) {
+                if (ctype_digit($search)) {
+                    $inner->where('id', (int) $search);
+                }
+                $inner->orWhere('ticket_number', 'like', $like)
+                    ->orWhere('citation_no', 'like', $like)
+                    ->orWhere('name', 'like', $like)
+                    ->orWhere('user_email', 'like', $like)
+                    ->orWhere('state', 'like', $like)
+                    ->orWhere('indicator', 'like', $like);
+            });
+            $recordsFiltered = (int) (clone $query)->count();
+        } else {
+            $recordsFiltered = $recordsTotal;
+        }
+
+        $tickets = $query
+            ->orderBy('id', $orderDir)
+            ->offset($start)
+            ->limit($length)
+            ->get();
+
+        $emails = $tickets
+            ->pluck('user_email')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $driversByEmail = collect();
+        if ($emails->isNotEmpty()) {
+            $driversByEmail = DB::table('users')
+                ->join('drivers', function ($join) use ($driverType) {
+                    $join->on('drivers.id', '=', 'users.roleable_id')
+                        ->where('users.roleable_type', '=', $driverType);
+                })
+                ->where('drivers.company_id', $company->id)
+                ->whereIn('users.email', $emails->all())
+                ->select(['users.email', 'drivers.id as driver_id', 'users.name as driver_name'])
+                ->get()
+                ->keyBy(fn ($row) => (string) $row->email);
+        }
+
+        $rows = $tickets->map(function (Ticket $ticket) use ($portal, $driversByEmail) {
+            $email = (string) ($ticket->user_email ?? '');
+            $linked = $driversByEmail->get($email);
+            $driverName = $ticket->name ?: ($linked->driver_name ?? '—');
+            $statusLabel = match ((int) ($ticket->status ?? -1)) {
+                Ticket::TICKET_STATUS_CLOSED => 'Closed',
+                Ticket::TICKET_STATUS_ARCHIVED => 'Archived',
+                default => 'Open',
+            };
+            $indicator = $ticket->indicator ?: '—';
+            $showUrl = route($portal.'.tickets.show', $ticket->id);
+
+            $ticketHtml = '<a href="'.e($showUrl).'" class="font-semibold text-indigo-600 hover:underline">#'.e((string) $ticket->id).'</a>';
+            if ($ticket->ticket_number) {
+                $ticketHtml .= '<div class="text-xs text-slate-400">'.e((string) $ticket->ticket_number).'</div>';
+            }
+
+            if ($linked) {
+                $driverHtml = '<a href="'.e(route($portal.'.drivers.edit', $linked->driver_id)).'" class="font-medium text-indigo-600 hover:underline">'.e($driverName).'</a>';
+            } else {
+                $driverHtml = e($driverName);
+            }
+
+            return [
+                'ticket_html' => $ticketHtml,
+                'driver_html' => $driverHtml,
+                'date_received' => $ticket->date_issued
+                    ? e(\Carbon\Carbon::parse($ticket->date_issued)->format('M j, Y'))
+                    : '—',
+                'state' => e((string) ($ticket->state ?: '—')),
+                'status_html' => '<div>'.e($statusLabel).'</div><div class="text-xs text-slate-400">'.e($indicator).'</div>',
+                'original_points' => number_format((float) $ticket->original_points_value, 1),
+                'final_points' => number_format((float) $ticket->final_points_value, 1),
+                'points_saved' => number_format((float) $ticket->points_saved, 1),
+                'action' => '<a href="'.e($showUrl).'" class="w-8 h-8 rounded-xl inline-flex items-center justify-center btn-link-secondary" title="View ticket"><i class="ti ti-eye text-lg"></i></a>',
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->input('draw'),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $rows,
+        ]);
+    }
+
+    /**
      * Shared payload for company overview / edit relationship tabs.
      */
     protected function companyOverviewData(Company $company): array
@@ -225,53 +453,38 @@ class CompanyController extends Controller
             'contacts',
         ]);
 
-        Driver::withoutGlobalScopes()
-            ->where('company_id', $company->id)
-            ->whereDoesntHave('user')
-            ->delete();
-
-        $orphanManagerIds = Manager::query()
-            ->whereDoesntHave('user')
-            ->whereHas('companies', fn ($query) => $query->where('companies.id', $company->id))
-            ->pluck('id');
-
-        if ($orphanManagerIds->isNotEmpty()) {
-            $company->managers()->detach($orphanManagerIds);
-            Manager::query()
-                ->whereIn('id', $orphanManagerIds)
-                ->whereDoesntHave('companies')
-                ->delete();
-        }
-
-        $company->unsetRelation('managers');
-        $company->load(['managers.user']);
-
-        $companyDrivers = Driver::withoutGlobalScopes()
-            ->with('user')
+        $companyDriversCount = Driver::withoutGlobalScopes()
             ->where('company_id', $company->id)
             ->whereHas('user')
-            ->orderBy('id')
-            ->get();
+            ->count();
 
-        $driverEmails = $companyDrivers
-            ->map(fn (Driver $driver) => $driver->user?->email)
-            ->filter()
-            ->values();
-
-        $driverTicketStats = collect();
-        if ($driverEmails->isNotEmpty()) {
-            $driverTicketStats = Ticket::withoutGlobalScopes()
+            // Avoid expensive orphan sweeps on very large fleets (e.g. CDL Driver).
+        if ($companyDriversCount < 500) {
+            $orphanDriverIds = Driver::withoutGlobalScopes()
                 ->where('company_id', $company->id)
-                ->whereIn('user_email', $driverEmails)
-                ->select([
-                    'user_email',
-                    DB::raw('SUM(CASE WHEN status IS NULL OR status NOT IN ('.Ticket::TICKET_STATUS_ARCHIVED.','.Ticket::TICKET_STATUS_CLOSED.') THEN 1 ELSE 0 END) as open_count'),
-                    DB::raw('SUM(CASE WHEN status = '.Ticket::TICKET_STATUS_CLOSED.' THEN 1 ELSE 0 END) as closed_count'),
-                    DB::raw('COALESCE(SUM('.Ticket::pointsSavedSql().'), 0) as points_saved'),
-                ])
-                ->groupBy('user_email')
-                ->get()
-                ->keyBy(fn ($row) => strtolower((string) $row->user_email));
+                ->whereDoesntHave('user')
+                ->limit(200)
+                ->pluck('id');
+
+            if ($orphanDriverIds->isNotEmpty()) {
+                Driver::withoutGlobalScopes()->whereIn('id', $orphanDriverIds)->delete();
+            }
+
+            $orphanManagerIds = Manager::query()
+                ->whereDoesntHave('user')
+                ->whereHas('companies', fn ($query) => $query->where('companies.id', $company->id))
+                ->pluck('id');
+
+            if ($orphanManagerIds->isNotEmpty()) {
+                $company->managers()->detach($orphanManagerIds);
+                Manager::query()
+                    ->whereIn('id', $orphanManagerIds)
+                    ->whereDoesntHave('companies')
+                    ->delete();
+            }
+
+            $company->unsetRelation('managers');
+            $company->load(['managers.user']);
         }
 
         $childCompanyDriverCounts = Driver::withoutGlobalScopes()
@@ -280,14 +493,9 @@ class CompanyController extends Controller
             ->groupBy('company_id')
             ->pluck('drivers_count', 'company_id');
 
-        $companyTickets = Ticket::withoutGlobalScopes()
+        $companyTicketsCount = Ticket::withoutGlobalScopes()
             ->where('company_id', $company->id)
-            ->orderByDesc('id')
-            ->get();
-
-        $driversByEmail = $companyDrivers
-            ->filter(fn (Driver $driver) => filled($driver->user?->email))
-            ->keyBy(fn (Driver $driver) => strtolower((string) $driver->user->email));
+            ->count();
 
         $openTicketsCount = Ticket::withoutGlobalScopes()
             ->where('company_id', $company->id)
@@ -306,11 +514,9 @@ class CompanyController extends Controller
 
         return compact(
             'company',
-            'companyDrivers',
-            'driverTicketStats',
+            'companyDriversCount',
             'childCompanyDriverCounts',
-            'companyTickets',
-            'driversByEmail',
+            'companyTicketsCount',
             'openTicketsCount',
             'closedTicketsCount',
             'pointsSavedTotal'

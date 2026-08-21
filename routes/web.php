@@ -123,6 +123,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('tickets/{ticket}/restore', [AdminTicketController::class, 'restore'])->name('tickets.restore');
             Route::resource('tickets', AdminTicketController::class);
             Route::resource('admins', AdminController::class);
+            Route::get('companies/{company}/drivers-data', [CompanyController::class, 'driversData'])->name('companies.drivers-data');
+            Route::get('companies/{company}/tickets-data', [CompanyController::class, 'ticketsData'])->name('companies.tickets-data');
             Route::resource('companies', CompanyController::class);
             Route::resource('managers', ManagerController::class);
             Route::resource('attorneys', AttorneyController::class);
@@ -169,6 +171,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('tickets/export', [ManagerTicketController::class, 'export'])->name('tickets.export');
 
             Route::resource('tickets', ManagerTicketController::class);
+            Route::get('companies/{company}/drivers-data', [CompanyController::class, 'driversData'])->name('companies.drivers-data');
+            Route::get('companies/{company}/tickets-data', [CompanyController::class, 'ticketsData'])->name('companies.tickets-data');
             Route::resource('companies', CompanyController::class);
             Route::resource('managers', ManagerController::class);
             Route::resource('drivers', DriverController::class);

@@ -477,7 +477,7 @@
                     <div class="card-header">
     <h5 class="text-primary text-[28px] font-bold">Documents</h5>
 </div>
-                    @if (count($ticket->attachments))
+                    @if ($ticket->displayAttachments()->isNotEmpty())
                     <div class="card-body table-card">
                         <div class="table-responsive">
                             <table class="table mb-0">
@@ -488,7 +488,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($ticket->attachments as $attachment)
+                                @foreach($ticket->displayAttachments() as $attachment)
                                 <tr>
                                     <td>
                                         <div class="flex items-center">

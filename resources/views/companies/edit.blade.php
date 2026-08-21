@@ -63,7 +63,7 @@
                                 class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
                             >
                                 <i class="ti ti-steering-wheel ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
-                                Drivers ({{ $companyDrivers->count() }})
+                                Drivers ({{ number_format($companyDriversCount) }})
                             </a>
                         </li>
                         <li class="group">
@@ -74,7 +74,7 @@
                                 class="inline-flex items-center mr-6 py-4 transition-all duration-300 ease-linear border-t-2 border-b-2 border-transparent group-[.active]:text-primary-500 group-[.active]:border-b-primary-500 hover:text-primary-500 active:text-primary-500"
                             >
                                 <i class="ti ti-ticket ltr:mr-2 rtl:ml-2 text-lg leading-none"></i>
-                                Tickets ({{ $companyTickets->count() }})
+                                Tickets ({{ number_format($companyTicketsCount) }})
                             </a>
                         </li>
                         <li class="group">
@@ -218,7 +218,7 @@
                                                     @endif
                                                     <span>{{ $company->name }}</span>
                                                     <span class="mx-1 text-muted">→</span>
-                                                    <span>Drivers ({{ $companyDrivers->count() }})</span>
+                                                    <span>Drivers ({{ number_format($companyDriversCount) }})</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -243,7 +243,7 @@
                                         <div class="col-span-12 lg:col-span-4">
                                             <div class="rounded border p-4 h-full">
                                                 <p class="mb-1 text-sm text-muted">Drivers On This Company</p>
-                                                <p class="mb-0 font-semibold">{{ $companyDrivers->count() }}</p>
+                                                <p class="mb-0 font-semibold">{{ number_format($companyDriversCount) }}</p>
                                             </div>
                                         </div>
                                         <div class="col-span-12 lg:col-span-6">
@@ -413,7 +413,7 @@
                                                         <tr>
                                                             <td colspan="5" class="text-center text-muted py-4">
                                                                 No company managers linked yet.
-                                                                @if($companyDrivers->isNotEmpty())
+                                                                @if($companyDriversCount > 0)
                                                                     <span class="d-block mt-1 text-xs">
                                                                         If Salesforce Account emails match a Driver email, a separate company manager login is not created automatically. Add a manager from the Managers page, or use a different Account contact email in Salesforce.
                                                                     </span>
@@ -438,18 +438,15 @@
                             <div class="card">
                                 <div class="card-header flex flex-wrap items-center justify-between gap-3">
                                     <div>
-                                        <h5 class="text-primary text-[28px] font-bold mb-0">Drivers ({{ $companyDrivers->count() }})</h5>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Drivers ({{ number_format($companyDriversCount) }})</h5>
                                         <span class="text-muted text-sm">
                                             Drivers associated with {{ $company->name }}. Click a driver name to open the profile.
                                         </span>
                                     </div>
-                                    <div class="w-full sm:w-72">
-                                        <input type="search" id="companyDriversSearch" class="form-control" placeholder="Search drivers by name, email, city, state..." onkeydown="if(event.key==='Enter'){event.preventDefault();}" />
-                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table class="table table-hover mb-0" id="companyDriversTable">
+                                        <table class="table table-hover mb-0 yajra-datatable w-full" id="companyDriversTable" style="min-width: 1000px;">
                                             <thead>
                                             <tr>
                                                 <th>#</th>
@@ -465,68 +462,9 @@
                                                 <th class="text-center">Action</th>
                                             </tr>
                                             </thead>
-                                            <tbody>
-                                            @forelse($companyDrivers as $index => $driver)
-                                                @php
-                                                    $driverUser = $driver->user;
-                                                    $emailKey = strtolower((string) ($driverUser?->email ?? ''));
-                                                    $stats = $driverTicketStats->get($emailKey);
-                                                    $openCount = (int) ($stats->open_count ?? 0);
-                                                    $closedCount = (int) ($stats->closed_count ?? 0);
-                                                    $pointsSaved = (float) ($stats->points_saved ?? 0);
-                                                    $searchBlob = strtolower(trim(implode(' ', array_filter([
-                                                        $driverUser?->name,
-                                                        $driverUser?->email,
-                                                        $driverUser?->city,
-                                                        $driverUser?->state,
-                                                    ]))));
-                                                @endphp
-                                                <tr data-driver-search="{{ $searchBlob }}">
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>
-                                                        @if($driverUser)
-                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id) }}" class="font-medium text-primary">
-                                                                {{ $driverUser->name ?: 'Unnamed driver' }}
-                                                            </a>
-                                                        @else
-                                                            <span class="text-muted">Driver user missing</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $driverUser?->email ?: '—' }}</td>
-                                                    <td>{{ $driverUser?->state ?: '—' }}</td>
-                                                    <td>{{ $driverUser?->city ?: '—' }}</td>
-                                                    <td>{{ $openCount }}</td>
-                                                    <td>{{ $closedCount }}</td>
-                                                    <td>{{ number_format($pointsSaved, 1) }}</td>
-                                                    <td>
-                                                        @if($driverUser?->last_login_at)
-                                                            {{ \Carbon\Carbon::parse($driverUser->last_login_at)->format('M j, Y g:i A') }}
-                                                        @else
-                                                            —
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($driverUser?->email)
-                                                            <span class="badge bg-success-50 text-success">Portal Access</span>
-                                                        @else
-                                                            <span class="badge bg-warning-50 text-warning">No Login</span>
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $driver->id) }}" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="Edit driver">
-                                                            <i class="ti ti-pencil text-xl leading-none"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="11" class="text-center text-muted py-4">No drivers are linked to this company yet.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
-                                    <p id="companyDriversEmptyFilter" class="mb-0 mt-3 text-sm text-muted hidden">No drivers match your search.</p>
                                 </div>
                             </div>
                         </div>
@@ -539,18 +477,15 @@
                             <div class="card">
                                 <div class="card-header flex flex-wrap items-center justify-between gap-3">
                                     <div>
-                                        <h5 class="text-primary text-[28px] font-bold mb-0">Tickets ({{ $companyTickets->count() }})</h5>
+                                        <h5 class="text-primary text-[28px] font-bold mb-0">Tickets ({{ number_format($companyTicketsCount) }})</h5>
                                         <span class="text-muted text-sm">
                                             All tickets for {{ $company->name }}. Click a ticket or driver to open the record.
                                         </span>
                                     </div>
-                                    <div class="w-full sm:w-80">
-                                        <input type="search" id="companyTicketsSearch" class="form-control" placeholder="Search tickets by ID, driver, state, status..." onkeydown="if(event.key==='Enter'){event.preventDefault();}" />
-                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table class="table table-hover mb-0" id="companyTicketsTable">
+                                        <table class="table table-hover mb-0 yajra-datatable w-full" id="companyTicketsTable" style="min-width: 1000px;">
                                             <thead>
                                             <tr>
                                                 <th>Ticket #</th>
@@ -564,78 +499,9 @@
                                                 <th class="text-center">Action</th>
                                             </tr>
                                             </thead>
-                                            <tbody>
-                                            @forelse($companyTickets as $ticket)
-                                                @php
-                                                    $emailKey = strtolower((string) ($ticket->user_email ?? ''));
-                                                    $linkedDriver = $driversByEmail->get($emailKey);
-                                                    $driverName = $ticket->name ?: ($linkedDriver?->user?->name ?: '—');
-                                                    $statusLabel = match ((int) ($ticket->status ?? -1)) {
-                                                        \App\Models\Ticket::TICKET_STATUS_CLOSED => 'Closed',
-                                                        \App\Models\Ticket::TICKET_STATUS_ARCHIVED => 'Archived',
-                                                        \App\Models\Ticket::TICKET_STATUS_OPEN => 'Open',
-                                                        default => 'Open',
-                                                    };
-                                                    $indicator = $ticket->indicator ?: '—';
-                                                    $searchBlob = strtolower(trim(implode(' ', array_filter([
-                                                        (string) $ticket->id,
-                                                        (string) ($ticket->ticket_number ?? ''),
-                                                        (string) ($ticket->citation_no ?? ''),
-                                                        $driverName,
-                                                        $ticket->user_email,
-                                                        $ticket->state,
-                                                        $statusLabel,
-                                                        $indicator,
-                                                    ]))));
-                                                @endphp
-                                                <tr data-ticket-search="{{ $searchBlob }}">
-                                                    <td>
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id) }}" class="font-medium text-primary">
-                                                            #{{ $ticket->id }}
-                                                        </a>
-                                                        @if($ticket->ticket_number)
-                                                            <div class="text-xs text-muted">{{ $ticket->ticket_number }}</div>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($linkedDriver)
-                                                            <a href="{{ route(auth()->user()->portalRoutePrefix().'.drivers.edit', $linkedDriver->id) }}" class="font-medium text-primary">
-                                                                {{ $driverName }}
-                                                            </a>
-                                                        @else
-                                                            {{ $driverName }}
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($ticket->date_issued)
-                                                            {{ \Carbon\Carbon::parse($ticket->date_issued)->format('M j, Y') }}
-                                                        @else
-                                                            —
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $ticket->state ?: '—' }}</td>
-                                                    <td>
-                                                        <div>{{ $statusLabel }}</div>
-                                                        <div class="text-xs text-muted">{{ $indicator }}</div>
-                                                    </td>
-                                                    <td>{{ number_format((float) $ticket->original_points_value, 1) }}</td>
-                                                    <td>{{ number_format((float) $ticket->final_points_value, 1) }}</td>
-                                                    <td>{{ number_format((float) $ticket->points_saved, 1) }}</td>
-                                                    <td class="text-center">
-                                                        <a href="{{ route(auth()->user()->portalRoutePrefix().'.tickets.show', $ticket->id) }}" class="w-10 h-10 inline-flex items-center rounded-lg justify-center btn-link-primary btn-pc-default" title="View ticket">
-                                                            <i class="ti ti-eye text-xl leading-none"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="9" class="text-center text-muted py-4">No tickets are linked to this company yet.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
-                                    <p id="companyTicketsEmptyFilter" class="mb-0 mt-3 text-sm text-muted hidden">No tickets match your search.</p>
                                 </div>
                             </div>
                         </div>
@@ -651,6 +517,9 @@
     </div>
 @endsection
 @section('post-scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{{ asset('js/plugins/dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('js/plugins/flatpickr.min.js') }}"></script>
     <script>
         // Function to update row index numbers
@@ -709,48 +578,71 @@
         });
 
         (function () {
-            const searchInput = document.getElementById('companyDriversSearch');
-            const table = document.getElementById('companyDriversTable');
-            const emptyMessage = document.getElementById('companyDriversEmptyFilter');
-            if (!searchInput || !table) return;
+            let driversTable = null;
+            let ticketsTable = null;
 
-            searchInput.addEventListener('input', function () {
-                const query = (searchInput.value || '').trim().toLowerCase();
-                let visible = 0;
-
-                table.querySelectorAll('tbody tr[data-driver-search]').forEach(function (row) {
-                    const blob = row.getAttribute('data-driver-search') || '';
-                    const match = !query || blob.indexOf(query) !== -1;
-                    row.style.display = match ? '' : 'none';
-                    if (match) visible += 1;
+            function initDriversTable() {
+                if (driversTable || !window.jQuery) return;
+                driversTable = $('#companyDriversTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    pageLength: 25,
+                    autoWidth: false,
+                    order: [[0, 'asc']],
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
+                    ajax: {
+                        url: @json(route(auth()->user()->portalRoutePrefix().'.companies.drivers-data', $company->id)),
+                    },
+                    columns: [
+                        { data: 'row_number', orderable: true, searchable: false },
+                        { data: 'driver_name', orderable: false },
+                        { data: 'email', orderable: false },
+                        { data: 'state', orderable: false },
+                        { data: 'city', orderable: false },
+                        { data: 'open_tickets', orderable: false, searchable: false },
+                        { data: 'closed_tickets', orderable: false, searchable: false },
+                        { data: 'points_saved', orderable: false, searchable: false },
+                        { data: 'last_access', orderable: false, searchable: false },
+                        { data: 'status_html', orderable: false, searchable: false },
+                        { data: 'action', orderable: false, searchable: false, className: 'text-center' },
+                    ],
                 });
+            }
 
-                if (emptyMessage) {
-                    emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-driver-search]').length === 0);
-                }
-            });
-        })();
-
-        (function () {
-            const searchInput = document.getElementById('companyTicketsSearch');
-            const table = document.getElementById('companyTicketsTable');
-            const emptyMessage = document.getElementById('companyTicketsEmptyFilter');
-            if (!searchInput || !table) return;
-
-            searchInput.addEventListener('input', function () {
-                const query = (searchInput.value || '').trim().toLowerCase();
-                let visible = 0;
-
-                table.querySelectorAll('tbody tr[data-ticket-search]').forEach(function (row) {
-                    const blob = row.getAttribute('data-ticket-search') || '';
-                    const match = !query || blob.indexOf(query) !== -1;
-                    row.style.display = match ? '' : 'none';
-                    if (match) visible += 1;
+            function initTicketsTable() {
+                if (ticketsTable || !window.jQuery) return;
+                ticketsTable = $('#companyTicketsTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    pageLength: 25,
+                    autoWidth: false,
+                    order: [[0, 'desc']],
+                    dom: "<'dt-controls-bar'l f><'tc-table-scroll-container't><'dt-footer-bar'i p>",
+                    ajax: {
+                        url: @json(route(auth()->user()->portalRoutePrefix().'.companies.tickets-data', $company->id)),
+                    },
+                    columns: [
+                        { data: 'ticket_html', orderable: true },
+                        { data: 'driver_html', orderable: false },
+                        { data: 'date_received', orderable: false, searchable: false },
+                        { data: 'state', orderable: false },
+                        { data: 'status_html', orderable: false },
+                        { data: 'original_points', orderable: false, searchable: false },
+                        { data: 'final_points', orderable: false, searchable: false },
+                        { data: 'points_saved', orderable: false, searchable: false },
+                        { data: 'action', orderable: false, searchable: false, className: 'text-center' },
+                    ],
                 });
+            }
 
-                if (emptyMessage) {
-                    emptyMessage.classList.toggle('hidden', visible !== 0 || table.querySelectorAll('tbody tr[data-ticket-search]').length === 0);
-                }
+            document.querySelectorAll('[data-pc-toggle="tab"]').forEach(function (el) {
+                el.addEventListener('click', function () {
+                    const target = el.getAttribute('data-pc-target') || '';
+                    if (target === 'companyDriversTab') setTimeout(initDriversTable, 50);
+                    if (target === 'companyTicketsTab') setTimeout(initTicketsTable, 50);
+                });
             });
         })();
     </script>

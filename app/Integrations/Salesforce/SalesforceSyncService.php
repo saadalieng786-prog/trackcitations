@@ -502,6 +502,7 @@ class SalesforceSyncService
             'court_phone' => $record['Court_Phone_Number__c'] ?? '',
             'county' => $record['County__c'],
             'ticket_number' => $record['Ticket_Number__c'],
+            'citation_no' => $record['Ticket_Number__c'],
             'ticket_dispo' => $record['Dispo__c'],
             'road_side_inspection' => $record['Roadside_Inspection__c'],
             'sales_agent' => $record['Sales_Agent__c'],
@@ -695,9 +696,27 @@ class SalesforceSyncService
                 $createdDate = Carbon::parse($file['CreatedDate'])->format('Y/m/d');
                 $relativePath = "attachments/{$createdDate}/{$parentId}/{$sfId}-{$fileName}";
 
+                // Same ticket + same filename already stored (Attachment vs Files) → reuse, do not download again.
+                $existingSameName = TicketAttachment::query()
+                    ->where('ticket_id', $ticketId)
+                    ->whereRaw('LOWER(TRIM(filename)) = ?', [strtolower(trim($fileName))])
+                    ->orderByDesc('sf_last_modified_date')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($existingSameName && filled($existingSameName->path)) {
+                    $reusePath = (string) $existingSameName->path;
+                    if (Storage::disk($disk)->exists($reusePath) || filter_var($reusePath, FILTER_VALIDATE_URL)) {
+                        $this->line("<comment>Skipping download : {$file['Name']} already stored for this ticket</comment>");
+                        $this->upsertTicketAttachment($ticketId, $sfId, $fileName, $reusePath, $file, $lastModified);
+                        $unModified++;
+                        continue;
+                    }
+                }
 
                 if (Storage::disk($disk)->exists($relativePath)) {
-                    $this->line("<comment>Skipping : {$file['Name']} Already Exists</comment>");
+                    $this->line("<comment>Skipping download : {$file['Name']} Already Exists on disk</comment>");
+                    $this->upsertTicketAttachment($ticketId, $sfId, $fileName, $relativePath, $file, $lastModified);
                     $unModified++;
                     continue;
                 }
@@ -725,18 +744,13 @@ class SalesforceSyncService
                     }
 
                     $stored = AttachmentStorage::storeSalesforceFromLocalFile($relativePath, $tempPath);
-                    $ticket = Ticket::findOrFail($ticketId);
-
-                    $ticket->attachments()->updateOrCreate(
-                        ['sf_id' => $sfId],
-                        [
-                            'filename' => $fileName,
-                            'path' => $stored['path'],
-                            'sf_id' => $sfId,
-                            'description' => $file['Description'] ?? '',
-                            'sf_last_modified_date' => Carbon::parse($lastModified),
-                            'last_modified_date' => Carbon::parse($lastModified),
-                        ]
+                    $this->upsertTicketAttachment(
+                        $ticketId,
+                        $sfId,
+                        $fileName,
+                        $stored['path'],
+                        $file,
+                        $lastModified
                     );
 
                     $downloaded++;
@@ -758,6 +772,58 @@ class SalesforceSyncService
         $this->line("<info>Unmodified: $unModified</info>");
         $this->line("<info>Downloaded: $downloaded</info>");
         $this->line("<info>Attachment sync complete.</info>");
+    }
+
+    /**
+     * Upsert by Salesforce Id, or reuse an existing row with the same filename on the ticket
+     * (classic Attachment + ContentVersion often share a name but have different Ids).
+     */
+    protected function upsertTicketAttachment(
+        int $ticketId,
+        string $sfId,
+        string $fileName,
+        string $path,
+        array $file,
+        $lastModified
+    ): void {
+        $payload = [
+            'filename' => $fileName,
+            'path' => $path,
+            'sf_id' => $sfId,
+            'description' => $file['Description'] ?? '',
+            'sf_last_modified_date' => Carbon::parse($lastModified),
+            'last_modified_date' => Carbon::parse($lastModified),
+        ];
+
+        $attachment = TicketAttachment::query()
+            ->where('sf_id', $sfId)
+            ->first();
+
+        if (! $attachment) {
+            $attachment = TicketAttachment::query()
+                ->where('ticket_id', $ticketId)
+                ->whereRaw('LOWER(TRIM(filename)) = ?', [strtolower(trim($fileName))])
+                ->orderByDesc('sf_last_modified_date')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        if ($attachment) {
+            $attachment->fill($payload);
+            $attachment->ticket_id = $ticketId;
+            $attachment->save();
+
+            // Drop other same-name rows left from earlier dual-source syncs.
+            TicketAttachment::query()
+                ->where('ticket_id', $ticketId)
+                ->where('id', '!=', $attachment->id)
+                ->whereRaw('LOWER(TRIM(filename)) = ?', [strtolower(trim($fileName))])
+                ->delete();
+
+            return;
+        }
+
+        Ticket::query()->findOrFail($ticketId)->attachments()->create($payload);
     }
 
     protected function parseSfDate(?string $date): ?string

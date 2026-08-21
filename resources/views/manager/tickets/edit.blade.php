@@ -576,7 +576,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach($ticket->attachments as $attachment)
+                                    @foreach($ticket->displayAttachments() as $attachment)
                                         <tr>
                                             <td>
                                                 <div class="flex items-center">
